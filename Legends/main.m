@@ -1,8 +1,8 @@
 //
 //  main.m
-//  Legends
+//  Legend
 //
-//  Created by David Zhang on 2013-05-15.
+//  Created by David Zhang on 2013-04-17.
 //  Copyright __MyCompanyName__ 2013. All rights reserved.
 //
 
@@ -10,8 +10,8 @@
 
 int main(int argc, char *argv[]) {
     
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    int retVal = UIApplicationMain(argc, argv, nil, @"AppController");
-    [pool release];
-    return retVal;
+    @autoreleasepool {
+        int retVal = UIApplicationMain(argc, argv, nil, nil);
+        return retVal;
+    }
 }

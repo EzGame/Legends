@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="isometric" width="10" height="6" tilewidth="128" tileheight="96">
+ <tileset firstgid="1" name="64X48 Greek" tilewidth="128" tileheight="96">
+  <image source="64X48 Greek.png" width="384" height="384"/>
+ </tileset>
+ <layer name="Layer" width="10" height="6">
+  <data encoding="base64" compression="zlib">
+   eJxjZ2BgYCcCMwMxIwHMTAN1DESoQwZMODAMAABX6ACF
+  </data>
+ </layer>
+</map>
