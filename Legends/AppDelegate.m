@@ -29,14 +29,20 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
 	// Create an CCGLView with a RGB565 color buffer, and a depth buffer of 0-bits
-	CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
+	/*CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
 								   pixelFormat:kEAGLColorFormatRGB565
 								   depthFormat:0
 							preserveBackbuffer:NO
 									sharegroup:nil
 								 multiSampling:NO
-							   numberOfSamples:0];
-    
+							   numberOfSamples:0];*/
+    CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
+                                   pixelFormat:kEAGLColorFormatRGBA8
+                                   depthFormat:0
+                            preserveBackbuffer:NO
+                                    sharegroup:nil
+                                 multiSampling:NO
+                               numberOfSamples:0];
     [glView setMultipleTouchEnabled:YES];
 	director_ = (CCDirectorIOS*) [CCDirector sharedDirector];
 	director_.wantsFullScreenLayout = YES;
@@ -45,9 +51,10 @@
 	[director_ setView:glView];
 	[director_ setDelegate:self];
 	[director_ setProjection:kCCDirectorProjection2D];
-	if( ! [director_ enableRetinaDisplay:NO] )
+	if( ! [director_ enableRetinaDisplay:YES] )
 		CCLOG(@"Retina Display Not supported");
-	[CCTexture2D setDefaultAlphaPixelFormat:kCCTexture2DPixelFormat_RGBA8888];
+    [CCTexture2D setDefaultAlphaPixelFormat:kCCTexture2DPixelFormat_RGBA8888];  // Default is RGBA8888
+    [CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
 	CCFileUtils *sharedFileUtils = [CCFileUtils sharedFileUtils];
 	[sharedFileUtils setEnableFallbackSuffixes:NO];				// Default: NO. No fallback suffixes are going to be used
 	[sharedFileUtils setiPhoneRetinaDisplaySuffix:@"-hd"];		// Default on iPhone RetinaDisplay is "-hd"
@@ -109,7 +116,9 @@
 
 - (void) login:(NSString *)username pass:(NSString *)password
 {
-    [self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
+    //[self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
+    [self switchToScene:[BattleLayer scene]];
+    //[self switchToScene:[SetupLayer scene]];
     _username = username;
     _password = password;
     //[self.smartFox send:[LoginRequest requestWithUserName:username password:@"" zoneName:nil params:nil]];

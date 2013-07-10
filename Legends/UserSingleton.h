@@ -22,6 +22,11 @@
 @property (nonatomic, strong) NSArray *pieces;
 @property (nonatomic, strong) NSArray *opPieces;
 @property (nonatomic, strong) NSMutableArray *items;
+@property (nonatomic, strong, readonly) NSCharacterSet *unitSeparator;
+@property (nonatomic, strong, readonly) NSCharacterSet *valueSeparator;
+@property (nonatomic, strong, readonly) NSCharacterSet *statSeparator;
+@property (nonatomic, strong, readonly) NSCharacterSet *stringSeparator;
+
 
 + (UserSingleton *) get;
 

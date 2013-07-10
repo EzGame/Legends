@@ -40,21 +40,13 @@ static UserSingleton* _sharedUserSingleton = nil;
 	self = [super init];
 	if (self != nil)
     {
+        _unitSeparator = [NSCharacterSet characterSetWithCharactersInString:@"|"];
+        _valueSeparator = [NSCharacterSet characterSetWithCharactersInString:@"/"];
+        _statSeparator = [NSCharacterSet characterSetWithCharactersInString:@":,"];
+        _stringSeparator = [NSCharacterSet characterSetWithCharactersInString:@","];
+        
         [self loadProfile:nil newbie:YES];
-        _items = [NSMutableArray arrayWithObjects:
-                  @"u/1/0/str:1,agi:1,int:1/[-1]",
-                  @"u/1/0/str:1,agi:1,int:1/[-1]",
-                  @"u/1/0/str:1,agi:1,int:1/[-1]",
-                  @"u/1/0/str:1,agi:1,int:1/[-1]",
-                  @"u/1/0/str:1,agi:1,int:1/[-1]",
-                  @"u/2/100/str:1,agi:1,int:1/[-1]",
-                  @"u/2/100/str:1,agi:1,int:1/[-1]",
-                  @"u/2/100/str:1,agi:1,int:1/[-1]",
-                  @"u/2/100/str:1,agi:1,int:1/[-1]",
-                  @"u/2/100/str:1,agi:1,int:1/[-1]",
-                  @"s/1/c/50/str:10"
-                  @"s/2/c/50/agi:10",
-                  @"s/3/c/50/int:10",nil];
+        self.amIPlayerOne = YES;
     }
 	return self;
 }
@@ -66,24 +58,60 @@ static UserSingleton* _sharedUserSingleton = nil;
         self.TELO = DEFAULTTELO;
         self.isFirstLaunch = NO;//isFirstLoad;
         self.pieces = [NSArray arrayWithObjects:
-                        @"u/1/0/str:1,agi:1,int:1/[-1]/[1,5]",
-                        @"u/1/0/str:1,agi:1,int:1/[-1]/[2,5]",
-                        @"u/1/0/str:1,agi:1,int:1/[-1]/[3,5]",
-                        @"u/1/0/str:1,agi:1,int:1/[-1]/[4,5]",
-                        @"u/2/100/str:1,agi:1,int:1/[-1][5,5]",
-                        @"u/2/100/str:1,agi:1,int:1/[-1][6,5]",
-                        @"u/2/100/str:1,agi:1,int:1/[-1][7,5]",
-                        @"u/2/100/str:1,agi:1,int:1/[-1][8,5]",
-                        @"u/2/100/str:1,agi:1,int:1/[-1][9,5]",
-                        @"u/1/0/str:1,agi:1,int:1/[-1]/[0,5]",
+                        @"u/1/500/str:0,agi:0,int:0,hp:0/-1/0,3",
+                        @"u/1/200/str:0,agi:0,int:0,hp:0/-1/1,3",
+                        @"u/2/200/str:0,agi:0,int:0,hp:0/-1/2,3",
+                        @"u/4/150/str:0,agi:0,int:0,hp:0/-1/3,3",
+                        @"u/1/0/str:0,agi:0,int:0,hp:0/-1/4,3",
+                        @"u/2/500/str:0,agi:0,int:0,hp:0/-1/5,3",
+                        @"u/2/200/str:0,agi:0,int:0,hp:0/-1/6,3",
+                        @"u/1/0/str:0,agi:0,int:0,hp:0/-1/7,3",
+                        @"u/4/150/str:0,agi:0,int:0,hp:0/-1/8,3",
+                        @"u/3/400/str:0,agi:0,int:0,hp:0/-1/9,3",
                         nil];
+        self.opPieces = [NSArray arrayWithObjects:
+                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/0,3",
+                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/1,3",
+                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/2,3",
+                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/3,3",
+                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/4,3",
+                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/5,3",
+                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/6,3",
+                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/7,3",
+                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/8,3",
+                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/9,3",
+                         nil];
+        self.items = [NSMutableArray arrayWithObjects:
+                  @"u/1/500/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/1/300/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/1/200/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/1/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/1/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/2/600/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/3/400/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/4/300/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/4/150/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/4/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/4/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"u/4/0/str:0,agi:0,int:0,hp:0/-1",
+                  @"s/1/50/str:10",
+                  @"s/2/50/agi:10",
+                  @"s/3/50/int:10",nil];
     }
 }
 
 - (void) loadOppSetup:(NSString *)setup;
 {
     NSAssert(setup != nil, @">[FATAL]   ERROR WHILE LOADING OPPONENTS SETUP! ITS NIL!");
-    self.opPieces = [setup componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"|"]];
+    self.opPieces = [setup componentsSeparatedByCharactersInSet:self.unitSeparator];
 }
 
 - (bool) saveSetup:(NSArray *)setup unitCount:(int)count

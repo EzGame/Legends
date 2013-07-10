@@ -21,6 +21,33 @@
 @property (nonatomic, strong) CCAction          *action_SW;
 @property (nonatomic, strong) CCAction          *action_NW;
 
-- (id)initWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forAction:(int)action;
-+ (id)actionsWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forAction:(int)action;
+- (id)initWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet
+                forAction:(int)action;
+
++ (id)actionsWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet
+                   forAction:(int)action;
+
+- (id)initWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet
+                  forName:(NSString *)name
+                andFrames:(int)frames
+                    delay:(float)delay
+                  reverse:(BOOL)reverse;
+
+- (id)initInfiniteWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet
+                          forName:(NSString *)name
+                        andFrames:(int)frames
+                            delay:(float)delay;
+
++ (id)actionsWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet
+                     forName:(NSString *)name
+                   andFrames:(int)frames
+                       delay:(float)delay
+                     reverse:(BOOL)reverse;
+
++ (id)actionsInfiniteWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet
+                             forName:(NSString *)name
+                           andFrames:(int)frames
+                               delay:(float)delay;
+
+- (CCAction *) getActionFor:(int)direction;
 @end

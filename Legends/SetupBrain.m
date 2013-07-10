@@ -44,7 +44,8 @@
                   [NSMutableArray array],
                   [NSMutableArray array],
                   [NSMutableArray array],
-                  [NSMutableArray array], nil];
+                  [NSMutableArray array],
+                  [NSMutableArray array],nil];
         
         // Populating board
         for ( int i = 0 ; i < SETUPMAPLENGTH ; i++ ) {
@@ -52,15 +53,15 @@
                 int ret = [self isValidTile:ccp(i,k)];
                 if ( !ret ) {
                     [[self.board objectAtIndex:i] addObject:
-                     [Tile invalidTileWithPosition:ccp(i,k) absPos:[self findAbsPos:ccp(i,k)]]];
+                     [Tile invalidTileWithPosition:ccp(i,k) sprite:nil]];
                     
                 } else if ( ret == 2 ) {
                     [[self.board objectAtIndex:i] addObject:
-                     [Tile setupTileWithPosition:ccp(i,k) absPos:[self findAbsPos:ccp(i,k)]]];
+                     [Tile setupTileWithPosition:ccp(i,k) sprite:nil]];
                     
                 } else {
                     [[self.board objectAtIndex:i] addObject:
-                     [Tile tileWithPosition:ccp(i,k)absPos:[self findAbsPos:ccp(i,k)]]];
+                     [Tile tileWithPosition:ccp(i,k) sprite:nil]];
                     
                 }
             }
@@ -72,13 +73,13 @@
     return self;
 }
 
-- (id) findUnit:(int)type;
+- (id) findUnit:(int)type withValues:(NSArray *)values;
 {
     if (type == MINOTAUR) {
-        return [[Minotaur alloc] initMinotaurForSetup];
+        return [[Minotaur alloc] initMinotaurForSetupWithValues:values];
         
     } else if ( type == GORGON ) {
-        return [[Gorgon alloc] initGorgonForSetup];
+        return [[Gorgon alloc] initGorgonForSetupWithValues:values];
         
     } else {
         NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDUNIT %d", type);
@@ -106,27 +107,24 @@
     {
         // The stored string is in the form of @type[@x,@y]
         NSString *string = [[[UserSingleton get] pieces] objectAtIndex:i];
-        NSArray *tokens;
+        NSArray *values = [string componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
         int type, x = -1, y = -1;
-        if ( string != nil )
+        if ( [values objectAtIndex:5] != nil )
         {
-            tokens = [string componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"[,]"]];
-            type = [(NSString *)[tokens objectAtIndex:0] integerValue];
-            x = [(NSString *)[tokens objectAtIndex:1] integerValue];
-            y = [(NSString *)[tokens objectAtIndex:2] integerValue];
+            NSArray *pos = [[values objectAtIndex:5] componentsSeparatedByCharactersInSet:[UserSingleton get].stringSeparator];
+            x = [(NSString *)[pos objectAtIndex:0] integerValue];
+            y = [(NSString *)[pos objectAtIndex:1] integerValue];
+            if ( y == 5 ) continue;
         }
-        Unit *unit = [self findUnit:type];
+        type = [[values objectAtIndex:1] integerValue];
+        Unit *unit = [self findUnit:type withValues:values];
         
         // Finding tile
         Tile *tile = [self findTile:ccp(x,y) absPos:false];
         tile.unit = unit;
         tile.isOccupied = true;
+        tile.isOwned = true;
         
-        // if its a setup tile, make the facing direction SW
-        if ( y != 5 ) {
-            [tile.unit action:IDLE at:ccpAdd(tile.unit.sprite.position,ccp(1,1))];
-        }
-    
         // Upload visually
         [self.delegate loadTile:tile];
     }
@@ -202,10 +200,10 @@
 {
     int i = position.x;
     int k = position.y;
-    if ( i < 0 || i > 9 || k < 0 || k > 5 )
+    if ( i < 0 || i > 10 || k < 0 || k > 5 )
         return 0;
     // don't fuck with this if
-    if ((!(abs(i-9) && k) && i-9 > -2 && k < 2) ||
+    if ((!(abs(i-10) && k) && i-10 > -2 && k < 2) ||
         //(!(i && abs(k-5)) && k-5 > -2 && i < 2) ||
         (!(i && k) && i < 2 && k < 2) )
         return 0;

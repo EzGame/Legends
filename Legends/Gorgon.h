@@ -23,14 +23,15 @@
 @property (nonatomic, strong) MenuItemSprite *shootButton;
 @property (nonatomic, strong) MenuItemSprite *freezeButton;
 
-+ (id) gorgon;
-+ (id) gorgonForEnemy;
-+ (id) gorgonForSetup;
++ (id) gorgonWithValues:(NSArray *)values;
++ (id) gorgonForEnemyWithValues:(NSArray *)values;
++ (id) gorgonForSetupWithValues:(NSArray *)values;
 
-- (id) initGorgonFor:(BOOL)side;
-- (id) initGorgonForSetup;
-- (NSArray *) getShootArea:(CGPoint)position;
-- (NSArray *) getFreezeArea:(CGPoint)position;
+- (id) initGorgonFor:(BOOL)side withValues:(NSArray *)values;
+- (id) initGorgonForSetupWithValues:(NSArray *)values;
 
-- (void) freeze:(Unit *)unit;
+- (CGPoint *) getShootArea;
+- (CGPoint *) getShootEffect;
+- (CGPoint *) getFreezeArea;
+- (CGPoint *) getFreezeEffect;
 @end

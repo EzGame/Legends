@@ -7,13 +7,12 @@
 //
 
 #import "Minotaur.h"
-@interface Minotaur ()
-@property (nonatomic, strong) MenuItemSprite *last;
-@end
 @implementation Minotaur
 
 @synthesize idle = _idle, move = _move, attk = _attk, dead = _dead;
-@synthesize moveButton = _moveButton, attkButton = _attkButton, defnButton = _defnButton, last = _last;
+@synthesize moveButton = _moveButton, attkButton = _attkButton, defnButton = _defnButton;
+
+#pragma mark - Alloc n Init
 
 + (id) minotaurWithValues:(NSArray *)values;
 {
@@ -35,10 +34,9 @@
     self = [super initForSide:side withValues:values];
     if (self)
     {
-        // Init static ivars
-        unitSpace = 1;
-        moveArea = 3;
-                
+        // Minos start out defending
+        isDefending = YES;
+        
         // Cache the sprite frames and texture
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"mino.plist"];
         
@@ -56,9 +54,9 @@
         else self.sprite = [CCSprite spriteWithSpriteFrameName:@"minotaur_alpha_169.gif"];
         
         // Create the unit specific menu
-        if (side) [self initMenu];
+        [self initMenu];
         
-        self.sprite.scale = 1.5;
+        self.sprite.scale = 3;
             
         [self.spriteSheet addChild:self.sprite];
     }
@@ -67,25 +65,18 @@
 
 - (id) initMinotaurForSetupWithValues:(NSArray *)values
 {
-    self = [super init];
+    self = [super initForSide:YES withValues:values];
     if (self)
     {
-        // Init static ivars
-        unitSpace = 1;
-        moveArea = 3;
-                
         // Cache the sprite frames and texture
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"mino.plist"];
         
         // Create a sprite batch node
         self.spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"mino.png"];
         
-        // Create the action set for each action
-        self.idle = [[CCActions alloc]initWithSpriteSheet:self.spriteSheet forAction:IDLE];
-        
         // Create the sprite
         self.sprite = [CCSprite spriteWithSpriteFrameName:@"minotaur_alpha_169.gif"];
-        self.sprite.scale = 1.5;
+        self.sprite.scale = 3;
         
         [self.spriteSheet addChild:self.sprite];
     }
@@ -94,33 +85,39 @@
 
 - (void) initMenu
 {
-    _moveButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"moveButton.png"]
-                                            selectedSprite:[CCSprite spriteWithFile:@"moveButton.png"]
-                                            disabledSprite:[CCSprite spriteWithFile:@"moveButton.png"]
+    _moveButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_move.png"]
+                                            selectedSprite:nil
+                                            disabledSprite:nil
                                                     target:self
                                                   selector:@selector(movePressed)];
-    _moveButton.position = ccp(-40,10);
-    _moveButton.costOfButton = 1;
-    _attkButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"attkButton.png"]
-                                            selectedSprite:[CCSprite spriteWithFile:@"attkButton.png"]
-                                            disabledSprite:[CCSprite spriteWithFile:@"attkButton.png"]
+    _moveButton.position = ccp(-50,60);
+    _moveButton.costOfButton = 0;
+    _moveButton.scale = 1.5;
+    
+    _attkButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_melee.png"]
+                                            selectedSprite:[CCSprite spriteWithFile:@"button_overlay_1.png"]
+                                            disabledSprite:nil
                                                     target:self
                                                   selector:@selector(attkPressed)];
-    _attkButton.position = ccp(0,55);
+    _attkButton.position = ccp(0,85);
     _attkButton.costOfButton = 1;
-    _defnButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"defnButton.png"]
-                                            selectedSprite:[CCSprite spriteWithFile:@"defnButton.png"]
-                                            disabledSprite:[CCSprite spriteWithFile:@"defnButton.png"]
+    
+    _defnButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_shield.png"]
+                                            selectedSprite:[CCSprite spriteWithFile:@"button_overlay_1.png"]
+                                            disabledSprite:nil
                                                     target:self
                                                   selector:@selector(defnPressed)];
-    _defnButton.position = ccp(40,10);
+    _defnButton.position = ccp(50,60);
     _defnButton.costOfButton = 1;
+    
     self.menu = [CCMenu menuWithItems:_moveButton, _attkButton, _defnButton, nil];
     self.menu.visible = NO;
 }
 
+#pragma mark - Action + combat
+
 - (void) action:(int)action at:(CGPoint)position
-{    
+{
     // Stop all previous actions
     [self.sprite stopAllActions];
     CGPoint difference = ccpSub(position,self.sprite.position);
@@ -129,29 +126,29 @@
     {
         // Find the facing direction
         if (difference.x >= 0 && difference.y >= 0)
-            facingDirection = NE;
+            self.direction = NE;
         else if (difference.x >= 0 && difference.y < 0)
-            facingDirection = SE;
+            self.direction = SE;
         else if (difference.x < 0 && difference.y < 0)
-            facingDirection = SW;
+            self.direction = SW;
         else
-            facingDirection = NW;
+            self.direction = NW;
     }
     
     if ( action == MOVE )
     {
-        states[ISDEFENDING] = NO;
+        self.moveButton.isUsed = YES;
         [self popStepAndAnimate];
         return;
     }
     else if ( action == ATTK )
     {
-        states[ISDEFENDING] = NO;
-        if ( facingDirection == NE )
+        self.attkButton.isUsed = YES;
+        if ( self.direction == NE )
             [self.sprite runAction:self.attk.action_NE];
-        else if ( facingDirection == SE )
+        else if ( self.direction == SE )
             [self.sprite runAction:self.attk.action_SE];
-        else if ( facingDirection == SW )
+        else if ( self.direction == SW )
             [self.sprite runAction:self.attk.action_SW];
         else
             [self.sprite runAction:self.attk.action_NW];
@@ -162,19 +159,22 @@
                             ^{
                                 [self.sprite stopAllActions];
                                 [self action:IDLE at:CGPointZero];
-                                if (isOwned) [self toggleMenu:YES];
+                                if (self.isOwned) [self toggleMenu:YES];
                              }], nil];
         [self.sprite runAction:atk];
     }
-    else if ( action == TURN )
-    {
+    else if ( action == DEFN ) {
+        self.defnButton.isUsed = YES;
+        [[self sprite] stopAllActions];
+        
+    } else if ( action == TURN ) {
         [[self sprite] stopAllActions];
         NSString *string = nil ;
-        if ( facingDirection == NE ) {
+        if ( self.direction == NE ) {
             string = @"minotaur_alpha_073.gif";
-        } else if ( facingDirection == SE ) {
+        } else if ( self.direction == SE ) {
             string = @"minotaur_alpha_121.gif";
-        } else if ( facingDirection == SW ) {
+        } else if ( self.direction == SW ) {
             string = @"minotaur_alpha_169.gif";
         } else {
             string = @"minotaur_alpha_025.gif";
@@ -182,18 +182,13 @@
         
         [[self sprite] setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:string]];
     }
-    else if ( action == DEFN )
-    {
-        states[ISDEFENDING] = YES;
-        [[self sprite] stopAllActions];
-    }
-    else if ( action == DEAD )
-    {
-        if ( facingDirection == NE )
+
+    else if ( action == DEAD ) {
+        if ( self.direction == NE )
             [self.sprite runAction:self.dead.action_NE];
-        else if ( facingDirection == SE )
+        else if ( self.direction == SE )
             [self.sprite runAction:self.dead.action_SE];
-        else if ( facingDirection == SW )
+        else if ( self.direction == SW )
             [self.sprite runAction:self.dead.action_SW];
         else
             [self.sprite runAction:self.dead.action_NW];
@@ -203,13 +198,12 @@
                            [CCMoveTo actionWithDuration:0.6f position:self.sprite.position],
                            [CCCallBlock actionWithBlock:
                             ^{  self.sprite.visible = false;
-                                [self.delegate kill:self.sprite.position];
+                                [self.delegate killMe:self at:self.sprite.position];
                             }],
                            nil];
         [self.sprite runAction:die];
-    }
-    else
-    {
+        
+    } else {
         NSLog(@">[MYWARN]   Minotaur: I can't handle this LOL");
     }
 }
@@ -221,7 +215,7 @@
 	if ([[self shortestPath] count] == 0) {
         [[self sprite] stopAllActions];
         [self action:IDLE at:CGPointZero];
-        if (isOwned) [self toggleMenu:YES];
+        if (self.isOwned) [self toggleMenu:YES];
 		[self setShortestPath: nil];
 		return;
 	}
@@ -235,19 +229,19 @@
     // Find the facing direction
     if (difference.x >= 0 && difference.y >= 0) {
         [self.sprite runAction:self.move.action_NE];
-        facingDirection = NE;
+        self.direction = NE;
         
     } else if (difference.x >= 0 && difference.y < 0) {
         [self.sprite runAction:self.move.action_SE];
-        facingDirection = SE;
+        self.direction = SE;
         
     } else if (difference.x < 0 && difference.y < 0) {
         [self.sprite runAction:self.move.action_SW];
-        facingDirection = SW;
+        self.direction = SW;
         
     } else {
         [self.sprite runAction:self.move.action_NW];
-        facingDirection = NW;
+        self.direction = NW;
         
     }
     
@@ -264,84 +258,77 @@
 
 - (void) take:(int)damage
 {
-    hp -= damage;
-    if ( hp < 1 )
+    health -= damage;
+    if ( health < 1 )
         [self action:DEAD at:CGPointZero];
 }
 
-- (int) calculate:(int)damage
-{    
-    if ( !states[ISDEFENDING] || arc4random() % 100 >= block * 100 )
-        return damage;
-    else
-        return floor(damage * block);
-}
-
-- (void) toggleMenu:(BOOL)state
+- (int) calculate:(int)damage type:(int)dmgType;
 {
-    if ( state && [self canIOpenMenu] ) {
-        self.menu.position = self.sprite.position;
-        self.menu.visible = YES;
-    } else {
-        self.menu.visible = NO;
-    }
+    return damage;
 }
 
-- (void) undoLastButton
-{
-    [self.last setIsUsed:NO];
-}
-
+#pragma mark - Menu controls
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] ) {
-        if ( [self.delegate pressedButton:MOVE turn:self.moveButton.costOfButton] ) {
-            self.last = self.moveButton;
+    if ( ![self.moveButton isUsed] && [self canIDo:MOVE] ) {
+        if ( [self.delegate pressedButton:MOVE] ) {
             [self toggleMenu:NO];
-            [self.moveButton setIsUsed:YES];
         }
     }
 }
 
 - (void) attkPressed
 {
-    if ( ![self.attkButton isUsed] ) {
-        if ( [self.delegate pressedButton:ATTK turn:self.attkButton.costOfButton] ) {
-            self.last = self.attkButton;
+    if ( ![self.attkButton isUsed] && [self canIDo:ATTK] ) {
+        if ( [self.delegate pressedButton:ATTK] ) {
             [self toggleMenu:NO];
-            [self.attkButton setIsUsed:YES];
         }
     }
 }
 - (void) defnPressed
 {
-    if ( ![self.defnButton isUsed] ) {
-        if ( [self.delegate pressedButton:DEFN turn:self.defnButton.costOfButton] ) {
-            self.last = self.defnButton;
+    if ( ![self.defnButton isUsed] && [self canIDo:DEFN] ) {
+        if ( [self.delegate pressedButton:DEFN] ) {
             [self toggleMenu:NO];
-            [self.defnButton setIsUsed:YES];
         }
     }
 }
 
 - (void) reset
 {
-    isDelayed = NO;
+    self.coolDown--;
+    if ( self.moveButton.isUsed )
+        self.coolDown+= self.moveButton.costOfButton;
+    if ( self.attkButton.isUsed )
+        self.coolDown+= self.attkButton.costOfButton;
+    if ( self.defnButton.isUsed )
+        self.coolDown+= self.defnButton.costOfButton;
     self.moveButton.isUsed = NO;
     self.attkButton.isUsed = NO;
     self.defnButton.isUsed = NO;
 }
 
-- (NSArray *) getAttkArea:(CGPoint)position
+#pragma mark - Buff Handlers
+
+- (BOOL) canIDo:(int)action
 {
-    return [NSArray arrayWithObjects:[NSValue valueWithCGPoint:ccpAdd(position, ccp(1,0))],
-            [NSValue valueWithCGPoint:ccpAdd(position, ccp(-1,0))],
-            [NSValue valueWithCGPoint:ccpAdd(position, ccp(0,1))],
-            [NSValue valueWithCGPoint:ccpAdd(position, ccp(0,-1))],nil];
+    if ( action == MOVE )
+        return !isStoned && !isStunned && !isFrozen && !isEnsnared;
+    else if ( action == ATTK )
+        return !isStoned && !isStunned && !isFrozen;
+    else if ( action == DEFN )
+        return !isStoned && !isStunned && !isFrozen;
+    else // menu asking, always the least needy option
+        return !isStoned && !isStunned && !isFrozen;
 }
+
+#pragma mark - Misc
+- (CGPoint *) getAttkArea { return (CGPoint *)minotaurAttkArea; }
+- (CGPoint *) getAttkEffect { return (CGPoint *)minotaurAttkEffect; }
 
 - (NSString *) description
 {
-    return @"1";
+    return [NSString stringWithFormat:@"Minotaur Lv.%d",self.level];
 }
 @end

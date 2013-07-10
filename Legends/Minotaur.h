@@ -12,6 +12,8 @@
 #import "MenuItemSprite.h"
 
 @interface Minotaur : Unit
+{
+}
 
 // Actions
 @property (nonatomic, strong) CCActions      *idle;
@@ -31,4 +33,6 @@
 - (id) initMinotaurFor:(BOOL)side withValues:(NSArray *)values;
 - (id) initMinotaurForSetupWithValues:(NSArray *)values;
 
+- (CGPoint *) getAttkArea;
+- (CGPoint *) getAttkEffect;
 @end

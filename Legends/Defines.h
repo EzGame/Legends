@@ -11,14 +11,15 @@
 
 #define LEGEND_VERSION 0x0000101
 
-#ifndef Legends_Defines_h
-#define Legends_Defines_h
 
+#pragma mark - ENUMERATIONS
 // THE FOLLOWING ARE UNIT TYPE DEFINITIONS
 enum TYPE {
     NONE        = 0,
     MINOTAUR    = 1,
     GORGON      = 2,
+    MUDGOLEM    = 3,
+    DRAGON      = 4,
     };
 
 enum TILESTATE{
@@ -38,30 +39,34 @@ enum ACTION {
     DEAD          = 5,
     GORGON_SHOOT  = 6,
     GORGON_FREEZE = 7,
+    MUDGOLEM_EARTHQUAKE = 8,
+    DRAGON_FIREBALL = 9,
+    DRAGON_FLAMEBREATH = 10,
+    TELEPORT_MOVE = 11,
     ENDTURN     = 99999
     };
 
 // THE FOLLOWING ARE DIRECTION DEFINITIONS
 enum DIRECTION {
-    NE          = 1,
-    SE          = 2,
-    SW          = 3,
-    NW          = 4
+    NE          = 0,
+    SE          = 1,
+    SW          = 2,
+    NW          = 3
     };
 
-enum STATES {
-    ISDEFENDING = 0,
-    ISWEAK      = 1,
-    ISSTUNNED   = 2,
-    ISFOCUSED   = 3,
-    ISFROZEN    = 4,
+enum DAMAGE_TYPE {
+    MELEE_PHYSICAL = 0,
+    RANGE_PHYSICAL = 1,
+    MELEE_MAGIC = 2,
+    RANGE_MAGIC = 3
     };
 
 enum RARITY {
-    COMMON      = 0,
-    UNCOMMON    = 100,
+    VAGRANT     = 0,
+    COMMON      = 100,
+    UNCOMMON    = 200,
     RARE        = 300,
-    EPIC        = 700
+    EPIC        = 400,
     };
 
 // THE FOLLOWING ARE THE ZORDERS OF THE LAYERS
@@ -73,12 +78,20 @@ enum ZORDER {
     EFFECTS     = 25,
     SPRITES_TOP = 20,
     SPRITES_BOT = 10,
+    GROUND_EFFECTS = 1,
     MAPS        = 0,
     GAMELAYER   = 1,
     HUDLAYER    = 2
     };
 
-//
+// Constant unit stats
+enum mainAttribute{
+    STRENGTH = 0,
+    AGILITY = 1,
+    INTELLIGENCE = 2,
+};
+
+#pragma mark - DEFINES
 #define kTagBattleLayer 10
 #define kTagSetupLayer 11
 #define kTagForgeLayer 12
@@ -90,26 +103,26 @@ enum ZORDER {
 #define DEBUG 1
 
 // Various map information
-#define MAPLENGTH   10
-#define MAPWIDTH    10
-#define MAPSCALE    0.5
-#define TILELENGTH  128*MAPSCALE
-#define TILEWIDTH   96*MAPSCALE
-#define HALFLENGTH  64.0*MAPSCALE
-#define HALFWIDTH   48.0*MAPSCALE
-#define OFFSETX     244.16
-#define OFFSETY    -63.6
+#define MAPLENGTH   11
+#define MAPWIDTH    11
+#define MAPSCALE    1
+#define TILELENGTH  128*0.5
+#define TILEWIDTH   96*0.5
+#define HALFLENGTH  64.0*0.5
+#define HALFWIDTH   48.0*0.5
+#define OFFSETX     308
+#define OFFSETY     -24
 
 // Various setup information
-#define SETUPMAPLENGTH   10
+#define SETUPMAPLENGTH   11
 #define SETUPMAPWIDTH    6
-#define SETUPMAPSCALE    0.5
+#define SETUPMAPSCALE    0.45
 #define SETUPTILELENGTH  128*SETUPMAPSCALE
 #define SETUPTILEWIDTH   96*SETUPMAPSCALE
 #define SETUPHALFLENGTH  64.0*SETUPMAPSCALE
 #define SETUPHALFWIDTH   48.0*SETUPMAPSCALE
-#define SETUPOFFSETX     279
-#define SETUPOFFSETY    -70
+#define SETUPOFFSETX     288
+#define SETUPOFFSETY    -40
 
 // Inventory information
 #define SLOTLENGTH 52
@@ -141,301 +154,321 @@ enum ZORDER {
 #define RANGEINCRATE 2
 
 // Attributes constants
-#define MAXLEVEL 700
+#define MAXLEVEL 50
+#define MAXEXPERIENCE MAXLEVEL*100
 #define MAINATTRIBUTE 0
 #define BASEHP 1
 #define BASEDMG 2
 #define BASESTR 3
 #define BASEAGI 4
 #define BASEINT 5
-#define MAXSTR 6
-#define MAXAGI 7
-#define MAXINT 8
+#define NOTUSED 6
+#define NOTUSED2 7
+#define LVLUPHP 8
 #define LVLUPSTR 9
 #define LVLUPAGI 10
 #define LVLUPINT 11
 #define MOVESPEED 12
-#define STARTINGLVL 13
-#define HPCOEFFICIENT 1
-#define PHYCOEFFICIENT 10
-#define MAGCOREFFICIENT 10
+#define RARITY 13
+#define STRCOEFFICIENT 10.0
+#define AGICOEFFICIENT 10.0
+#define INTCOEFFICIENT 10.0
 
-// Constant unit stats
-enum mainAttribute{
-    strength = 0,
-    agility = 1,
-    intellegence = 2,
-};
-// Format {main stat, base hp, base dmg, base str, base agi, base int, max str, max agi, max int, lvl up str, lvl up agi, lvl up int, move speed, starting exp}
-static int minotaurBase[14] = {strength, 20, 10, 1, 1, 1, 10, 10, 10, 1, 1, 1, 3, COMMON};
-static int gorgonBase[14]   = {agility,  20, 7,  1, 1, 1, 10, 10, 10, 0, 2, 1, 3, UNCOMMON};
-static int mudGolemBase[14] = {strength, 20, 10, 1, 1, 1, 10, 10, 10, 2, 0, 1, 5, UNCOMMON};
+#pragma mark - CONSTANTS
+// Format {main stat, base hp, base dmg, base str, base agi, base int, max str, max agi, max int, lvl up str, lvl up agi, lvl up int, move speed, rarity}
+int extern const minotaurBase[14];
+int extern const gorgonBase[14];
+int extern const mudGolemBase[14];
+int extern const dragonBase[14];
 // allowable rune upgrades
-static int minotaurUpgrades[] = {0, 1, 2, 3, 4, 5};
-static int gorgonUpgrades[] = {0, 1, 2, 3, 4, 5};
+int extern const minotaurUpgrades[];
+int extern const gorgonUpgrades[];
+int extern const mudGolemUpgrades[];
+int extern const dragonUpgrades[];
 
+#pragma mark - MINOTAUR AREAS
+CGPoint extern const minotaurAttkArea[];
+CGPoint extern const minotaurAttkEffect[];
+
+#pragma mark - GORGON AREAS
+CGPoint extern const gorgonShootArea[];
+CGPoint extern const gorgonShootEffect[];
+CGPoint extern const gorgonFreezeArea[];
+CGPoint extern const gorgonFreezeEffect[];
+
+#pragma mark - MUD GOLEM AREAS
+CGPoint extern const mudgolemAttkArea[];
+CGPoint extern const mudgolemAttkEffect[];
+CGPoint extern const mudgolemEarthquakeArea[];
+CGPoint extern const mudgolemEarthquakeEffect[];
+
+#pragma mark - DRAGON AREAS
+CGPoint extern const dragonFireballArea[];
+CGPoint extern const dragonFireballEffect[];
+CGPoint extern const dragonFlamebreathArea[];
+CGPoint extern const dragonFlamebreathEffect[];
+
+#pragma mark - COLOURS
 // THE FOLLOWING ARE COLOR DEFINITIONS
 //! AliceBlue color (240,248,255)
-static const ccColor3B ccALICEBLUE={240,248,255};
+extern const ccColor3B ccALICEBLUE;
 //! AntiqueWhite color (250,235,215)
-static const ccColor3B ccANTIQUEWHITE={250,235,215};
+extern const ccColor3B ccANTIQUEWHITE;
 //! Aqua color (0,255,255)
-static const ccColor3B ccAQUA={0,255,255};
+extern const ccColor3B ccAQUA;
 //! Aquamarine color (127,255,212)
-static const ccColor3B ccAQUAMARINE={127,255,212};
+extern const ccColor3B ccAQUAMARINE;
 //! Azure color (240,255,255)
-static const ccColor3B ccAZURE={240,255,255};
+extern const ccColor3B ccAZURE;
 //! Beige color (245,245,220)
-static const ccColor3B ccBEIGE={245,245,220};
+extern const ccColor3B ccBEIGE;
 //! Bisque color (255,228,196)
-static const ccColor3B ccBISQUE={255,228,196};
+extern const ccColor3B ccBISQUE;
 //! BlanchedAlmond color (255,235,205)
-static const ccColor3B ccBLANCHEDALMOND={255,235,205};
+extern const ccColor3B ccBLANCHEDALMOND;
 //! BlueViolet color (138,43,226)
-static const ccColor3B ccBLUEVIOLET={138,43,226};
+extern const ccColor3B ccBLUEVIOLET;
 //! Brown color (165,42,42)
-static const ccColor3B ccBROWN={165,42,42};
+extern const ccColor3B ccBROWN;
 //! BurlyWood color (222,184,135)
-static const ccColor3B ccBURLYWOOD={222,184,135};
+extern const ccColor3B ccBURLYWOOD;
 //! CadetBlue color (95,158,160)
-static const ccColor3B ccCADETBLUE={95,158,160};
+extern const ccColor3B ccCADETBLUE;
 //! Chartreuse color (127,255,0)
-static const ccColor3B ccCHARTREUSE={127,255,0};
+extern const ccColor3B ccCHARTREUSE;
 //! Chocolate color (210,105,30)
-static const ccColor3B ccCHOCOLATE={210,105,30};
+extern const ccColor3B ccCHOCOLATE;
 //! Coral color (255,127,80)
-static const ccColor3B ccCORAL={255,127,80};
+extern const ccColor3B ccCORAL;
 //! CornflowerBlue color (100,149,237)
-static const ccColor3B ccCORNFLOWERBLUE={100,149,237};
+extern const ccColor3B ccCORNFLOWERBLUE;
 //! Cornsilk color (255,248,220)
-static const ccColor3B ccCORNSILK={255,248,220};
+extern const ccColor3B ccCORNSILK;
 //! Crimson color (220,20,60)
-static const ccColor3B ccCRIMSON={220,20,60};
+extern const ccColor3B ccCRIMSON;
 //! Cyan color (0,255,255)
-static const ccColor3B ccCYAN={0,255,255};
+extern const ccColor3B ccCYAN;
 //! DarkBlue color (0,0,139)
-static const ccColor3B ccDARKBLUE={0,0,139};
+extern const ccColor3B ccDARKBLUE;
 //! DarkCyan color (0,139,139)
-static const ccColor3B ccDARKCYAN={0,139,139};
+extern const ccColor3B ccDARKCYAN;
 //! DarkGoldenRod color (184,134,11)
-static const ccColor3B ccDARKGOLDENROD={184,134,11};
+extern const ccColor3B ccDARKGOLDENROD;
 //! DarkGray color (169,169,169)
-static const ccColor3B ccDARKGRAY={169,169,169};
+extern const ccColor3B ccDARKGRAY;
 //! DarkGreen color (0,100,0)
-static const ccColor3B ccDARKGREEN={0,100,0};
+extern const ccColor3B ccDARKGREEN;
 //! DarkKhaki color (189,183,107)
-static const ccColor3B ccDARKKHAKI={189,183,107};
+extern const ccColor3B ccDARKKHAKI;
 //! DarkMagenta color (139,0,139)
-static const ccColor3B ccDARKMAGENTA={139,0,139};
+extern const ccColor3B ccDARKMAGENTA;
 //! DarkOliveGreen color (85,107,47)
-static const ccColor3B ccDARKOLIVEGREEN={85,107,47};
+extern const ccColor3B ccDARKOLIVEGREEN;
 //! Darkorange color (255,140,0)
-static const ccColor3B ccDARKORANGE={255,140,0};
+extern const ccColor3B ccDARKORANGE;
 //! DarkOrchid color (153,50,204)
-static const ccColor3B ccDARKORCHID={153,50,204};
+extern const ccColor3B ccDARKORCHID;
 //! DarkRed color (139,0,0)
-static const ccColor3B ccDARKRED={139,0,0};
+extern const ccColor3B ccDARKRED;
 //! DarkSalmon color (233,150,122)
-static const ccColor3B ccDARKSALMON={233,150,122};
+extern const ccColor3B ccDARKSALMON;
 //! DarkSeaGreen color (143,188,143)
-static const ccColor3B ccDARKSEAGREEN={143,188,143};
+extern const ccColor3B ccDARKSEAGREEN;
 //! DarkSlateBlue color (72,61,139)
-static const ccColor3B ccDARKSLATEBLUE={72,61,139};
+extern const ccColor3B ccDARKSLATEBLUE;
 //! DarkSlateGray color (47,79,79)
-static const ccColor3B ccDARKSLATEGRAY={47,79,79};
+extern const ccColor3B ccDARKSLATEGRAY;
 //! DarkTurquoise color (0,206,209)
-static const ccColor3B ccDARKTURQUOISE={0,206,209};
+extern const ccColor3B ccDARKTURQUOISE;
 //! DarkViolet color (148,0,211)
-static const ccColor3B ccDARKVIOLET={148,0,211};
+extern const ccColor3B ccDARKVIOLET;
 //! DeepPink color (255,20,147)
-static const ccColor3B ccDEEPPINK={255,20,147};
+extern const ccColor3B ccDEEPPINK;
 //! DeepSkyBlue color (0,191,255)
-static const ccColor3B ccDEEPSKYBLUE={0,191,255};
+extern const ccColor3B ccDEEPSKYBLUE;
 //! DimGray color (105,105,105)
-static const ccColor3B ccDIMGRAY={105,105,105};
+extern const ccColor3B ccDIMGRAY;
 //! DodgerBlue color (30,144,255)
-static const ccColor3B ccDODGERBLUE={30,144,255};
+extern const ccColor3B ccDODGERBLUE;
 //! FireBrick color (178,34,34)
-static const ccColor3B ccFIREBRICK={178,34,34};
+extern const ccColor3B ccFIREBRICK;
 //! FloralWhite color (255,250,240)
-static const ccColor3B ccFLORALWHITE={255,250,240};
+extern const ccColor3B ccFLORALWHITE;
 //! ForestGreen color (34,139,34)
-static const ccColor3B ccFORESTGREEN={34,139,34};
+extern const ccColor3B ccFORESTGREEN;
 //! Fuchsia color (255,0,255)
-static const ccColor3B ccFUCHSIA={255,0,255};
+extern const ccColor3B ccFUCHSIA;
 //! Gainsboro color (220,220,220)
-static const ccColor3B ccGAINSBORO={220,220,220};
+extern const ccColor3B ccGAINSBORO;
 //! GhostWhite color (248,248,255)
-static const ccColor3B ccGHOSTWHITE={248,248,255};
+extern const ccColor3B ccGHOSTWHITE;
 //! Gold color (255,215,0)
-static const ccColor3B ccGOLD={255,215,0};
+extern const ccColor3B ccGOLD;
 //! GoldenRod color (218,165,32)
-static const ccColor3B ccGOLDENROD={218,165,32};
+extern const ccColor3B ccGOLDENROD;
 //! GreenYellow color (173,255,47)
-static const ccColor3B ccGREENYELLOW={173,255,47};
+extern const ccColor3B ccGREENYELLOW;
 //! HoneyDew color (240,255,240)
-static const ccColor3B ccHONEYDEW={240,255,240};
+extern const ccColor3B ccHONEYDEW;
 //! HotPink color (255,105,180)
-static const ccColor3B ccHOTPINK={255,105,180};
+extern const ccColor3B ccHOTPINK;
 //! IndianRed color (205,92,92)
-static const ccColor3B ccINDIANRED={205,92,92};
+extern const ccColor3B ccINDIANRED;
 //! Indigo color (75,0,130)
-static const ccColor3B ccINDIGO={75,0,130};
+extern const ccColor3B ccINDIGO;
 //! Ivory color (255,255,240)
-static const ccColor3B ccIVORY={255,255,240};
+extern const ccColor3B ccIVORY;
 //! Khaki color (240,230,140)
-static const ccColor3B ccKHAKI={240,230,140};
+extern const ccColor3B ccKHAKI;
 //! Lavender color (230,230,250)
-static const ccColor3B ccLAVENDER={230,230,250};
+extern const ccColor3B ccLAVENDER;
 //! LavenderBlush color (255,240,245)
-static const ccColor3B ccLAVENDERBLUSH={255,240,245};
+extern const ccColor3B ccLAVENDERBLUSH;
 //! LawnGreen color (124,252,0)
-static const ccColor3B ccLAWNGREEN={124,252,0};
+extern const ccColor3B ccLAWNGREEN;
 //! LemonChiffon color (255,250,205)
-static const ccColor3B ccLEMONCHIFFON={255,250,205};
+extern const ccColor3B ccLEMONCHIFFON;
 //! LightBlue color (173,216,230)
-static const ccColor3B ccLIGHTBLUE={173,216,230};
+extern const ccColor3B ccLIGHTBLUE;
 //! LightCoral color (240,128,128)
-static const ccColor3B ccLIGHTCORAL={240,128,128};
+extern const ccColor3B ccLIGHTCORAL;
 //! LightCyan color (224,255,255)
-static const ccColor3B ccLIGHTCYAN={224,255,255};
+extern const ccColor3B ccLIGHTCYAN;
 //! LightGoldenRodYellow color (250,250,210)
-static const ccColor3B ccLIGHTGOLDENRODYELLOW={250,250,210};
+extern const ccColor3B ccLIGHTGOLDENRODYELLOW;
 //! LightGrey color (211,211,211)
-static const ccColor3B ccLIGHTGREY={211,211,211};
+extern const ccColor3B ccLIGHTGREY;
 //! LightGreen color (144,238,144)
-static const ccColor3B ccLIGHTGREEN={144,238,144};
+extern const ccColor3B ccLIGHTGREEN;
 //! LightPink color (255,182,193)
-static const ccColor3B ccLIGHTPINK={255,182,193};
+extern const ccColor3B ccLIGHTPINK;
 //! LightSalmon color (255,160,122)
-static const ccColor3B ccLIGHTSALMON={255,160,122};
+extern const ccColor3B ccLIGHTSALMON;
 //! LightSeaGreen color (32,178,170)
-static const ccColor3B ccLIGHTSEAGREEN={32,178,170};
+extern const ccColor3B ccLIGHTSEAGREEN;
 //! LightSkyBlue color (135,206,250)
-static const ccColor3B ccLIGHTSKYBLUE={135,206,250};
+extern const ccColor3B ccLIGHTSKYBLUE;
 //! LightSlateGray color (119,136,153)
-static const ccColor3B ccLIGHTSLATEGRAY={119,136,153};
+extern const ccColor3B ccLIGHTSLATEGRAY;
 //! LightSteelBlue color (176,196,222)
-static const ccColor3B ccLIGHTSTEELBLUE={176,196,222};
+extern const ccColor3B ccLIGHTSTEELBLUE;
 //! LightYellow color (255,255,224)
-static const ccColor3B ccLIGHTYELLOW={255,255,224};
+extern const ccColor3B ccLIGHTYELLOW;
 //! Lime color (0,255,0)
-static const ccColor3B ccLIME={0,255,0};
+extern const ccColor3B ccLIME;
 //! LimeGreen color (50,205,50)
-static const ccColor3B ccLIMEGREEN={50,205,50};
+extern const ccColor3B ccLIMEGREEN;
 //! Linen color (250,240,230)
-static const ccColor3B ccLINEN={250,240,230};
+extern const ccColor3B ccLINEN;
 //! Maroon color (128,0,0)
-static const ccColor3B ccMAROON={128,0,0};
+extern const ccColor3B ccMAROON;
 //! MediumAquaMarine color (102,205,170)
-static const ccColor3B ccMEDIUMAQUAMARINE={102,205,170};
+extern const ccColor3B ccMEDIUMAQUAMARINE;
 //! MediumBlue color (0,0,205)
-static const ccColor3B ccMEDIUMBLUE={0,0,205};
+extern const ccColor3B ccMEDIUMBLUE;
 //! MediumOrchid color (186,85,211)
-static const ccColor3B ccMEDIUMORCHID={186,85,211};
+extern const ccColor3B ccMEDIUMORCHID;
 //! MediumPurple color (147,112,216)
-static const ccColor3B ccMEDIUMPURPLE={147,112,216};
+extern const ccColor3B ccMEDIUMPURPLE;
 //! MediumSeaGreen color (60,179,113)
-static const ccColor3B ccMEDIUMSEAGREEN={60,179,113};
+extern const ccColor3B ccMEDIUMSEAGREEN;
 //! MediumSlateBlue color (123,104,238)
-static const ccColor3B ccMEDIUMSLATEBLUE={123,104,238};
+extern const ccColor3B ccMEDIUMSLATEBLUE;
 //! MediumSpringGreen color (0,250,154)
-static const ccColor3B ccMEDIUMSPRINGGREEN={0,250,154};
+extern const ccColor3B ccMEDIUMSPRINGGREEN;
 //! MediumTurquoise color (72,209,204)
-static const ccColor3B ccMEDIUMTURQUOISE={72,209,204};
+extern const ccColor3B ccMEDIUMTURQUOISE;
 //! MediumVioletRed color (199,21,133)
-static const ccColor3B ccMEDIUMVIOLETRED={199,21,133};
+extern const ccColor3B ccMEDIUMVIOLETRED;
 //! MidnightBlue color (25,25,112)
-static const ccColor3B ccMIDNIGHTBLUE={25,25,112};
+extern const ccColor3B ccMIDNIGHTBLUE;
 //! MintCream color (245,255,250)
-static const ccColor3B ccMINTCREAM={245,255,250};
+extern const ccColor3B ccMINTCREAM;
 //! MistyRose color (255,228,225)
-static const ccColor3B ccMISTYROSE={255,228,225};
+extern const ccColor3B ccMISTYROSE;
 //! Moccasin color (255,228,181)
-static const ccColor3B ccMOCCASIN={255,228,181};
+extern const ccColor3B ccMOCCASIN;
 //! NavajoWhite color (255,222,173)
-static const ccColor3B ccNAVAJOWHITE={255,222,173};
+extern const ccColor3B ccNAVAJOWHITE;
 //! Navy color (0,0,128)
-static const ccColor3B ccNAVY={0,0,128};
+extern const ccColor3B ccNAVY;
 //! OldLace color (253,245,230)
-static const ccColor3B ccOLDLACE={253,245,230};
+extern const ccColor3B ccOLDLACE;
 //! Olive color (128,128,0)
-static const ccColor3B ccOLIVE={128,128,0};
+extern const ccColor3B ccOLIVE;
 //! OliveDrab color (107,142,35)
-static const ccColor3B ccOLIVEDRAB={107,142,35};
+extern const ccColor3B ccOLIVEDRAB;
 //! OrangeRed color (255,69,0)
-static const ccColor3B ccORANGERED={255,69,0};
+extern const ccColor3B ccORANGERED;
 //! Orchid color (218,112,214)
-static const ccColor3B ccORCHID={218,112,214};
+extern const ccColor3B ccORCHID;
 //! PaleGoldenRod color (238,232,170)
-static const ccColor3B ccPALEGOLDENROD={238,232,170};
+extern const ccColor3B ccPALEGOLDENROD;
 //! PaleGreen color (152,251,152)
-static const ccColor3B ccPALEGREEN={152,251,152};
+extern const ccColor3B ccPALEGREEN;
 //! PaleTurquoise color (175,238,238)
-static const ccColor3B ccPALETURQUOISE={175,238,238};
+extern const ccColor3B ccPALETURQUOISE;
 //! PaleVioletRed color (216,112,147)
-static const ccColor3B ccPALEVIOLETRED={216,112,147};
+extern const ccColor3B ccPALEVIOLETRED;
 //! PapayaWhip color (255,239,213)
-static const ccColor3B ccPAPAYAWHIP={255,239,213};
+extern const ccColor3B ccPAPAYAWHIP;
 //! PeachPuff color (255,218,185)
-static const ccColor3B ccPEACHPUFF={255,218,185};
+extern const ccColor3B ccPEACHPUFF;
 //! Peru color (205,133,63)
-static const ccColor3B ccPERU={205,133,63};
+extern const ccColor3B ccPERU;
 //! Pink color (255,192,203)
-static const ccColor3B ccPINK={255,192,203};
+extern const ccColor3B ccPINK;
 //! Plum color (221,160,221)
-static const ccColor3B ccPLUM={221,160,221};
+extern const ccColor3B ccPLUM;
 //! PowderBlue color (176,224,230)
-static const ccColor3B ccPOWDERBLUE={176,224,230};
+extern const ccColor3B ccPOWDERBLUE;
 //! Purple color (128,0,128)
-static const ccColor3B ccPURPLE={128,0,128};
+extern const ccColor3B ccPURPLE;
 //! RosyBrown color (188,143,143)
-static const ccColor3B ccROSYBROWN={188,143,143};
+extern const ccColor3B ccROSYBROWN;
 //! RoyalBlue color (65,105,225)
-static const ccColor3B ccROYALBLUE={65,105,225};
+extern const ccColor3B ccROYALBLUE;
 //! SaddleBrown color (139,69,19)
-static const ccColor3B ccSADDLEBROWN={139,69,19};
+extern const ccColor3B ccSADDLEBROWN;
 //! Salmon color (250,128,114)
-static const ccColor3B ccSALMON={250,128,114};
+extern const ccColor3B ccSALMON;
 //! SandyBrown color (244,164,96)
-static const ccColor3B ccSANDYBROWN={244,164,96};
+extern const ccColor3B ccSANDYBROWN;
 //! SeaGreen color (46,139,87)
-static const ccColor3B ccSEAGREEN={46,139,87};
+extern const ccColor3B ccSEAGREEN;
 //! SeaShell color (255,245,238)
-static const ccColor3B ccSEASHELL={255,245,238};
+extern const ccColor3B ccSEASHELL;
 //! Sienna color (160,82,45)
-static const ccColor3B ccSIENNA={160,82,45};
+extern const ccColor3B ccSIENNA;
 //! Silver color (192,192,192)
-static const ccColor3B ccSILVER={192,192,192};
+extern const ccColor3B ccSILVER;
 //! SkyBlue color (135,206,235)
-static const ccColor3B ccSKYBLUE={135,206,235};
+extern const ccColor3B ccSKYBLUE;
 //! SlateBlue color (106,90,205)
-static const ccColor3B ccSLATEBLUE={106,90,205};
+extern const ccColor3B ccSLATEBLUE;
 //! SlateGray color (112,128,144)
-static const ccColor3B ccSLATEGRAY={112,128,144};
+extern const ccColor3B ccSLATEGRAY;
 //! Snow color (255,250,250)
-static const ccColor3B ccSNOW={255,250,250};
+extern const ccColor3B ccSNOW;
 //! SpringGreen color (0,255,127)
-static const ccColor3B ccSPRINGGREEN={0,255,127};
+extern const ccColor3B ccSPRINGGREEN;
 //! SteelBlue color (70,130,180)
-static const ccColor3B ccSTEELBLUE={70,130,180};
+extern const ccColor3B ccSTEELBLUE;
 //! Tan color (210,180,140)
-static const ccColor3B ccTAN={210,180,140};
+extern const ccColor3B ccTAN;
 //! Teal color (0,128,128)
-static const ccColor3B ccTEAL={0,128,128};
+extern const ccColor3B ccTEAL;
 //! Thistle color (216,191,216)
-static const ccColor3B ccTHISTLE={216,191,216};
+extern const ccColor3B ccTHISTLE;
 //! Tomato color (255,99,71)
-static const ccColor3B ccTOMATO={255,99,71};
+extern const ccColor3B ccTOMATO;
 //! Turquoise color (64,224,208)
-static const ccColor3B ccTURQUOISE={64,224,208};
+extern const ccColor3B ccTURQUOISE;
 //! Violet color (238,130,238)
-static const ccColor3B ccVIOLET={238,130,238};
+extern const ccColor3B ccVIOLET;
 //! Wheat color (245,222,179)
-static const ccColor3B ccWHEAT={245,222,179};
+extern const ccColor3B ccWHEAT;
 //! WhiteSmoke color (245,245,245)
-static const ccColor3B ccWHITESMOKE={245,245,245};
+extern const ccColor3B ccWHITESMOKE;
 //! YellowGreen color (154,205,50)
-static const ccColor3B ccYELLOWGREEN={154,205,50};
-
-#endif
+extern const ccColor3B ccYELLOWGREEN;

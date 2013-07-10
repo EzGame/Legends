@@ -11,19 +11,21 @@
 #import "Buff.h"
 
 @interface Tile : NSObject <BuffTargetDelegate>
+{
+    CCSprite *tileSprite;
+    BOOL isABlaze;
+}
 
 @property (nonatomic, strong) Unit *unit;
 @property (nonatomic, strong) NSMutableArray *buffs;
 @property (nonatomic, readonly) int status;
 // Tile coordindates
 @property (nonatomic) CGPoint boardPos;
-@property (nonatomic) CGPoint absPos;
 
 @property (nonatomic) bool isOccupied;
 @property (nonatomic) bool isOwned;
 
-+ (id)tileWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos;
-+ (id)invalidTileWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos;
-+ (id)setupTileWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos;
-
++ (id)tileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite;
++ (id)invalidTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite;
++ (id)setupTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite;
 @end

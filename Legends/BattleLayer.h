@@ -24,10 +24,10 @@
 {
     // Turn variables
     int currentAction;
-    int costOfAction;
-    bool isMenuOpen;
     bool isMyTurn;
-    CGPoint confirming;
+    BOOL isTurnA;
+    BOOL isTurnB;
+    BOOL isTurnC;
     NSMutableArray *usedTiles;
 
     // Camera variables
@@ -36,6 +36,7 @@
     // Others
     AppDelegate *appDelegate;
     SmartFox2XClient *smartFox;
+    NSArray *highlightPtr;
 }
 
 @property (nonatomic, strong) CCTMXTiledMap *map;

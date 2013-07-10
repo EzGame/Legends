@@ -75,6 +75,7 @@ static const ccColor3B ccORANGE = {255,127,0};
 //! Gray Color (166,166,166)
 static const ccColor3B ccGRAY = {166,166,166};
 
+
 /** RGBA color composed of 4 bytes
 @since v0.8
 */

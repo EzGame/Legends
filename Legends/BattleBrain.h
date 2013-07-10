@@ -22,6 +22,9 @@
 #import "Unit.h"
 #import "Minotaur.h"
 #import "Gorgon.h"
+#import "MudGolem.h"
+#import "Dragon.h"
+#import "Buff.h"
 
 @class BattleBrain;
 
@@ -35,7 +38,8 @@
 
 - (void)    displayCombatMessage:(NSString*)message
                       atPosition:(CGPoint)point
-                            with:(ccColor3B)color;
+                       withColor:(ccColor3B)color
+                       withDelay:(float)delay;
 @end
 
 @interface BattleBrain : NSObject
@@ -52,20 +56,22 @@
 
 // All logic should be in here
 - (id)          initWithMap:(CCTMXLayer *) map;
-
 - (void)        restoreSetup;
-
 - (Tile *)      doSelect:(CGPoint)position;
-
-- (BOOL)         doAction:(int)action
+- (BOOL)        doAction:(int)action
                      for:(Tile *)tile
                       to:(CGPoint)finish
-                     dmg:(NSInteger *)dmg;
+                 targets:(SFSObject *)targets;
 
 - (BOOL)         doOppAction:(SFSObject *)data;
 
 - (NSArray *)   findActionTiles:(Tile *)tile
                          action:(int)action;
+
+- (NSArray *)   findEffectTiles:(Tile *)tile
+                         action:(int)action
+                      direction:(int)direction
+                         center:(CGPoint)position;
 
 - (Tile *)      findTile:(CGPoint)position
                   absPos:(bool)absPos;
@@ -85,4 +91,7 @@
 - (void)        printBoard;
 
 - (void)        killtile:(CGPoint)position;
+
+- (void) actionDidFinish;
+
 @end

@@ -27,5 +27,6 @@
 @property (strong, nonatomic) IBOutlet UIButton *login;
 @property (strong, nonatomic) IBOutlet UIButton *accnt;
 @property (strong, nonatomic) IBOutlet UIButton *create;
+@property (weak, nonatomic) IBOutlet UIButton *test;
 
 @end

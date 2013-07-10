@@ -10,45 +10,49 @@
 
 @implementation Tile
 @synthesize unit = _unit, status = _status, buffs = _buffs;
-@synthesize boardPos = _boardPos, absPos = _absPos;
+@synthesize boardPos = _boardPos;
 
-+ (id)tileWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos
++ (id)tileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
 {
-    return [[Tile alloc] initWithPosition:boardPos absPos:absPos status:REGULAR];
+    return [[Tile alloc] initWithPosition:boardPos status:REGULAR sprite:sprite];
 }
 
-+ (id)invalidTileWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos
++ (id)invalidTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
 {
-    return [[Tile alloc] initWithPosition:boardPos absPos:absPos status:INVALID];
+    return [[Tile alloc] initWithPosition:boardPos status:INVALID sprite:sprite];
 }
 
-+ (id)setupTileWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos
++ (id)setupTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
 {
-    return [[Tile alloc] initWithPosition:boardPos absPos:absPos status:SETUP];
+    return [[Tile alloc] initWithPosition:boardPos status:SETUP sprite:sprite];
 }
 
-- (id)initWithPosition:(CGPoint)boardPos absPos:(CGPoint)absPos status:(int)status
+- (id)initWithPosition:(CGPoint)boardPos status:(int)status sprite:(CCSprite *)sprite
 {
     self = [super init];
     if (self)
     {
         _boardPos = boardPos;
-        _absPos = absPos;
         _isOccupied = false;
         _isOwned = false;
         _buffs = [NSMutableArray array];
+        
+        tileSprite = sprite;
+        isABlaze = NO;
     }
     return self;
 }
 
 - (NSString*) description
 {
-    return [NSString stringWithFormat:@"%@ @[%d,%d]", (self.isOwned)? @"O" :@"E", (int)self.boardPos.x, (int)self.boardPos.y ];
+    return [NSString stringWithFormat:@"%@ %@",
+            (self.isOwned)? @"O" :@"E",
+            NSStringFromCGPoint(self.boardPos) ];
 }
 
 - (void) setUnit:(Unit *)unit
 {
-    NSLog(@">[MYLOG] Entering Tile:setUnit");
+    NSLog(@">[MYLOG] Entering Tile:setUnit %@",unit);
     _unit = unit;
     for ( Buff *buff in self.buffs ) {
         [buff somethingChanged:self];
@@ -58,10 +62,22 @@
 - (void) buffTargetFinished:(Buff *)buff
 {
     NSLog(@">[MYLOG] Entering Tile:buffFinished");
-    for ( Buff *buffs in self.buffs ) {
-        if ( [buff isEqual:buffs] ) {
-            [self.buffs removeObject:buffs];
-        }
+    if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
+        [self.buffs removeObject:buff];
+    } else if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
+        isABlaze = NO;
+        [self.buffs removeObject:buff];
+    }
+}
+
+- (void) buffTargetStarted:(Buff *)buff
+{
+    NSLog(@">[MYLOG] Entering Tile:buffStarted");
+    if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
+        [self.buffs addObject:buff];
+    } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
+        isABlaze = YES;
+        [self.buffs addObject:buff];
     }
 }
 @end

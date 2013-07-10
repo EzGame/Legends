@@ -8,6 +8,7 @@
 
 #import "LoginViewController.h"
 #import "MainMenuViewController.h"
+#import "TestLayer.h"
 
 @interface LoginViewController ()
 @property (strong, nonatomic) IBOutlet UIView *loginView;
@@ -32,6 +33,10 @@
     self.create.hidden = NO;
     self.confirm.hidden = NO;
     //self.create.titleLabel.text = @"Create";
+}
+
+- (IBAction)testTouched:(id)sender {
+    [appDelegate switchToScene:[TestLayer scene]];
 }
 
 - (IBAction)loginTouched:(id)sender

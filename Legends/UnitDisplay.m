@@ -9,18 +9,60 @@
 #import "UnitDisplay.h"
 /***************************************************************/
 @interface UnitDisplay ()
+@property (nonatomic, strong) CCSprite *ui_vagrant;
+@property (nonatomic, strong) CCSprite *ui_common;
+@property (nonatomic, strong) CCSprite *ui_uncommon;
+@property (nonatomic, strong) CCSprite *ui_rare;
+@property (nonatomic, strong) CCSprite *ui_epic;
+@property (nonatomic, strong) CCSprite *ui_legendary;
 - (void) reposition;
 @end
 
 @implementation UnitDisplay
+@synthesize position = _position;
+@synthesize background = _background;
 @synthesize nameLabel = _nameLabel;
 @synthesize dmgLabel = _dmgLabel;
-@synthesize moveLabel = _moveLabel;
-@synthesize delayLabel = _delayLabel;
-@synthesize blockLabel = _blockLabel;
-@synthesize position = _position;
+@synthesize phy_defense = _phy_defense;
+@synthesize mag_defense = _mag_defense;
 
 @synthesize hpBar = _hpBar;
+@synthesize currentHP = _currentHP;
+@synthesize maxHP = _maxHP;
+
+- (void) setBackground:(CCSprite *)background
+{
+    [_background setTexture:[background texture]];
+    if ( [background isEqual:_ui_vagrant] ) {
+        [self setFontColor:ccWHITE];
+    } else if ( [background isEqual:_ui_common] ) {
+        [self setFontColor:ccWHITE];
+    } else if ( [background isEqual:_ui_uncommon] ) {
+        [self setFontColor:ccBLACK];
+    } else if ( [background isEqual:_ui_rare] ) {
+        [self setFontColor:ccBLACK];
+    } else if ( [background isEqual:_ui_epic] ) {
+        [self setFontColor:ccWHITE];
+    } else if ( [background isEqual:_ui_legendary] ) {
+        [self setFontColor:ccWHITE];
+    }
+}
+
+- (void) setPosition:(CGPoint)position
+{
+    _position = position;
+    [self reposition];
+}
+
+- (void) setFontColor:(ccColor3B)color
+{
+    self.nameLabel.color = color;
+    self.dmgLabel.color = color;
+    self.phy_defense.color = color;
+    self.mag_defense.color = color;
+    self.currentHP.color = color;
+    self.maxHP.color = color;
+}
 
 + (id) displayWithPosition:(CGPoint)position
 {
@@ -31,69 +73,74 @@
     self = [super init];
     if ( self )
     {
-        size = 1;
-        _position = position;
-        // The name label
-        _nameLabel = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt" ];
+        self.position = position;
+
+        // Background;
+        _background = [CCSprite spriteWithFile:@"ui_vagrant.png"];
+        _ui_vagrant = [CCSprite spriteWithFile:@"ui_vagrant.png"];
+        _ui_common = [CCSprite spriteWithFile:@"ui_common.png"];
+        _ui_uncommon = [CCSprite spriteWithFile:@"ui_uncommon.png"];
+        _ui_rare = [CCSprite spriteWithFile:@"ui_rare.png"];
+        _ui_epic = [CCSprite spriteWithFile:@"ui_epic.png"];
+        _ui_legendary = [CCSprite spriteWithFile:@"ui_legendary.png"];
         
         // The hp bar
         ccColor3B inital = {0,255,0};
         _hpBar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"hp_bar.png"]];
         _hpBar.color = inital;
         _hpBar.type = kCCProgressTimerTypeBar;
-        _hpBar.percentage = 0;  // initially nothing
+        _hpBar.percentage = 100;  // initially nothing
         _hpBar.barChangeRate = ccp(1,0); // set to no vertical changes
         _hpBar.midpoint = ccp(0.0, 0.0f); // set the bar to move left to right
-        _hpBar.visible = NO;
+        
+        _currentHP = [CCLabelBMFont labelWithString:@"-" fntFile:@"emulator.fnt"];
+        _currentHP.scale = 0.9;
+        _currentHP.anchorPoint = ccp(1.0f,0.5f);
+        
+        _maxHP = [CCLabelBMFont labelWithString:@"-" fntFile:@"emulator.fnt"];
+        _maxHP.scale = 0.9;
+        _maxHP.anchorPoint = ccp(0.0f,0.5f);
         
         // the dmg and move stats
-        _dmgLabel = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
-        _moveLabel = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
-        // delay and block stats
-        _delayLabel = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
-        _blockLabel = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
+        _nameLabel = [CCLabelBMFont labelWithString:@"NAME Lv.0" fntFile:@"emulator.fnt"];
+        _nameLabel.scale = 1;
+        _nameLabel.anchorPoint = ccp(0.0f,0.5f);
+        _dmgLabel = [CCLabelBMFont labelWithString:@"0" fntFile:@"emulator.fnt"];
+        _dmgLabel.scale = 0.8;
+        _dmgLabel.anchorPoint = ccp(0.0f,0.5f);
+        _phy_defense = [CCLabelBMFont labelWithString:@"0" fntFile:@"emulator.fnt"];
+        _phy_defense.scale = 0.8;
+        _phy_defense.anchorPoint = ccp(0.0f,0.5f);
+        _mag_defense = [CCLabelBMFont labelWithString:@"0" fntFile:@"emulator.fnt"];
+        _mag_defense.scale = 0.8;
+        _mag_defense.anchorPoint = ccp(0.0f,0.5f);
         
-        // Left align
-        [_nameLabel setAnchorPoint:ccp(0,0.5f)];
-        [_hpBar setAnchorPoint:ccp(0,0.5f)];
-        [_dmgLabel setAnchorPoint:ccp(0,0.5f)];
-        [_moveLabel setAnchorPoint:ccp(0,0.5f)];
-        [_delayLabel setAnchorPoint:ccp(0,0.5f)];
-        [_blockLabel setAnchorPoint:ccp(0,0.5f)];
         
         [self reposition];
-        [self addChild:_dmgLabel];
-        [self addChild:_moveLabel];
-        [self addChild:_delayLabel];
-        [self addChild:_blockLabel];
-        [self addChild:_nameLabel];
+        [self addChild:_background z:0];
+        [self addChild:_nameLabel z:1];
+        [self addChild:_dmgLabel z:1];
+        [self addChild:_phy_defense z:1];
+        [self addChild:_mag_defense z:1];
         [self addChild:_hpBar z:-1];
+        [self addChild:_currentHP z:1];
+        [self addChild:_maxHP z:1];
+
+        self.visible = NO;
     }
     return self;
 }
 
 - (void) reposition
 {
-    self.nameLabel.position = self.position;
-    self.hpBar.position = ccpAdd(self.position, ccp(-10*size,-20*size));
-    self.dmgLabel.position = ccpAdd(self.position, ccp(-10*size,-40*size));
-    self.moveLabel.position = ccpAdd(self.position, ccp(30*size,-40*size));
-    self.delayLabel.position = ccpAdd(self.position, ccp(-10*size,-60*size));
-    self.blockLabel.position = ccpAdd(self.position, ccp(30*size,-60*size));
-}
-
-- (void) scale:(float)scale
-{
-    size = scale;
-    self.nameLabel.scale = scale;
-    self.dmgLabel.scale = scale;
-    self.moveLabel.scale = scale;
-    self.delayLabel.scale = scale;
-    self.blockLabel.scale = scale;
-    
-    self.hpBar.scale = scale;
-
-    [self reposition];
+    self.background.position = ccpAdd(self.position, CGPointZero);
+    self.nameLabel.position = ccpAdd(self.position, ccp(-55,35));
+    self.dmgLabel.position = ccpAdd(self.position, ccp(-57,2));
+    self.phy_defense.position = ccpAdd(self.position, ccp(-26,2));
+    self.mag_defense.position = ccpAdd(self.position, ccp(5,2));
+    self.hpBar.position = ccpAdd(self.position, ccp(0,1));
+    self.currentHP.position = ccpAdd(self.position, ccp(19,28));
+    self.maxHP.position = ccpAdd(self.position, ccp(26,25));
 }
 
 - (void) setDisplayFor:(Tile *) tile
@@ -101,47 +148,56 @@
     NSLog(@">[MYLOG] Setting display for tile %@",tile);
     if (tile.unit != nil)
     {
-        [self.nameLabel setString:[[tile unit] description]];
-        [self.dmgLabel setString:[NSString stringWithFormat:@" A:%d", [tile unit]->attack]];
-        [self.moveLabel setString:[NSString stringWithFormat:@" S:%d", [tile unit]->moveArea]];
-        [self.delayLabel setString:[NSString stringWithFormat:@" D:%d", 0]];
-        [self.blockLabel setString:[NSString stringWithFormat:@" B:%d%%", (int)([tile unit]->block * 100)]];
+        if      ( tile.unit->rarity == VAGRANT )  self.background = _ui_vagrant;
+        else if ( tile.unit->rarity == COMMON )   self.background = _ui_common;
+        else if ( tile.unit->rarity == UNCOMMON ) self.background = _ui_uncommon;
+        else if ( tile.unit->rarity == RARE )     self.background = _ui_rare;
+        else if ( tile.unit->rarity == EPIC )     self.background = _ui_epic;
         
-        self.hpBar.visible = true;
+        [self.nameLabel setString:[[tile unit] description]];
+        [self.dmgLabel setString:[NSString stringWithFormat:@"%d", tile.unit.attribute->damage]];
+        [self.phy_defense setString:[NSString stringWithFormat:@"%d", (int)(tile.unit.attribute->phys_resist *100)]];
+        [self.mag_defense setString:[NSString stringWithFormat:@"%d", (int)(tile.unit.attribute->magic_resist*100)]];
+        [self.currentHP setString:[NSString stringWithFormat:@"%d", tile.unit->health]];
+        [self.maxHP setString:[NSString stringWithFormat:@"%d", tile.unit.attribute->max_health]];
+        
         [self setHPBar:tile];
+        self.visible = YES;
+        
+        CGPoint pos = self.position;
+        self.position = ccpAdd(self.position, ccp(0,100));
+        [self reposition];
+        [self runAction:[CCMoveTo actionWithDuration:0.5 position:pos]];
     }
     else
     {
-        [self.nameLabel setString:@""];
-        [self.dmgLabel setString:@""];
-        [self.moveLabel setString:@""];
-        [self.delayLabel setString:@""];
-        [self.blockLabel setString:@""];
-        
-        self.hpBar.visible = false;
+        self.visible = NO;
     }
 }
 
 - (void) setHPBar:(Tile *)tile
 {
-    int percentage = (tile.unit->hp*1.0/tile.unit->maxHP)*100;
+    int percentage = (tile.unit->health*1.0/tile.unit.attribute->max_health)*100;
     int red, green;
-    if ([tile isOwned]) {
+    if (1){//[tile isOwned]) {
         red = (percentage <= 25)?255:(percentage >= 75)? 0:255 - 255.0f*(percentage+25)/50;
         green = (percentage <= 25)? 0:(percentage >= 75)? 255:255.0f*(percentage+25)/50;
         
-    } else {
+    } /*else {
         red = 255;
         green = 0;
         
-    }
+    }*/
     ccColor3B newColor = {red, green, 0};
-
     [self.hpBar setPercentage:percentage];
     self.hpBar.color = newColor;
 }
 
 @end
+
+
+
+
 /***************************************************************/
 @implementation CommandsDisplay
 @synthesize cpDisplay = _cpDisplay;
@@ -194,94 +250,3 @@
 }
 
 @end
-/***************************************************************
-@implementation Timer
-@synthesize displayTime = _displayTime;
-@synthesize countTime = _countTime, thresholdTime = _thresholdTime;
-@synthesize isDown = _isDown;
-@synthesize delegate = _delegate;
-
-- (id) initCountDown:(int)startTime {
-    if (!(self = [super init])) return nil;
-    if( self )
-    {
-        _countTime = startTime;
-        _thresholdTime = 0;
-        int min = _countTime / 60;
-        int sec = _countTime % 60;
-        _displayTime = [CCLabelBMFont
-                            labelWithString:[NSString stringWithFormat:@"%02d:%02d", min, sec]
-                                    fntFile:@"emulator.fnt"];
-        _displayTime.visible = false;
-        
-        _isDown = true;
-    }
-    return self;
-}
-
-- (id) initCountUp:(int)thresholdTime
-{
-    if (!(self = [super init])) return nil;
-    if ( self )
-    {
-        _countTime = 0;
-        _thresholdTime = thresholdTime;
-
-        _displayTime = [CCLabelBMFont
-                            labelWithString:@"00:00"
-                                    fntFile:@"emulator.fnt"];
-        
-        _displayTime.visible = false;
-        _isDown = false;
-    }
-    return self;
-}
-
--(void)countDown:(ccTime)delta
-{    
-    self.countTime--;
-    int min = self.countTime / 60;
-    int sec = self.countTime % 60;
-    [self.displayTime setString:[NSString stringWithFormat:@"%02d:%02d", min, sec]];
-    if (self.countTime <= self.thresholdTime) {
-        [self.delegate thresholdReached];
-    }
-}
-
-- (void)countUp:(ccTime)delta
-{
-    self.countTime++;
-    int min = self.countTime / 60;
-    int sec = self.countTime % 60;
-    [self.displayTime setString:[NSString stringWithFormat:@"%02d:%02d", min, sec]];
-    if (self.countTime >= self.thresholdTime) {
-        [self.delegate thresholdReached];
-    }
-}
-
-- (void) startTimer
-{
-    self.displayTime.visible = true;
-    if (self.isDown)
-        [self schedule:@selector(countDown:) interval:1];
-    else
-        [self schedule:@selector(countUp:) interval:1];
-}
-
-- (void) pauseTimer
-{
-    if ( self.isDown )
-        [self unschedule:@selector(countDown:)];
-    else
-        [self unschedule:@selector(countUp:)];
-}
-
-- (void) dealloc
-{
-    if ( self.isDown )
-        [self unschedule:@selector(countDown:)];
-    else
-        [self unschedule:@selector(countUp:)];
-}
-@end
-***************************************************************/

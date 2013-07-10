@@ -127,7 +127,7 @@
 - (void) loadItems {
     for ( NSString *itemString in [[UserSingleton get] items] )
     {
-        NSArray *itemValues = [itemString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
+        NSArray *itemValues = [itemString componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
         if ( [[itemValues objectAtIndex:0] isEqual:@"u"] )
         {
             ItemView *test = [[ItemView alloc]

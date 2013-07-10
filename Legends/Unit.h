@@ -10,6 +10,7 @@
 #import "cocos2d.h"
 #import "Defines.h"
 #import "CCActions.h"
+#import "UserSingleton.h"
 #import "Buff.h"
 
 @interface Attributes : NSObject
@@ -19,7 +20,9 @@
 
     // Combat stats
     int damage; // from main stat
-    int max_health; // from str
+    int max_health; // standalone
+    
+    float phys_reduction; // from str
     float acurracy; // from agi
     float spell_pierce; // from int
     
@@ -31,6 +34,7 @@
     int strength;
     int agility;
     int intellegence;
+    int bonus_hp;
     
     // Constants
     int base_hp;
@@ -43,9 +47,14 @@
     int max_int;
     
     // Other shit
+    int lvlup_hp;
     int lvlup_str;
     int lvlup_agi;
     int lvlup_int;
+    
+    // fucking temp fix
+    int speed;
+    int rarity;
 }
 @property (nonatomic) int experience;
 
@@ -53,6 +62,10 @@
 
 - (void) scrollUpgrade:(NSDictionary *)stats;
 - (void) lvlUpUpgrade;
+
+- (int) getStr;
+- (int) getAgi;
+- (int) getInt;
 @end
 
 // Shortest Path
@@ -77,11 +90,13 @@
 
 @protocol UnitDelegate <NSObject>
 @required
-- (BOOL)pressedButton:(int)action turn:(int)cost;
-- (void)kill:(CGPoint)position;
+- (BOOL)pressedButton:(int)action;
+- (void)killMe:(Unit *)unit at:(CGPoint)position;
 - (void)addSprite:(CCSprite *)sprite z:(int)z;
+- (void)removeSprite:(CCSprite *)sprite;
+- (void)actionDidFinish:(Unit *)unit;
 @optional
-- (void)upgraded:(Unit *)unit;
+- (void)levelUp:(Unit *)unit;
 @end
 
 @interface Unit : NSObject <BuffCasterDelegate,BuffTargetDelegate>
@@ -89,17 +104,20 @@
     @public
     // Static
     int type;
+    int rarity;
     int value;
+    int health;
     int speed;
-    
-    // Runtime
-    int facingDirection;
-    
-    // states
+        
+    // negative states
     BOOL isStunned;
     BOOL isEnsnared;
     BOOL isFrozen;
+    BOOL isStoned;
     BOOL isFocused;
+    
+    // positive states
+    BOOL isDefending;
 }
 
 @property (nonatomic, strong)   CCSprite    *sprite;
@@ -118,8 +136,10 @@
 
 @property (nonatomic) BOOL isOwned;
 @property (nonatomic) BOOL canUpgrade;
-@property (nonatomic) int rarity_level;
 @property (nonatomic) int experience;
+@property (nonatomic) int level;
+@property (nonatomic) int coolDown;
+@property (nonatomic) int direction;
 
 // init
 - (id) initForSide:(BOOL)side withValues:(NSArray *)values;
@@ -130,17 +150,20 @@
 
 // skills
 - (void) action:(int)action at:(CGPoint)position;
-- (NSArray *) getAttkArea:(CGPoint)position;
 - (void) popStepAndAnimate;
+- (BOOL) canIDo:(int)action;
 
 // combat + state
-- (void) addBuff:(Buff *)buff myBuff:(BOOL)isMyBuff;
-- (void) take:(int)damage;
-- (int) calculate:(int)damage;
+- (void) take:(int)damage after:(float)delay;
+- (int) calculate:(int)damage type:(int)dmgType;
+- (void) addBuff:(Buff *)buff caster:(BOOL)amICaster;
+- (void) removeBuff:(Buff *)buff caster:(BOOL)amICaster;
 
 // menu
 - (void) toggleMenu:(BOOL)state;
-- (void) undoLastButton;
 - (void) reset;
+
+// wow so annoying
+- (float) getAngle:(CGPoint)p1 :(CGPoint)p2;
 @end
 

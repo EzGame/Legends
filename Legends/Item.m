@@ -127,15 +127,15 @@
 {
     self = [super initWithIcon:iconName];
     if ( self ) {
-        allowedUpgrades = [self allowedUpgradesForType:type];
-        
+        allowedUpgrades = (int *)[self allowedUpgradesForType:type];
+        NSLog(@">[MYLOG]    SANITY CHECK IN INITWITHICON:%d", allowedUpgrades[2]);
         _upgrades = upgrades;
         _type = type;
     }
     return self;
 }
 
-- (int *) allowedUpgradesForType:(int)type;
+- (const int *) allowedUpgradesForType:(int)type;
 {
     if ( type == MINOTAUR ) return minotaurUpgrades;
     else if ( type == GORGON ) return gorgonUpgrades;

@@ -36,11 +36,14 @@
 		self.normalImage = normalSprite;
 		self.selectedImage = selectedSprite;
 		self.disabledImage = disabledSprite;
-        
+        self.scale = 1.5;
+        if ( ![selectedImage_ isEqual:nil] )
+            [self.selectedImage setVisible:YES];
+        [self.normalImage setVisible:YES];
 		[self setContentSize: [normalImage_ contentSize]];
 	}
 	return self;
-}
+} 
 
 -(void) setNormalImage:(CCNode <CCRGBAProtocol>*)image
 {
@@ -83,10 +86,9 @@
 -(void) selected
 {
 	[super selected];
-    [self activate];
-	if( selectedImage_ && isEnabled_ ) {
-        [self setScale:0.775];
-		[normalImage_ setVisible:NO];
+	if( isEnabled_ ) {
+        [self setScale:1.2];
+		[normalImage_ setVisible:YES];
 		[selectedImage_ setVisible:YES];
 		[disabledImage_ setVisible:NO];
     }
@@ -94,10 +96,11 @@
 
 -(void) unselected
 {
+    [self setScale:1.5];
 	[super unselected];
-    [self setScale:1];
+    [self activate];
 	[normalImage_ setVisible:YES];
-	[selectedImage_ setVisible:NO];
+	[selectedImage_ setVisible:YES];
 	[disabledImage_ setVisible:NO];
 }
 

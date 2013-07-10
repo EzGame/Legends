@@ -6,10 +6,10 @@
 //
 //
 #define DRAG_SCROLL_MULTIPLIER 0.25
-#define MAX_SCROLL_X 25
-#define MAX_SCROLL_Y 25
-#define MIN_SCROLL_X -25
-#define MIN_SCROLL_Y -50
+#define MAX_SCROLL_X 0
+#define MAX_SCROLL_Y 20
+#define MIN_SCROLL_X 0
+#define MIN_SCROLL_Y -40
 
 #import "SetupLayer.h"
 #import "MainMenuViewController.h"
@@ -76,10 +76,10 @@
 - (void) createMap
 {
     // Tile map
-    _map = [CCTMXTiledMap tiledMapWithTMXFile:@"setup_tactics.tmx"];
-    _map.position = CGPointMake(-170.2,30);
+    _map = [CCTMXTiledMap tiledMapWithTMXFile:@"setup_tactics_v2.tmx"];
+    _map.position = ccp(-175,50);
     _map.scale = SETUPMAPSCALE;
-    _tmxLayer = [_map layerNamed:@"Layer"];
+    _tmxLayer = [_map layerNamed:@"layer"];
     [_setupLayer addChild:_map z:MAPS];
 }
 
@@ -87,7 +87,6 @@
 {
     // Setup Display
     _display = [UnitDisplay displayWithPosition:ccp(10,300)];
-    [_display scale:0.7];
     [_hudLayer addChild:_display z:DISPLAYS];
 }
 
@@ -154,14 +153,13 @@
                 pos = ccp(pos.x, MIN_SCROLL_Y);
             
             self.setupLayer.position = pos;
-            
+            //NSLog(@"%@",NSStringFromCGPoint(pos));
         } else {
             CGPoint position;
             UITouch *touch = [touches anyObject];
             position = [touch locationInView: [touch view]];
             position = [[CCDirector sharedDirector] convertToGL: position];
             position = [self convertToNodeSpace:position];
-            
             // Dragging
             if ( self.selection.unit != nil ) {
                 // "Lift" the current unit
@@ -181,7 +179,8 @@
     position = [touch locationInView: [touch view]];
     position = [[CCDirector sharedDirector] convertToGL: position];
     position = [self convertToNodeSpace:position];
-    
+    NSLog(@"%@",NSStringFromCGPoint(position));
+
     if ( scrolled ) {
         scrolled = NO;
         [self.brain setCurrentLayerPos:self.setupLayer.position];
@@ -234,6 +233,7 @@
 
 - (void) highlightTileAt:(CGPoint)position final:(bool)final
 {
+    NSLog(@"highlight");
     // Hightlight position and revert previous
     Tile *tile = [self.brain findTile:position absPos:YES];
     Tile *prev = [self.brain findTile:previous absPos:YES];
@@ -271,7 +271,7 @@
 // Brain delegate
 - (void)loadTile:(Tile *)tile
 {
-    tile.unit.sprite.position = tile.absPos;
+    tile.unit.sprite.position = [self.brain findAbsPos:tile.boardPos];
     [self.setupLayer addChild:tile.unit.spriteSheet z:SPRITES_TOP];
     [self reorderTile:tile];
 }

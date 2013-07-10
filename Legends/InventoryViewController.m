@@ -89,7 +89,7 @@
 {
     for ( NSString *itemString in items )
     {
-        NSArray *itemValues = [itemString componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
+        NSArray *itemValues = [itemString componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
         if ( [[itemValues objectAtIndex:0] isEqual:@"u"] )
         {
             ItemView *test = [[ItemView alloc]

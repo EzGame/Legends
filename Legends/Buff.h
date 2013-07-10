@@ -23,11 +23,13 @@
 @class Buff;
 @protocol BuffCasterDelegate <NSObject>
 @required
+- (void) buffCasterStarted:(Buff *)buff;
 - (void) buffCasterFinished:(Buff *)buff;
 @optional
 @end
 @protocol BuffTargetDelegate <NSObject>
 @required
+- (void) buffTargetStarted:(Buff *)buff;
 - (void) buffTargetFinished:(Buff *)buff;
 @end
 
@@ -41,14 +43,19 @@
 - (void) somethingChanged:(id)target;
 - (void) removeMyBuff:(id)target;
 @end
-
+#pragma mark - Stone Gaze
 @interface StoneGazeDebuff : Buff
 @property (nonatomic, strong) NSMutableArray *path;
 
 + (id) stoneGazeDebuffFromCaster:(id)caster atTarget:(id)target withPath:(NSMutableArray *)path for:(int)duration;
 @end
-
+#pragma mark - Freeze
 @interface FreezeDebuff : Buff
 
 + (id) freezeDebuffFromCaster:(id)caster atTarget:(id)target for:(int)duration;
+@end
+#pragma mark - Blaze
+@interface BlazeDebuff : Buff
+@property (nonatomic, strong) NSMutableArray *targets;
++ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int) duration;
 @end

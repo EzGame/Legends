@@ -36,6 +36,114 @@
 @synthesize action_SE = _action_SE;
 @synthesize action_SW = _action_SW;
 
+- (CCAction *) getActionFor:(int)direction
+{
+    if ( direction == NE ) return self.action_NE;
+    else if ( direction == NW ) return self.action_NW;
+    else if ( direction == SE ) return self.action_SE;
+    else return self.action_SW;
+}
+
++ (id)actionsWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forName:(NSString *)name andFrames:(int)frames delay:(float)delay reverse:(BOOL)reverse
+{
+    return [[CCActions alloc] initWithSpriteSheet:spriteSheet forName:name andFrames:frames delay:delay reverse:reverse];
+}
+
++ (id)actionsInfiniteWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forName:(NSString *)name andFrames:(int)frames delay:(float)delay
+{ 
+    return [[CCActions alloc] initInfiniteWithSpriteSheet:spriteSheet forName:name andFrames:frames delay:delay];
+}
+
+- (id) initWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forName:(NSString *)name andFrames:(int)frames delay:(float)delay reverse:(BOOL)reverse
+{
+    self = [super init];
+    if ( self )
+    {
+        _frames_NE = [[NSMutableArray alloc] init];
+        _frames_SE = [[NSMutableArray alloc] init];
+        _frames_SW = [[NSMutableArray alloc] init];
+        _frames_NW = [[NSMutableArray alloc] init];
+        
+        if ( !reverse ) {
+            for (int i = 0; i < frames; i++) {
+                [_frames_NE addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_NE_%d.png",name,i]]];
+            }
+            for (int i = 0; i < frames; i++) {
+                [_frames_SE addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_SE_%d.png",name,i]]];
+            }
+            for (int i = 0; i < frames; i++) {
+                [_frames_SW addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_SW_%d.png",name,i]]];
+            }
+            for (int i = 0; i < frames; i++) {
+                [_frames_NW addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_NW_%d.png",name,i]]];
+            }
+        } else {
+            for (int i = frames - 1; i >= 0; i--) {
+                [_frames_NE addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_NE_%d.png",name,i]]];
+            }
+            for (int i = frames - 1; i >= 0; i--) {
+                [_frames_SE addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_SE_%d.png",name,i]]];
+            }
+            for (int i = frames - 1; i >= 0; i--) {
+                [_frames_SW addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_SW_%d.png",name,i]]];
+            }
+            for (int i = frames - 1; i >= 0; i--) {
+                [_frames_NW addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_NW_%d.png",name,i]]];
+            }
+        }
+        
+        // Create the animation object
+        _animation_NE = [[CCAnimation alloc]initWithSpriteFrames:_frames_NE delay:delay];
+        _animation_SE = [[CCAnimation alloc]initWithSpriteFrames:_frames_SE delay:delay];
+        _animation_SW = [[CCAnimation alloc]initWithSpriteFrames:_frames_SW delay:delay];
+        _animation_NW = [[CCAnimation alloc]initWithSpriteFrames:_frames_NW delay:delay];
+    
+        // Create action to run
+        _action_NE = [[CCAnimate alloc]initWithAnimation:_animation_NE];
+        _action_SE = [[CCAnimate alloc]initWithAnimation:_animation_SE];
+        _action_SW = [[CCAnimate alloc]initWithAnimation:_animation_SW];
+        _action_NW = [[CCAnimate alloc]initWithAnimation:_animation_NW];
+    }
+    return self;
+}
+
+- (id) initInfiniteWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forName:(NSString *)name andFrames:(int)frames delay:(float)delay
+{
+    self = [super init];
+    if ( self )
+    {
+        _frames_NE = [[NSMutableArray alloc] init];
+        _frames_SE = [[NSMutableArray alloc] init];
+        _frames_SW = [[NSMutableArray alloc] init];
+        _frames_NW = [[NSMutableArray alloc] init];
+        
+        for (int i = 0; i < frames; i++) {
+            [_frames_NE addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_NE_%d.png",name,i]]];
+        }
+        for (int i = 0; i < frames; i++) {
+            [_frames_SE addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_SE_%d.png",name,i]]];
+        }
+        for (int i = 0; i < frames; i++) {
+            [_frames_SW addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_SW_%d.png",name,i]]];
+        }
+        for (int i = 0; i < frames; i++) {
+            [_frames_NW addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"%@_NW_%d.png",name,i]]];
+        }
+        
+        // Create the animation object
+        _animation_NE = [[CCAnimation alloc]initWithSpriteFrames:_frames_NE delay:delay];
+        _animation_SE = [[CCAnimation alloc]initWithSpriteFrames:_frames_SE delay:delay];
+        _animation_SW = [[CCAnimation alloc]initWithSpriteFrames:_frames_SW delay:delay];
+        _animation_NW = [[CCAnimation alloc]initWithSpriteFrames:_frames_NW delay:delay];
+        
+        // Create action to run
+        _action_NE = [[CCRepeatForever alloc]initWithAction:[[CCAnimate alloc]initWithAnimation:_animation_NE]];
+        _action_SE = [[CCRepeatForever alloc]initWithAction:[[CCAnimate alloc]initWithAnimation:_animation_SE]];
+        _action_SW = [[CCRepeatForever alloc]initWithAction:[[CCAnimate alloc]initWithAnimation:_animation_SW]];
+        _action_NW = [[CCRepeatForever alloc]initWithAction:[[CCAnimate alloc]initWithAnimation:_animation_NW]];
+    }
+    return self;
+}
 
 - (id)initWithSpriteSheet:(CCSpriteBatchNode *)spriteSheet forAction:(int)action
 {
