@@ -14,6 +14,10 @@
 #import "cocos2d.h"
 
 @interface MudGolem : Unit
+extern const NSString *MUDGOLEM_TWO_DESP;
+extern const NSString *MUDGOLEM_ONE_DESP;
+extern const NSString *MUDGOLEM_MOVE_DESP;
+
 @property (nonatomic, strong) CCActions *idle;
 @property (nonatomic, strong) CCActions *move;
 @property (nonatomic, strong) CCActions *moveEnd;
@@ -24,12 +28,12 @@
 @property (nonatomic, strong) MenuItemSprite *attkButton;
 @property (nonatomic, strong) MenuItemSprite *earthquakeButton;
 
-+ (id) mudGolemWithValues:(NSArray *)values;
-+ (id) mudGolemForEnemyWithValues:(NSArray *)values;
-+ (id) mudGolemForSetupWithValues:(NSArray *)values;
++ (id) mudGolemWithObj:(UnitObj *)obj;
++ (id) mudGolemForEnemyWithObj:(UnitObj *)obj;
++ (id) mudGolemForSetupWithObj:(UnitObj *)obj;
 
-- (id) initMudGolemFor:(BOOL)side withValues:(NSArray *)values;
-- (id) initMudGolemForSetupWithValues:(NSArray *)values;
+- (id) initMudGolemFor:(BOOL)side withObj:(UnitObj *)obj;
+- (id) initMudGolemForSetupWithObj:(UnitObj *)obj;
 
 - (CGPoint *) getEarthquakeArea;
 - (CGPoint *) getEarthquakeEffect;

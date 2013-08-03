@@ -9,7 +9,6 @@
 #import "UserSingleton.h"
 
 @implementation UserSingleton
-
 static UserSingleton* _sharedUserSingleton = nil;
 
 + (UserSingleton *) get
@@ -40,90 +39,61 @@ static UserSingleton* _sharedUserSingleton = nil;
 	self = [super init];
 	if (self != nil)
     {
-        _unitSeparator = [NSCharacterSet characterSetWithCharactersInString:@"|"];
-        _valueSeparator = [NSCharacterSet characterSetWithCharactersInString:@"/"];
-        _statSeparator = [NSCharacterSet characterSetWithCharactersInString:@":,"];
-        _stringSeparator = [NSCharacterSet characterSetWithCharactersInString:@","];
+        // Inventory
+        _units = [NSMutableArray arrayWithCapacity:55];
+        _consummables = [NSMutableArray array];
+        _misc = [NSMutableArray array];
         
-        [self loadProfile:nil newbie:YES];
-        self.amIPlayerOne = YES;
+        // Preferences + settings
+        _isFirstLaunch = NO;
+        
+        // Setup properties;
+        _unitCount = 0;
+        _unitValue = 0;
+        
+        // Stat properties
+        _ELO = DEFAULTELO;
+        _TELO = DEFAULTTELO;
+        
+        // Game properties
+        _amIPlayerOne = YES;
+        _setup = nil;
+        _opSetup = nil;
+        _me = nil;
+        _currentOpp = nil;
+        
+        for ( int i = 0; i < 30; i++ )
+            [self createUnit];
     }
 	return self;
 }
 
-- (void) loadProfile:(NSDictionary *)profile newbie:(BOOL)isFirstLoad
+
+- (BOOL) saveOpp:(SFSUser *)user setup:(SFSArray *)array
 {
-    if ( isFirstLoad ) {
-        self.ELO = DEFAULTELO;
-        self.TELO = DEFAULTTELO;
-        self.isFirstLaunch = NO;//isFirstLoad;
-        self.pieces = [NSArray arrayWithObjects:
-                        @"u/1/500/str:0,agi:0,int:0,hp:0/-1/0,3",
-                        @"u/1/200/str:0,agi:0,int:0,hp:0/-1/1,3",
-                        @"u/2/200/str:0,agi:0,int:0,hp:0/-1/2,3",
-                        @"u/4/150/str:0,agi:0,int:0,hp:0/-1/3,3",
-                        @"u/1/0/str:0,agi:0,int:0,hp:0/-1/4,3",
-                        @"u/2/500/str:0,agi:0,int:0,hp:0/-1/5,3",
-                        @"u/2/200/str:0,agi:0,int:0,hp:0/-1/6,3",
-                        @"u/1/0/str:0,agi:0,int:0,hp:0/-1/7,3",
-                        @"u/4/150/str:0,agi:0,int:0,hp:0/-1/8,3",
-                        @"u/3/400/str:0,agi:0,int:0,hp:0/-1/9,3",
-                        nil];
-        self.opPieces = [NSArray arrayWithObjects:
-                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/0,3",
-                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/1,3",
-                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/2,3",
-                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/3,3",
-                         @"u/1/0/str:0,agi:0,int:0,hp:0/-1/4,3",
-                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/5,3",
-                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/6,3",
-                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/7,3",
-                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/8,3",
-                         @"u/2/0/str:0,agi:0,int:0,hp:0/-1/9,3",
-                         nil];
-        self.items = [NSMutableArray arrayWithObjects:
-                  @"u/1/500/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/1/300/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/1/200/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/1/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/1/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/2/600/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/2/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/3/400/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/3/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/4/300/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/4/150/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/4/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/4/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"u/4/0/str:0,agi:0,int:0,hp:0/-1",
-                  @"s/1/50/str:10",
-                  @"s/2/50/agi:10",
-                  @"s/3/50/int:10",nil];
-    }
+    self.currentOpp = user;
+    self.opSetup = array;
+    
+    return YES;
 }
 
-- (void) loadOppSetup:(NSString *)setup;
-{
-    NSAssert(setup != nil, @">[FATAL]   ERROR WHILE LOADING OPPONENTS SETUP! ITS NIL!");
-    self.opPieces = [setup componentsSeparatedByCharactersInSet:self.unitSeparator];
-}
-
-- (bool) saveSetup:(NSArray *)setup unitCount:(int)count
+- (BOOL) saveSetup:(SFSArray *)array unitCount:(int)count unitValue:(int)value
 {
     self.unitCount = count;
-    self.pieces = setup;
-    return true;
+    self.unitValue = value;
+    self.setup = array;
+    
+    return YES;
 }
 
-- (bool) saveProfile
+- (BOOL) downloadProfileFor:(NSString *)name
 {
-    return true;
+    return YES;
+}
+
+- (BOOL) uploadProfile
+{
+    return YES;
 }
 
 - (int) getKForMM
@@ -154,9 +124,34 @@ static UserSingleton* _sharedUserSingleton = nil;
     return ret;
 }
 
-- (NSString *) getPieces
+- (void) createUnit
 {
-    return [self.pieces componentsJoinedByString:@"|"];
+    int type = (arc4random() % (LASTUNIT)) + 1;
+    int experience = (arc4random() % MAXEXPERIENCE);
+    int str = (arc4random() % 100 );
+    int agi = (arc4random() % 100 );
+    int inte = (arc4random() % 100 );
+    int hp = (arc4random() % 100 );
+    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%@/{-1,-1}",
+                        type, experience, str, agi, inte, hp, nil];
+    UnitObj *unit = [UnitObj unitObjWithString:string];
+    [self.units addObject:unit];
 }
 
+- (void) createMaxUnit
+{
+    int type = (arc4random() % LASTUNIT - 1) + 1;
+    int experience = MAXEXPERIENCE;
+    int str = 100;
+    int agi = 100;
+    int inte = 100;
+    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%@/{-1,-1}",
+                        type, experience, str, agi, inte, nil];
+    UnitObj *unit = [UnitObj unitObjWithString:string];
+    [self.units addObject:unit];
+}
+
+- (void) createScroll
+{
+}
 @end

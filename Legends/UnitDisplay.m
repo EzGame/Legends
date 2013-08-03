@@ -20,6 +20,8 @@
 
 @implementation UnitDisplay
 @synthesize position = _position;
+@synthesize tilePtr = _tilePtr;
+
 @synthesize background = _background;
 @synthesize nameLabel = _nameLabel;
 @synthesize dmgLabel = _dmgLabel;
@@ -36,15 +38,15 @@
     if ( [background isEqual:_ui_vagrant] ) {
         [self setFontColor:ccWHITE];
     } else if ( [background isEqual:_ui_common] ) {
-        [self setFontColor:ccWHITE];
+        [self setFontColor:ccAQUAMARINE];
     } else if ( [background isEqual:_ui_uncommon] ) {
         [self setFontColor:ccBLACK];
     } else if ( [background isEqual:_ui_rare] ) {
-        [self setFontColor:ccBLACK];
+        [self setFontColor:ccDARKBLUE];
     } else if ( [background isEqual:_ui_epic] ) {
-        [self setFontColor:ccWHITE];
+        [self setFontColor:ccLIGHTGREEN];
     } else if ( [background isEqual:_ui_legendary] ) {
-        [self setFontColor:ccWHITE];
+        [self setFontColor:ccDARKGOLDENROD];
     }
 }
 
@@ -73,7 +75,8 @@
     self = [super init];
     if ( self )
     {
-        self.position = position;
+        pos = position;
+        self.position = ccpAdd(position, ccp(0,100));
 
         // Background;
         _background = [CCSprite spriteWithFile:@"ui_vagrant.png"];
@@ -86,32 +89,32 @@
         
         // The hp bar
         ccColor3B inital = {0,255,0};
-        _hpBar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"hp_bar.png"]];
-        _hpBar.color = inital;
+        _hpBar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"ui_hp_bar.png"]];
         _hpBar.type = kCCProgressTimerTypeBar;
-        _hpBar.percentage = 100;  // initially nothing
+        _hpBar.color = inital;
+        _hpBar.midpoint = ccp(0.0, 0.5f); // set the bar to move left to right
         _hpBar.barChangeRate = ccp(1,0); // set to no vertical changes
-        _hpBar.midpoint = ccp(0.0, 0.0f); // set the bar to move left to right
+        _hpBar.percentage = 100;  // initially nothing
         
-        _currentHP = [CCLabelBMFont labelWithString:@"-" fntFile:@"emulator.fnt"];
+        _currentHP = [CCLabelBMFont labelWithString:@"-" fntFile:NORMALFONTSMALL];
         _currentHP.scale = 0.9;
         _currentHP.anchorPoint = ccp(1.0f,0.5f);
         
-        _maxHP = [CCLabelBMFont labelWithString:@"-" fntFile:@"emulator.fnt"];
+        _maxHP = [CCLabelBMFont labelWithString:@"-" fntFile:NORMALFONTSMALL];
         _maxHP.scale = 0.9;
         _maxHP.anchorPoint = ccp(0.0f,0.5f);
         
         // the dmg and move stats
-        _nameLabel = [CCLabelBMFont labelWithString:@"NAME Lv.0" fntFile:@"emulator.fnt"];
+        _nameLabel = [CCLabelBMFont labelWithString:@"NAME Lv.0" fntFile:NORMALFONTMID];
         _nameLabel.scale = 1;
         _nameLabel.anchorPoint = ccp(0.0f,0.5f);
-        _dmgLabel = [CCLabelBMFont labelWithString:@"0" fntFile:@"emulator.fnt"];
+        _dmgLabel = [CCLabelBMFont labelWithString:@"0" fntFile:NORMALFONTBIG];
         _dmgLabel.scale = 0.8;
         _dmgLabel.anchorPoint = ccp(0.0f,0.5f);
-        _phy_defense = [CCLabelBMFont labelWithString:@"0" fntFile:@"emulator.fnt"];
+        _phy_defense = [CCLabelBMFont labelWithString:@"0" fntFile:NORMALFONTBIG];
         _phy_defense.scale = 0.8;
         _phy_defense.anchorPoint = ccp(0.0f,0.5f);
-        _mag_defense = [CCLabelBMFont labelWithString:@"0" fntFile:@"emulator.fnt"];
+        _mag_defense = [CCLabelBMFont labelWithString:@"0" fntFile:NORMALFONTBIG];
         _mag_defense.scale = 0.8;
         _mag_defense.anchorPoint = ccp(0.0f,0.5f);
         
@@ -126,7 +129,7 @@
         [self addChild:_currentHP z:1];
         [self addChild:_maxHP z:1];
 
-        self.visible = NO;
+        self.visible = YES;
     }
     return self;
 }
@@ -134,20 +137,24 @@
 - (void) reposition
 {
     self.background.position = ccpAdd(self.position, CGPointZero);
-    self.nameLabel.position = ccpAdd(self.position, ccp(-55,35));
+    self.nameLabel.position = ccpAdd(self.position, ccp(-60,32));
     self.dmgLabel.position = ccpAdd(self.position, ccp(-57,2));
     self.phy_defense.position = ccpAdd(self.position, ccp(-26,2));
     self.mag_defense.position = ccpAdd(self.position, ccp(5,2));
     self.hpBar.position = ccpAdd(self.position, ccp(0,1));
-    self.currentHP.position = ccpAdd(self.position, ccp(19,28));
-    self.maxHP.position = ccpAdd(self.position, ccp(26,25));
+    self.currentHP.position = ccpAdd(self.position, ccp(16,26));
+    self.maxHP.position = ccpAdd(self.position, ccp(24,24));
 }
 
 - (void) setDisplayFor:(Tile *) tile
 {
-    NSLog(@">[MYLOG] Setting display for tile %@",tile);
-    if (tile.unit != nil)
+    if ( tile.unit != nil  )
     {
+        if ( [tile.unit isEqual:self.tilePtr.unit] )
+            return;
+        
+        NSLog(@">[MYLOG] Setting display for tile %@",tile);
+        self.tilePtr = tile;
         if      ( tile.unit->rarity == VAGRANT )  self.background = _ui_vagrant;
         else if ( tile.unit->rarity == COMMON )   self.background = _ui_common;
         else if ( tile.unit->rarity == UNCOMMON ) self.background = _ui_uncommon;
@@ -162,91 +169,170 @@
         [self.maxHP setString:[NSString stringWithFormat:@"%d", tile.unit.attribute->max_health]];
         
         [self setHPBar:tile];
-        self.visible = YES;
         
-        CGPoint pos = self.position;
         self.position = ccpAdd(self.position, ccp(0,100));
-        [self reposition];
         [self runAction:[CCMoveTo actionWithDuration:0.5 position:pos]];
     }
     else
     {
-        self.visible = NO;
+        NSLog(@">[MYLOG] Not setting display for tile %@",tile);
+        self.tilePtr = nil;
+        self.position = ccpAdd(self.position, ccp(0,100));
     }
 }
 
 - (void) setHPBar:(Tile *)tile
 {
-    int percentage = (tile.unit->health*1.0/tile.unit.attribute->max_health)*100;
+    float percentage = (tile.unit->health*1.0/tile.unit.attribute->max_health)*100;
     int red, green;
     if (1){//[tile isOwned]) {
         red = (percentage <= 25)?255:(percentage >= 75)? 0:255 - 255.0f*(percentage+25)/50;
         green = (percentage <= 25)? 0:(percentage >= 75)? 255:255.0f*(percentage+25)/50;
         
-    } /*else {
-        red = 255;
-        green = 0;
-        
-    }*/
+    }
+    
     ccColor3B newColor = {red, green, 0};
     [self.hpBar setPercentage:percentage];
     self.hpBar.color = newColor;
 }
 
 @end
-
-
-
-
 /***************************************************************/
-@implementation CommandsDisplay
-@synthesize cpDisplay = _cpDisplay;
-@synthesize cpGainPerTurn = _cpGainPerTurn, cpAmount = _cpAmount;
 
-+ (id) commandsDisplayWithPosition:(CGPoint)position amount:(int)amount gain:(int)gain for:(BOOL)owner
+
+@implementation OpponentDisplay
+
++ (id) displayWithPos:(CGPoint)position withUser:(SFSUser *)user
 {
-    return [[self alloc] initWithPosition:position amount:amount gain:gain for:owner];
+    return [[OpponentDisplay alloc] initWithPos:position withUser:user];
 }
 
-- (id) initWithPosition:(CGPoint)position amount:(int)amount gain:(int)gain for:(BOOL)owner
+- (id) initWithPos:(CGPoint)position withUser:(SFSUser *)user
 {
     self = [super init];
     if ( self ) {
-        isOwner = owner;
-        maxCP = 10;
-        _cpAmount = amount;
-        _cpGainPerTurn = gain;
-        
-        _cpDisplay = [CCLabelBMFont labelWithString:[NSString stringWithFormat:@"%d",amount]
-                                            fntFile:@"emulator.fnt"];
-        _cpDisplay.position = position;
-        [self addChild:_cpDisplay];
+
     }
     return self;
 }
 
-- (void) setCpAmount:(int)cpAmount
+@end
+
+
+
+/***************************************************************/
+@implementation SetupUnitDisplay
+@synthesize position = _position;
+@synthesize background = _background;
+@synthesize nameLabel = _nameLabel;
+@synthesize description = _description;
+
+- (void) setPosition:(CGPoint)position
 {
-    _cpAmount = cpAmount;
-    [_cpDisplay setString:[NSString stringWithFormat:@"%d",_cpAmount]];
+    _position = position;
+    [self reposition];
 }
 
-- (void) usedAmount:(int)amount
++ (id) displayWithPosition:(CGPoint)position
 {
-    NSLog(@">[MYLOG]        CommandsDisplay::usedAmount %d", amount);
-    [self setCpAmount:(self.cpAmount - amount)];
+    return [[SetupUnitDisplay alloc] initWithPosition:position];
 }
 
-- (void) turnEnded
+- (id) initWithPosition:(CGPoint)position
 {
-    int newamount = self.cpAmount + self.cpGainPerTurn;
-    if (self.cpAmount > maxCP) newamount = maxCP;
-    [self setCpAmount:newamount];
+    self = [super init];
+    if ( self ) {
+        //self.position = ccpAdd(position, ccp(0,100));
+        
+        // Background;
+        _background = [CCSprite spriteWithFile:@"test-bg.png"];
+        _background.anchorPoint = ccp(0.0f,0.0f);
+        // the dmg and move stats
+        _nameLabel = [CCLabelBMFont labelWithString:@"NAME Lv.0" fntFile:NORMALFONTMID];
+        _nameLabel.scale = 1;
+        _nameLabel.anchorPoint = ccp(0.0f,0.5f);
+        _description = [CCLabelBMFont labelWithString:@"-" fntFile:@"test_epic.fnt"];
+        _description.scale = 1;
+        _description.anchorPoint = ccp(0.0f,0.5f);
+        
+        [self reposition];
+        [self addChild:_background z:0];
+        [self addChild:_nameLabel z:1];
+        [self addChild:_description z:1];
+        
+        self.visible = NO;
+    }
+    return self;
 }
 
-- (BOOL) isOutOfPoints
+- (void) reposition
 {
-    return (self.cpAmount == 0)? YES: NO;
+    self.background.position = ccpAdd(self.position, CGPointZero);
+    self.nameLabel.position = ccpAdd(self.position, ccp(0,40));
+    self.description.position = ccpAdd(self.position, ccp(0,18));
 }
 
+- (void) setDisplayFor:(SetupTile *) tile
+{
+    if ( tile.unit != nil  )
+    {
+        if ( [tile.unit isEqual:self.tilePtr.unit] )
+            return;
+        
+        NSLog(@">[MYLOG] Setting display for tile %@",tile);
+        self.tilePtr = tile;
+        
+        [self.nameLabel setString:[[tile unit] description]];
+        if ( tile.unit.attribute->rarity == COMMON )        [self.description setFntFile:@"test_com.fnt"];
+        else if ( tile.unit.attribute->rarity == UNCOMMON ) [self.description setFntFile:@"test_unc.fnt"];
+        else if ( tile.unit.attribute->rarity == RARE )     [self.description setFntFile:@"test_rare.fnt"];
+        else if ( tile.unit.attribute->rarity == EPIC )     [self.description setFntFile:@"test_epic.fnt"];
+        [self.description setString:
+         [NSString stringWithFormat:
+          @"\\STR:%04d \\AGI:%04d \\INT:%04d\n\\DMG:%04d \\PHY:%03d%% \\MAG:%03d%%\n",
+          [tile.unit.attribute getStr],
+          [tile.unit.attribute getAgi],
+          [tile.unit.attribute getInt],
+          tile.unit.attribute->damage,
+          (int)(tile.unit.attribute->phys_resist*100),
+          (int)(tile.unit.attribute->magic_resist*100)]];
+    }
+    else
+    {
+        NSLog(@">[MYLOG] Not setting display for tile %@",tile);
+        self.tilePtr = nil;
+        self.visible = NO;
+    }
+}
+
+- (void) setPosition:(CGPoint)position x:(BOOL)x y:(BOOL)y
+{
+    CGPoint offset = CGPointMake((x)?0:-225,(y)?50:-60);
+    [self setPosition:ccpAdd(position,offset)];
+    self.visible = YES;
+    self.description.visible = NO;
+    self.nameLabel.visible = NO;
+    id start = [CCSpawn actionOne:[CCActionTween actionWithDuration:0.3 key:@"scaleX" from:0 to:1] two:[CCFadeIn actionWithDuration:0.15]];
+    id display = [CCCallBlock actionWithBlock:^{
+        self.description.visible = YES;
+        self.nameLabel.visible = YES;
+        [self.description runAction:[CCFadeIn actionWithDuration:0.2]];
+        [self.nameLabel runAction:[CCFadeIn actionWithDuration:0.2]];}];
+    [self.background runAction:[CCSequence actionOne:start two:display]];
+}
+
+- (void) formatString:(NSString *)input
+{
+#define MAXSTRWIDTH 100
+    int i, length = [input length];
+    NSMutableString *string = [input mutableCopy];
+    for ( i = 1; i <= length/MAXSTRWIDTH; i++) {
+        NSRange index = [string rangeOfCharacterFromSet:[NSCharacterSet whitespaceCharacterSet]
+                                                options:NSBackwardsSearch
+                                                  range:NSMakeRange((i-1)*MAXSTRWIDTH, i*MAXSTRWIDTH)];
+        [string insertString:@"\n" atIndex:index.location];
+    }
+    NSLog(@">[MYLOG]    Formatted string to:\n%@",string);
+    [self.description setString:string];
+}
 @end

@@ -28,14 +28,6 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
-	// Create an CCGLView with a RGB565 color buffer, and a depth buffer of 0-bits
-	/*CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
-								   pixelFormat:kEAGLColorFormatRGB565
-								   depthFormat:0
-							preserveBackbuffer:NO
-									sharegroup:nil
-								 multiSampling:NO
-							   numberOfSamples:0];*/
     CCGLView *glView = [CCGLView viewWithFrame:[window_ bounds]
                                    pixelFormat:kEAGLColorFormatRGBA8
                                    depthFormat:0
@@ -116,8 +108,8 @@
 
 - (void) login:(NSString *)username pass:(NSString *)password
 {
-    //[self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
-    [self switchToScene:[BattleLayer scene]];
+    [self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
+    //[self switchToScene:[BattleLayer scene]];
     //[self switchToScene:[SetupLayer scene]];
     _username = username;
     _password = password;
@@ -241,7 +233,7 @@
         LoginViewController *lvc = (LoginViewController *)_viewController;
         
         if ([[evt.params objectForKey:@"success"] boolValue]) {
-            lvc.labelStatus.text = @"Welcome! Please login.";
+            lvc.labelStatus.text = @"Connected! Please login.";
         } else {
             lvc.labelStatus.text = [NSString stringWithFormat:@"Connection error: %@", [evt.params objectForKey:@"error"]];
         }

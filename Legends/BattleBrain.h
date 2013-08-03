@@ -24,7 +24,15 @@
 #import "Gorgon.h"
 #import "MudGolem.h"
 #import "Dragon.h"
+#import "LionMage.h"
 #import "Buff.h"
+
+@interface TileVector : NSObject
+@property (nonatomic, strong) Tile *tile;
+@property (nonatomic) int direction;
+
++ (id) vectorWithTile:(Tile *)tile direction:(int)direction;
+@end
 
 @class BattleBrain;
 
@@ -34,25 +42,26 @@
 
 - (void)    failToLoad;
 
-- (void)    unitDidMoveTo:(Tile *)tile;
+- (void)    transformTileAt:(CGPoint)position
+                    fromGid:(int)start
+                      toGid:(int)end
+                      delay:(float)delay;
 
-- (void)    displayCombatMessage:(NSString*)message
-                      atPosition:(CGPoint)point
-                       withColor:(ccColor3B)color
-                       withDelay:(float)delay;
+- (void)    animateTileAt:(CGPoint)position
+                     with:(CCAction *) action;
+
+- (void)    shakeScreenAfter:(float)delay;
 @end
 
-@interface BattleBrain : NSObject
+@interface BattleBrain : NSObject<TileDelegate>
 {
-    // Matrix conversion from cartesian to isometric
-    CGAffineTransform   toIso;
-    // Matric conversion from isometric to cartesian
-    CGAffineTransform   fromIso;
     // Positional offset of layer due to scrolling
     CGPoint currentLayerPos;
 }
 @property (nonatomic, strong) NSArray *board;
 @property (assign) id <BattleBrainDelegate> delegate;
+@property (nonatomic) CGAffineTransform toIso;
+@property (nonatomic) CGAffineTransform fromIso;
 
 // All logic should be in here
 - (id)          initWithMap:(CCTMXLayer *) map;
@@ -60,8 +69,9 @@
 - (Tile *)      doSelect:(CGPoint)position;
 - (BOOL)        doAction:(int)action
                      for:(Tile *)tile
-                      to:(CGPoint)finish
-                 targets:(SFSObject *)targets;
+                  toward:(TileVector *)vector
+                  oppObj:(SFSObject *)obj
+                 targets:(NSArray *)targets;
 
 - (BOOL)         doOppAction:(SFSObject *)data;
 
@@ -72,6 +82,8 @@
                          action:(int)action
                       direction:(int)direction
                          center:(CGPoint)position;
+
+- (NSArray *)   findAllOwnedPositions;
 
 - (Tile *)      findTile:(CGPoint)position
                   absPos:(bool)absPos;
@@ -90,8 +102,10 @@
 
 - (void)        printBoard;
 
+- (void)        resetTurnForSide:(BOOL)side;
+
 - (void)        killtile:(CGPoint)position;
 
-- (void) actionDidFinish;
+- (void)        actionDidFinish;
 
 @end

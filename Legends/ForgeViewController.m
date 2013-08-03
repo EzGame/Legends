@@ -125,6 +125,7 @@
 }
 
 - (void) loadItems {
+    /*
     for ( NSString *itemString in [[UserSingleton get] items] )
     {
         NSArray *itemValues = [itemString componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
@@ -146,7 +147,7 @@
         {
             
         }
-    }
+    }*/
 }
 
 /* uiscrollview delegate */

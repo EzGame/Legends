@@ -20,7 +20,8 @@
 @interface BattleLayer()
 @property (nonatomic, strong) BattleBrain *brain;
 @property (nonatomic, strong) CCLabelBMFont *debug;
-- (void) reset:(bool)myTurn;
+@property (nonatomic, strong) NSArray *highlightPtr;
+@property (nonatomic, strong) TileVector *vector;
 @end
 
 @implementation BattleLayer
@@ -34,7 +35,7 @@
 - (void) setSelection:(Tile *)selection
 {
     if ( _selection != nil && selection == nil )
-        [_selection.unit.sprite stopAllActions];
+        [_selection.unit.sprite stopActionByTag:IDLETAG];
     _selection = selection;
 }
 
@@ -64,7 +65,6 @@
         isTouchEnabled_ = YES;
         appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
         smartFox = appDelegate.smartFox;
-        usedTiles = [[NSMutableArray alloc] init];
         
         // Game Layer
         _gameLayer = [CCLayer node];
@@ -72,18 +72,17 @@
         
         // Hud Layer
         _hudLayer = [CCLayer node];
-        [self addChild:_hudLayer z:DISPLAYS];
-        
-        
-        // Setup Brain
-        _brain = [[BattleBrain alloc] initWithMap:_tmxLayer];
-        [_brain setDelegate:self];
-        [_brain restoreSetup];
+        [self addChild:_hudLayer z:HUDLAYER];
         
         [self createMap];
         [self createUI];
         [self createMenu];
         
+        // Setup Brain
+        _brain = [[BattleBrain alloc] initWithMap:_tmxLayer];
+        [_brain setDelegate:self];
+        [_brain restoreSetup];
+
         if ( [[UserSingleton get] amIPlayerOne] ) {
             [self reset:YES];
             CCLOG(@"MYLOG:  I AM PLAYER 1");
@@ -116,26 +115,35 @@
 
 - (void) createMenu
 {
-    // Change this shit
     [CCMenuItemFont setFontSize:20];
-    CCMenuItem *startTurnButton = [CCMenuItemFont itemWithString:@"Chat"
-                                                          target:self
-                                                        selector:@selector(startTurnPressed)];
-    
-    CCMenuItem *endTurnButton = [CCMenuItemFont itemWithString:@"Surrender"
-                                                        target:self
-                                                      selector:@selector(endTurnPressed)];
-    CCMenuItem *passButton = [CCMenuItemFont itemWithString:@"Pass"
+    CCMenuItem *nw = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_NW_temp.png"]
+                                             selectedSprite:[CCSprite spriteWithFile:@"turn_NW_selected.png"]
                                                      target:self
-                                                   selector:@selector(passPressed)];
-
-    passButton.visible = YES;
-    startTurnButton.visible = false;
-    endTurnButton.visible = false;
+                                                   selector:@selector(turnPressed:)];
+    nw.tag = NW; nw.position = ccp(-HALFLENGTH,HALFWIDTH);
+    CCMenuItem *ne = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_NE_temp.png"]
+                                             selectedSprite:[CCSprite spriteWithFile:@"turn_NE_selected.png"]
+                                                     target:self
+                                                   selector:@selector(turnPressed:)];
+    ne.tag = NE; ne.position = ccp(HALFLENGTH,HALFWIDTH);
+    CCMenuItem *se = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_SE_temp.png"]
+                                             selectedSprite:[CCSprite spriteWithFile:@"turn_SE_selected.png"]
+                                                     target:self
+                                                   selector:@selector(turnPressed:)];
+    se.tag = SE; se.position = ccp(HALFLENGTH,-HALFWIDTH);
+    CCMenuItem *sw = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_SW_temp.png"]
+                                             selectedSprite:[CCSprite spriteWithFile:@"turn_SW_selected.png"]
+                                                     target:self
+                                                   selector:@selector(turnPressed:)];
+    sw.tag = SW; sw.position = ccp(-HALFLENGTH,-HALFWIDTH);
     
-    _menu = [CCMenu menuWithItems:startTurnButton, endTurnButton, passButton, nil];
+    _turnMenu = [CCMenu menuWithItems:nw,ne,se,sw, nil];
+    _turnMenu.visible = NO;
+    [_gameLayer addChild:_turnMenu z:MENUS];
+    
+    // Old menu
+    _menu = [CCMenu menuWithItems:nil];
     _menu.position = ccp(425,40);
-    [_menu alignItemsVertically];
     _menu.visible = YES;
     [_hudLayer addChild:_menu z:MENUS];
     
@@ -146,6 +154,15 @@
 }
 
 #pragma mark - Touch Handlers
+- (void) turnPressed:(CCMenuItem *)sender
+{
+    NSLog(@">[NSLog] turnPressed with tag:%d",sender.tag);
+    self.selection.unit.direction = sender.tag;
+    self.turnMenu.visible = NO;
+    //[self sendEndTurn:sender.tag];
+    [self passPressed];
+}
+
 - (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     // Do nothing atm
@@ -196,7 +213,7 @@
         
         [self.debug setString:[NSString stringWithFormat:@"%d, %d", (int)position.x, (int)position.y]];
         
-        NSLog(@"%@",NSStringFromCGPoint(position));
+        //NSLog(@"%@",NSStringFromCGPoint(position));
         
         if (isMyTurn)
             [self turn_drive:position];
@@ -234,12 +251,16 @@
     CCLOG(@"\n==================TURN PHASE A: Make a selection==================\n");
     
     // Set selection and display
-    [self setSelection:[self.brain doSelect:position]];
-    [self.display setDisplayFor:[self selection]];
+    Tile *temp = [self.brain doSelect:position];
+    [self.display setDisplayFor:temp];
+    if ( !unitLocked )  [self setSelection:temp];
     
-    if ( [[self selection] unit] != nil ) {
-        [self center:position];
-        if ( [[self selection] isOwned] ) {
+    if ( temp.unit != nil ) {
+        [self center:temp.unit.sprite.position];
+        if ( ![self.selection.unit isEqual:temp.unit] ) return;
+
+        [self.selection.unit.sprite stopActionByTag:IDLETAG];
+        if ( [[self selection] isOwned] && ![self.selection.unit.sprite numberOfRunningActions]) {
             // Show visual selection
             [[[self selection] unit] action:IDLE at:CGPointZero];
             
@@ -267,23 +288,25 @@
         [self highlightArea:NO];
         // Direction
         int direction = [self directionFrom:target to:self.selection.boardPos];
-        [self highLightEffect:YES in:direction at:target];
-        
+        [self highLightEffect:YES toward:direction at:target];
+        self.vector = [TileVector vectorWithTile:[self.brain findTile:target absPos:NO]
+                                       direction:direction];
         // Go to turn D next click
         NSLog(@">[MYLOG] Proceed to C next\n");
         isTurnB = NO;
         isTurnC = YES;
         
     } else {
-        [self highlightArea:NO];
-        // Remove current action
-        currentAction = UNKNOWN;
+        if ( currentAction != UNKNOWN ) {
+            [self highlightArea:NO];
+            currentAction = UNKNOWN;
+        }
         
-        // Remove selection
-        [[[[self selection] unit] sprite] stopAllActions];
+        [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
+        
+        [self.display setDisplayFor:nil];
         [[[self selection] unit] toggleMenu:NO];
-        [self setSelection:nil];
-
+        
         // Go to turn A immediately
         NSLog(@">[MYLOG] Proceed to A immediately\n");
         isTurnB = NO;
@@ -303,38 +326,44 @@
     if ( [self.brain isValidTile:target] )
         temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
     
-    SFSObject *targets = [SFSObject newInstance];
-    [self highLightEffect:NO in:-1 at:CGPointZero];
-    if ( ![self isccColor3B:temp theSame:ccWHITE] &&
-         [[self brain] doAction:currentAction for:[self selection]
-                             to:position targets:targets] ) {
+    SFSObject *obj = [SFSObject newInstance];
+    [self highLightEffect:NO toward:-1 at:CGPointZero];
+    
+    if ( ![self isccColor3B:temp theSame:ccWHITE] && [[self brain] doAction:currentAction for:[self selection]
+                                                                     toward:self.vector
+                                                                     oppObj:obj
+                                                                    targets:self.highlightPtr] )
+    {
+        if ( currentAction == MOVE || currentAction == TELEPORT_MOVE ) {
+            // reorder child
+            self.selection = self.vector.tile;
+            [self reorderTile:[self selection]];
+        }
+             
         CGPoint oldPos = [[self selection] boardPos];
-            
-        // Add to used tiles
-        [usedTiles addObject:[self selection]];
-        
-        // reorder child
-        [self reorderTile:[self selection]];
-        
+        unitLocked = YES;
+        currentAction = UNKNOWN;
+             
         // Send data
-        [self sendDatafrom:oldPos to:position timeDuration:0 targets:targets];
-     } else {
-         [[[[self selection] unit] sprite] stopAllActions];
-         [self setSelection:nil];
-         
-         // Open menu and set flag
-         [[[self selection] unit] toggleMenu:NO];
-     }
-    
-    
-    if ( false ) {
-        NSLog(@">[MYLOG] TURN FINISHED");
-        [self passPressed];
+        [self sendDatafrom:oldPos to:position timeDuration:0 targets:obj];
         
+        if ( [self.selection.unit hasActionLeft] ) {
+            NSLog(@">[MYLOG] Proceed to turn B next");
+            isTurnC = NO;
+            isTurnB = YES;
+        }
     } else {
-        NSLog(@">[MYLOG] Proceed to turn B next");
+        [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
+        currentAction = UNKNOWN;
+        [self.display setDisplayFor:nil];
+        [[[self selection] unit] toggleMenu:NO];
+        
+        // Go to turn A immediately
+        NSLog(@">[MYLOG] Proceed to A immediately\n");
         isTurnC = NO;
-        isTurnB = YES;
+        isTurnA = YES;
+        
+        [self turnA:position];
     }
 }
 
@@ -342,16 +371,13 @@
 {
     if ( isMyTurn ) {
         NSLog(@">[MYLOG]    Passing the turn!");
-        NSAssert(false, @"change this shit");
-        for (Tile *tile in usedTiles) {
-            NSLog(@">>>>>[MYLOG]    Reset %@",tile);
-            if ( isMyTurn == tile.unit.isOwned )
-                [[tile unit] reset];
-        }
+        [self.brain resetTurnForSide:isMyTurn];
+        
         [[self.selection unit] toggleMenu:NO];
+        [self.selection.unit.sprite stopAllActions];
         [self reset:!isMyTurn];
-        [usedTiles removeAllObjects];
-        [self sendEndTurn];
+        [self reset:!isMyTurn];
+        //[self sendEndTurn];
     }
 }
 
@@ -359,6 +385,7 @@
 {
     // State variables
     currentAction = UNKNOWN;
+    unitLocked = NO;
     isMyTurn = myTurn;
     isTurnA = myTurn;
     isTurnB = NO;
@@ -393,7 +420,7 @@
     lblMessage.position = ccp(-100,240);
     
     //add the LABEL to the screen
-    [self.gameLayer addChild:lblMessage z:DISPLAYS];
+    [self.hudLayer addChild:lblMessage z:DISPLAYS];
     
     id waitHere = [CCDelayTime actionWithDuration:delayDuration];
     id slideTwo = [CCMoveBy actionWithDuration:slideDuration position:ccp(xChange, yChange)];
@@ -405,7 +432,7 @@
     //the waiting for the slide/fade to complete
     id waitForSlide = [CCDelayTime actionWithDuration:delayDuration];
     id removeLabel = [CCCallBlock actionWithBlock:^{
-        [self.gameLayer removeChild:lblMessage cleanup:YES];
+        [self.hudLayer removeChild:lblMessage cleanup:YES];
         isMyTurn = myTurn;
     }];
     id sequence = [CCSequence actions:waitForSlide, removeLabel, nil];
@@ -437,14 +464,19 @@
     [obj putSFSObject:@"effect" value:targets];
     [obj putSFSObject:@"null test" value:nil];
     [obj putInt:@"timeDuration" value:time];
+    [obj putClass:@"vector" value:self.vector];
     
     // Send the message, targetRoom is nil due to default being last joined room
     [smartFox send:[PublicMessageRequest requestWithMessage:@"gameAction" params:obj targetRoom:nil]];
 }
 
-- (void) sendEndTurn
+- (void) sendEndTurn:(int)direction;
 {
-    [smartFox send:[PublicMessageRequest requestWithMessage:@"endTurn"]];
+    [self passPressed];
+    
+    SFSObject *obj = [SFSObject newInstance];
+    [obj putInt:@"direction" value:direction];
+    [smartFox send:[PublicMessageRequest requestWithMessage:@"endTurn" params:obj targetRoom:nil]];
 }
 
 - (void) onPublicMessage:(SFSEvent *)evt
@@ -454,7 +486,7 @@
     SFSObject *data = [evt.params objectForKey:@"data"];
     NSLog(@">[MYLOG]    Received a public message from %@",sender.name);
     if ([sender.name isEqual:smartFox.mySelf.name]) {
-        NSLog(@">>>>>>>>>>> It's me LOL");
+        [self passPressed];
         return;
     } else {
         NSLog(@">>>>>>>>>>> %@", message);
@@ -501,6 +533,8 @@
             break;
         case ATTK: colour = ccORANGE;
             break;
+        case HEAL_ALL: colour = ccGREEN;
+            break;
         case GORGON_SHOOT: colour = ccORANGE;
             break;
         case GORGON_FREEZE: colour = ccDARKCYAN;
@@ -529,12 +563,12 @@
     else if ( color.g == MAX(color.g,color.b)) isGreen = YES;
     else isBlue = YES;
 
-    id tintUp = [CCTintTo actionWithDuration:1
+    id tintUp = [CCTintTo actionWithDuration:0.5
                                          red:MIN(color.r+isRed*factor,255)
                                        green:MIN(color.g+isGreen*factor,255)
                                         blue:MIN(color.b+isBlue*factor,255)
                  ];
-    id tintDown = [CCTintTo actionWithDuration:1
+    id tintDown = [CCTintTo actionWithDuration:0.5
                                            red:MAX(color.r-isRed*factor,0)
                                          green:MAX(color.g-isBlue*factor,0)
                                           blue:MAX(color.b-isGreen*factor,0)
@@ -546,17 +580,18 @@
 
 - (void) center:(CGPoint)position
 {
-    CGPoint difference = ccpSub(ccp(240,100), position);
-    CGPoint destination = ccpAdd(self.gameLayer.position, difference);
+    CGPoint difference = ccpSub(position, ccpSub(ccp(200,150),self.gameLayer.position) );
+    CGPoint destination = ccp(self.gameLayer.position.x - difference.x,
+                              self.gameLayer.position.y - difference.y);
     
     if ( destination.x > MAX_SCROLL_X )
-        destination = ccp(MAX_SCROLL_X, destination.y);
+        destination.x = MAX_SCROLL_X ;
     if ( destination.y > MAX_SCROLL_Y )
-        destination = ccp(destination.x, MAX_SCROLL_Y);
+        destination.y = MAX_SCROLL_Y ;
     if ( destination.x < MIN_SCROLL_X )
-        destination = ccp(MIN_SCROLL_X, destination.y);
+        destination.x = MIN_SCROLL_X ;
     if ( destination.y < MIN_SCROLL_Y )
-        destination = ccp(destination.x, MIN_SCROLL_Y);
+        destination.y = MIN_SCROLL_Y ;
     
     [self.gameLayer runAction:[CCMoveTo actionWithDuration:0.5 position:destination]];
     [self.brain setCurrentLayerPos:destination];
@@ -573,6 +608,7 @@
     NSLog(@">[MYLOG]        BattleLayer::highlightArea is centering around %@ [%d]",
           [self selection], highlight );
     
+    [self.display setDisplayFor:self.selection];
     int action = currentAction;
     ccColor3B colour = [self colorFromAction:action];
     
@@ -601,31 +637,30 @@
     }
 }
 
-- (void) highLightEffect:(BOOL)highlight in:(int)direction at:(CGPoint)position
+- (void) highLightEffect:(BOOL)highlight toward:(int)direction at:(CGPoint)position
 {
     NSLog(@">[MYLOG]        BattleLayer::highlightEffect is centering around %@ direction %d",
           [self selection], direction );
     
+    [self.display setDisplayFor:self.selection];
     int action = currentAction;
     ccColor3B colour = [self colorFromAction:action];
     colour = [self darkenColor3B:colour by:0.8];
-    
     if ( highlight )
-        highlightPtr = [[self brain] findEffectTiles:[self selection] action:action direction:direction center:position];
-    
+        self.highlightPtr = [[self brain] findEffectTiles:[self selection] action:action direction:direction center:position];
+
     if ( highlight ) {
-        for (NSValue *v in highlightPtr) {
+        for (NSValue *v in self.highlightPtr) {
             CGPoint pos = [v CGPointValue];
-            
             if ([self.brain isValidTile:pos]) {
                 // the registration point is the top corner
                 CCSprite *temp = [self.tmxLayer tileAt:ccp(MAPLENGTH-1-pos.x,MAPWIDTH-1-pos.y)];
                 [temp setColor:colour];
-                [self tint:temp with:temp.color by:50];
+                [self tint:temp with:temp.color by:75];
             }
         }
     } else {
-        for (NSValue *v in highlightPtr) {
+        for (NSValue *v in self.highlightPtr) {
             CGPoint pos = [v CGPointValue];
             
             if ([self.brain isValidTile:pos]) {
@@ -642,6 +677,10 @@
 - (BOOL) pressedButton:(int)action
 {
     NSLog(@">[MYLOG]    Received action %d",action);
+    isTurnA = NO;
+    isTurnB = YES;
+    isTurnC = NO;
+    
     if ( action == MOVE ) {
         currentAction = MOVE;
         [self highlightArea:true];
@@ -679,21 +718,89 @@
     [self.gameLayer removeChild:sprite cleanup:YES];
 }
 
+- (void) removeByTag:(int)tag
+{
+    [self.gameLayer removeChildByTag:tag cleanup:YES];
+}
+
 - (void) actionDidFinish:(Unit *)unit
 {
     [self center:unit.sprite.position];
+    [self.display setDisplayFor:self.selection];
+    if ( ![unit hasActionLeft] ) {
+        self.turnMenu.visible = YES;
+        self.turnMenu.position = unit.sprite.position;
+    }
     [self.brain actionDidFinish];
 }
+
+- (void) shakeScreenAfter:(float)delay
+{
+    CCAction *shake = [CCSequence actions:
+                       [CCDelayTime actionWithDuration:delay],
+                       [CCShake actionWithDuration:0.75 amplitude:ccp(20,20) dampening:YES], nil];
+    shake.tag = 10;
+    [self.gameLayer runAction:shake];
+}
+
+- (void)    displayCombatMessage:(NSString*)message
+                      atPosition:(CGPoint)point
+                       withColor:(ccColor3B)color
+{
+    NSLog(@">[MYLOG]        Displaying %@, at [%f,%f]",message,point.x,point.y);
+    //used in determining how long the slide/fade lasts
+    float slideDuration = 4;
+    
+    //used in determining how far up/down along Y the label changes
+    //positive = UP, negative = DOWN
+    float yChange = 50;
+    
+    //used in determining how far left/right along the X the label changes
+    //positive = RIGHT, negative = LEFT
+    float xChange = 0;
+    
+    //set up the label
+    CCLabelBMFont *lblMessage = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
+    
+    //Change the color
+    lblMessage.color = color;
+    
+    //position the label where you want it...
+    lblMessage.position = ccp(point.x,point.y+50);
+    
+    //add the LABEL to the screen
+    [self.gameLayer addChild:lblMessage z:DISPLAYS];
+    
+    id slideUp = [CCMoveBy actionWithDuration:slideDuration position:ccp(xChange,yChange)];
+    id fadeOut = [CCFadeOut actionWithDuration:slideDuration];
+    
+    //run the actions on the LABEL
+    id text = [CCSpawn actions:fadeOut, slideUp, nil];
+    [lblMessage runAction:text];
+    
+    //the waiting for the slide/fade to complete
+    id waitForSlide = [CCDelayTime actionWithDuration:slideDuration];
+    
+    //the actual removal of the label (uses a block so all the code stays here)
+    id removeLabel = [CCCallBlock actionWithBlock:^{
+        [self.gameLayer removeChild:lblMessage cleanup:YES];
+    }];
+    
+    //sequence them together so they happen IN ORDER (not at once)
+    id sequence = [CCSequence actions:waitForSlide, removeLabel, nil];
+    
+    //actually run the sequence
+    [self runAction:sequence];
+}
+
 #pragma mark - Brain Delegates
 - (void)loadTile:(Tile *)tile
 {
-    NSLog(@"tile is %@",tile);
     [[[tile unit] sprite] setPosition:[self.brain findAbsPos:tile.boardPos]];
     [[tile unit] setDelegate:self];
     [self.gameLayer addChild:[[tile unit] spriteSheet] z:SPRITES_TOP];
     [self reorderTile:tile];
     if (tile.isOwned) [self.gameLayer addChild:[[tile unit] menu] z:MENUS];
-    CCLOG(@"    loaded unit at %@",tile);
 }
 
 - (void)failToLoad
@@ -706,58 +813,28 @@
     [self setSelection:tile];
 }
 
-- (void)    displayCombatMessage:(NSString*)message
-                      atPosition:(CGPoint)point
-                       withColor:(ccColor3B)color
-                       withDelay:(float)delay
+- (void) transformTileAt:(CGPoint)position fromGid:(int)start toGid:(int)end delay:(float)delay
 {
-    NSLog(@">[MYLOG]        Displaying %@, at [%f,%f]",message,point.x,point.y);
-    //used in determining how long the slide/fade lasts
-    float slideDuration = 2.5f;
+    CGPoint adjustPos = ccp(MAPLENGTH-1-position.x,MAPWIDTH-1-position.y);
+    NSLog(@"%@ %d %d %f,",NSStringFromCGPoint(position),start,end,delay);
+    __block int begin = start;
+    __block int sign = (end - start)/abs(end - start);
+    CCSprite *target = [self.tmxLayer tileAt:adjustPos];
     
-    //used in determining how far up/down along Y the label changes
-    //positive = UP, negative = DOWN
-    float yChange = 100;
-    
-    //used in determining how far left/right along the X the label changes
-    //positive = RIGHT, negative = LEFT
-    float xChange = 0;
-    
-    //set up the label
-    CCLabelBMFont *lblMessage = [CCLabelBMFont labelWithString:message fntFile:@"emulator.fnt"];
-    
-    //Change the color
-    lblMessage.color = color;
-    
-    //position the label where you want it...
-    lblMessage.position = point;
-    lblMessage.visible = NO;
-    
-    //add the LABEL to the screen
-    [self.gameLayer addChild:lblMessage z:DISPLAYS];
-
-    id delayTime = [CCDelayTime actionWithDuration:delay];
-
-    id visible = [CCCallBlock actionWithBlock:^{ lblMessage.visible = YES; }];
-    id slideUp = [CCMoveBy actionWithDuration:slideDuration position:ccp(xChange,yChange)];
-    id fadeOut = [CCFadeOut actionWithDuration:slideDuration];
-    
-    //run the actions on the LABEL
-    id text = [CCSequence actions:delayTime, [CCSpawn actions:visible, fadeOut, slideUp, nil], nil];
-    [lblMessage runAction:text];
-    
-    //the waiting for the slide/fade to complete
-    id waitForSlide = [CCDelayTime actionWithDuration:slideDuration+delay];
-    
-    //the actual removal of the label (uses a block so all the code stays here)
-    id removeLabel = [CCCallBlock actionWithBlock:^{
-        [self.gameLayer removeChild:lblMessage cleanup:YES];
+    id initialDelay = [CCDelayTime actionWithDuration:delay];
+    id betweenDelay = [CCDelayTime actionWithDuration:0.1];
+    id shift = [CCCallBlock actionWithBlock:^{
+        [self.tmxLayer setTileGID:begin at:adjustPos];
+        begin = begin + sign;
     }];
+    id repeat = [CCRepeat actionWithAction:[CCSequence actions:shift, betweenDelay, nil]
+                                     times:end-start];
     
-    //sequence them together so they happen IN ORDER (not at once)
-    id sequence = [CCSequence actions:waitForSlide, removeLabel, nil];
+    [target runAction:[CCSequence actions:initialDelay, repeat, nil]];
+}
+
+- (void) animateTileAt:(CGPoint)position with:(CCAction *)action
+{
     
-    //actually run the sequence
-    [self runAction:sequence];
 }
 @end

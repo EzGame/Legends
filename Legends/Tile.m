@@ -10,21 +10,16 @@
 
 @implementation Tile
 @synthesize unit = _unit, status = _status, buffs = _buffs;
-@synthesize boardPos = _boardPos;
+@synthesize boardPos = _boardPos, isOwned = _isOwned, isOccupied = _isOccupied;
 
 + (id)tileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
 {
     return [[Tile alloc] initWithPosition:boardPos status:REGULAR sprite:sprite];
 }
 
-+ (id)invalidTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
++ (id)invalidTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite;
 {
     return [[Tile alloc] initWithPosition:boardPos status:INVALID sprite:sprite];
-}
-
-+ (id)setupTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
-{
-    return [[Tile alloc] initWithPosition:boardPos status:SETUP sprite:sprite];
 }
 
 - (id)initWithPosition:(CGPoint)boardPos status:(int)status sprite:(CCSprite *)sprite
@@ -45,39 +40,114 @@
 
 - (NSString*) description
 {
-    return [NSString stringWithFormat:@"%@ %@",
-            (self.isOwned)? @"O" :@"E",
+    return [NSString stringWithFormat:@"%@|%@ %@",
+            (self.isOwned)? @"ME" :@"OP",
+            (self.isOccupied)? @"O" :@"E",
             NSStringFromCGPoint(self.boardPos) ];
 }
 
 - (void) setUnit:(Unit *)unit
 {
-    NSLog(@">[MYLOG] Entering Tile:setUnit %@",unit);
+    if ( unit == nil ) {
+        _isOccupied = NO;
+        _isOwned = NO;
+    } else {
+        _isOccupied = YES;
+        _isOwned = unit.isOwned;
+    }
+
     _unit = unit;
     for ( Buff *buff in self.buffs ) {
         [buff somethingChanged:self];
     }
 }
 
+- (Buff *) findBuff:(Class)class
+{
+    for ( Buff *buff in self.buffs )
+    {
+        if ( [buff isKindOfClass:class] ) {
+            return buff;
+        } else {
+            continue;
+        }
+    }
+    return nil;
+}
+
+- (void) damage:(int)damage type:(int)type fromBuff:(Buff *)buff fromCaster:(id)caster
+{
+    [self.unit take:damage after:0];
+}
+
 - (void) buffTargetFinished:(Buff *)buff
 {
-    NSLog(@">[MYLOG] Entering Tile:buffFinished");
+    NSLog(@">[MYLOG] Entering Tile %@:buffFinished",self);
     if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
         [self.buffs removeObject:buff];
     } else if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
         isABlaze = NO;
+        [self.delegate transformTileMe:self toGid:PLAIN_GRASS_TO_MOLTEN_END toGid:PLAIN_GRASS_TO_MOLTEN_START];
         [self.buffs removeObject:buff];
     }
 }
 
 - (void) buffTargetStarted:(Buff *)buff
 {
-    NSLog(@">[MYLOG] Entering Tile:buffStarted");
+    NSLog(@"\n>[MYLOG] Entering Tile %@:buffStarted",self);
+    Buff * prevBuff = [self findBuff:[buff class]];
+    if ( prevBuff != nil ) {
+        NSLog(@"\n>[MYLOG]    Tile %@:\n Replacing buff %@\n With %@\n",
+              self, prevBuff, buff);
+        [self.buffs replaceObjectAtIndex:[self.buffs indexOfObject:prevBuff] withObject:buff];
+    }
+    
+    NSLog(@">[MYLOG]    Tile %@:\n Adding buff %@", self, buff);
     if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
         [self.buffs addObject:buff];
+
     } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
         isABlaze = YES;
+        [self.delegate transformTileMe:self toGid:PLAIN_GRASS_TO_MOLTEN_START toGid:PLAIN_GRASS_TO_MOLTEN_END];
         [self.buffs addObject:buff];
     }
+}
+@end
+
+@implementation SetupTile
+@synthesize unit = _unit;
+@synthesize boardPos = _boardPos, isOccupied = _isOccupied, isReserve = _isReserve;
+
+- (void) setUnit:(SetupUnit *)unit
+{
+    if ( unit == nil ) {
+        self.isOccupied = NO;
+    } else {
+        self.isOccupied = YES;
+        unit.direction = (self.isReserve)? SW : NE;
+        unit.obj.position = (self.isReserve)? ccp(-1,-1) : self.boardPos;
+    }
+    _unit = unit;
+}
+
++ (id) setupTileWithPosition:(CGPoint)boardPos isReserve:(BOOL)isReserve
+{
+    return [[SetupTile alloc] initSetupTileWithPosition:boardPos isReserve:isReserve];
+}
+
+- (id) initSetupTileWithPosition:(CGPoint)boardPos isReserve:(BOOL)isReserve
+{
+    self = [super init];
+    if ( self ) {
+        _boardPos = boardPos;
+        _isOccupied = NO;
+        _isReserve = isReserve;
+    }
+    return self;
+}
+
+- (NSString *) description
+{
+    return [NSString stringWithFormat:@"%d[%@] @%@",self.isReserve, self.unit, NSStringFromCGPoint(self.boardPos)];
 }
 @end

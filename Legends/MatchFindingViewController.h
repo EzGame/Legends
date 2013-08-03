@@ -19,6 +19,7 @@
     BOOL matchFound;
     int attemptCount;
     
+    BOOL joined;
     BOOL sent;
     BOOL received;
 }

@@ -5,7 +5,8 @@
 //  Created by David Zhang on 2013-04-23.
 //
 //
-
+#define MINOTAURSCALE 3
+#define MINOTAURSETUPSCALE MINOTAURSCALE * SETUPMAPSCALE
 #import "Minotaur.h"
 @implementation Minotaur
 
@@ -14,24 +15,24 @@
 
 #pragma mark - Alloc n Init
 
-+ (id) minotaurWithValues:(NSArray *)values;
++ (id) minotaurWithObj:(UnitObj *)obj
 {
-    return [[Minotaur alloc] initMinotaurFor:YES withValues:values];
+    return [[Minotaur alloc] initMinotaurFor:YES withObj:obj];
 }
 
-+ (id) minotaurForEnemyValues:(NSArray *)values;
++ (id) minotaurForEnemyObj:(UnitObj *)obj
 {
-    return [[Minotaur alloc] initMinotaurFor:NO withValues:values];
+    return [[Minotaur alloc] initMinotaurFor:NO withObj:obj];
 }
 
-+ (id) minotaurForSetupValues:(NSArray *)values;
++ (id) minotaurForSetupObj:(UnitObj *)obj
 {
-    return [[Minotaur alloc] initMinotaurForSetupWithValues:values];
+    return [[Minotaur alloc] initMinotaurForSetupWithObj:obj];
 }
 
-- (id) initMinotaurFor:(BOOL)side withValues:(NSArray *)values
+- (id) initMinotaurFor:(BOOL)side withObj:(UnitObj *)obj;
 {
-    self = [super initForSide:side withValues:values];
+    self = [super initForSide:side withObj:obj];
     if (self)
     {
         // Minos start out defending
@@ -45,6 +46,7 @@
         
         // Create the action set for each action
         _idle = [[CCActions alloc]initWithSpriteSheet:self.spriteSheet forAction:IDLE];
+        _idle.tag = IDLETAG;
         _move = [[CCActions alloc]initWithSpriteSheet:self.spriteSheet forAction:MOVE];
         _attk = [[CCActions alloc]initWithSpriteSheet:self.spriteSheet forAction:ATTK];
         _dead = [[CCActions alloc]initWithSpriteSheet:self.spriteSheet forAction:DEAD];
@@ -56,16 +58,16 @@
         // Create the unit specific menu
         [self initMenu];
         
-        self.sprite.scale = 3;
+        self.sprite.scale = MINOTAURSCALE;
             
         [self.spriteSheet addChild:self.sprite];
     }
     return self;
 }
 
-- (id) initMinotaurForSetupWithValues:(NSArray *)values
+- (id) initMinotaurForSetupWithObj:(UnitObj *)obj
 {
-    self = [super initForSide:YES withValues:values];
+    self = [super initForSide:YES withObj:obj];
     if (self)
     {
         // Cache the sprite frames and texture
@@ -76,7 +78,7 @@
         
         // Create the sprite
         self.sprite = [CCSprite spriteWithSpriteFrameName:@"minotaur_alpha_169.gif"];
-        self.sprite.scale = 3;
+        self.sprite.scale = MINOTAURSETUPSCALE;
         
         [self.spriteSheet addChild:self.sprite];
     }
@@ -263,6 +265,24 @@
         [self action:DEAD at:CGPointZero];
 }
 
+- (void) heal:(int)damage after:(float)delay
+{
+    [self.sprite stopAllActions];
+    health = MIN(health+damage, self.attribute->max_health);
+    
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCDelayTime actionWithDuration:delay],
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccGREEN];
+         [self.delegate displayCombatMessage:[NSString stringWithFormat:@"+%d",damage]
+                                  atPosition:self.sprite.position withColor:ccGREEN];
+     }],
+      [CCDelayTime actionWithDuration:0.2],
+      [CCTintTo actionWithDuration:1 red:255 green:255 blue:255], nil]];
+}
+
+
 - (int) calculate:(int)damage type:(int)dmgType;
 {
     return damage;
@@ -297,6 +317,7 @@
 
 - (void) reset
 {
+    [super reset];
     self.coolDown--;
     if ( self.moveButton.isUsed )
         self.coolDown+= self.moveButton.costOfButton;
@@ -326,6 +347,11 @@
 #pragma mark - Misc
 - (CGPoint *) getAttkArea { return (CGPoint *)minotaurAttkArea; }
 - (CGPoint *) getAttkEffect { return (CGPoint *)minotaurAttkEffect; }
+
+- (BOOL) hasActionLeft
+{
+    return !self.moveButton.isUsed || !self.attkButton.isUsed || !self.defnButton.isUsed;
+}
 
 - (NSString *) description
 {

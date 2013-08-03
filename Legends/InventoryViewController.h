@@ -6,15 +6,44 @@
 //
 //
 
+typedef NS_ENUM(NSInteger, TabbedViewType) {
+    UITabbedViewFloatingType,
+    UITabbedViewGridType,
+};
+
 #import <SFS2XAPIIOS/SmartFox2XClient.h>
 #import <UIKit/UIKit.h>
 //#import <FacebookSDK/FacebookSDK.h>
 #import "AppDelegate.h"
 #import "Defines.h"
-#import "Item.h"
+#import "ItemView.h"
 #import "UserSingleton.h"
+#import "DisplayImageView.h"
 
-@interface InventoryViewController : UIViewController <ISFSEvents, UIScrollViewDelegate, ItemViewDelegate>
+#pragma mark - UITabbedViewClass
+@class UITabbedView;
+@protocol UITabbedViewDelegate <NSObject>
+@required
+- (void) itemDidGetSelected:(ItemView *)item;
+@end
+
+@interface  UITabbedView  : UIImageView
+<UIScrollViewDelegate,  ItemViewDelegate > {
+    TabbedViewType viewType;
+    int numOfRows;
+    int numOfColumns;
+}
+@property (assign) id delegate;
+@property (strong, nonatomic) UIScrollView *scrollView;
+@property (strong, nonatomic) NSMutableArray *itemGrid;
+@property (weak, nonatomic) NSMutableArray *items;
+
++ (id) tabbedViewWithImage:(UIImage *)image frame:(CGRect)frame item:(NSMutableArray *)items type:(TabbedViewType)type;
+
+@end
+
+#pragma mark - Inventory Controller
+@interface InventoryViewController : UIViewController <ISFSEvents, UIScrollViewDelegate, UITabbedViewDelegate>
 {
     AppDelegate *appDelegate;
     SmartFox2XClient *smartFox;
@@ -24,8 +53,15 @@
     NSMutableArray *items;
 }
 
-@property (weak, nonatomic) IBOutlet UIButton *forge;
+@property (weak, nonatomic) IBOutlet DisplayImageView *displayImageView;
+@property (weak, nonatomic) IBOutlet UIButton *okButton;
 @property (weak, nonatomic) IBOutlet UIButton *home;
-@property (weak, nonatomic) IBOutlet UIScrollView *scrollView;
+@property (weak, nonatomic) IBOutlet UIView *inventoryView;
 
 @end
+
+#pragma mark - UIView extra
+@interface UIView (Extra)
+- (void)inventorySwitchTabAt:(CGPoint)position;
+@end
+

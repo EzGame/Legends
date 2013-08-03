@@ -24,11 +24,11 @@
 {
     // Turn variables
     int currentAction;
+    BOOL unitLocked;
     bool isMyTurn;
     BOOL isTurnA;
     BOOL isTurnB;
     BOOL isTurnC;
-    NSMutableArray *usedTiles;
 
     // Camera variables
     BOOL scrolled;
@@ -36,7 +36,6 @@
     // Others
     AppDelegate *appDelegate;
     SmartFox2XClient *smartFox;
-    NSArray *highlightPtr;
 }
 
 @property (nonatomic, strong) CCTMXTiledMap *map;
@@ -44,9 +43,10 @@
 @property (nonatomic, strong) CCLayer *gameLayer;
 @property (nonatomic, strong) CCLayer *hudLayer;
 
-@property (nonatomic, strong) Tile *selection;
+@property (nonatomic, weak) Tile *selection;
 
 @property (nonatomic, strong) CCMenu *menu;
+@property (nonatomic, strong) CCMenu *turnMenu;
 @property (nonatomic, strong) UnitDisplay *display;
 
 + (CCScene *) scene;

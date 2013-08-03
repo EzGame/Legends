@@ -9,6 +9,7 @@
 #import "cocos2d.h"
 #import "Defines.h"
 #import "UserSingleton.h"
+#import "Objects.h"
 // Others
 #import "Tile.h"
 #import "Minotaur.h"
@@ -17,29 +18,34 @@
 
 @protocol SetupBrainDelegate <NSObject>
 @required
-- (void)loadTile:(Tile *)tile;
+- (void)loadTile:(SetupTile *)tile;
+- (BOOL)removeTile:(SetupTile *)tile;
+- (void)reorderTile:(SetupTile *)tile;
 @end
 
 @interface SetupBrain : NSObject
 {
-    // Matrix conversion from cartesian to isometric
-    CGAffineTransform   toIso;
-    // Matric conversion from isometric to cartesian
-    CGAffineTransform   fromIso;
     // Positional offset of layer due to scrolling
     CGPoint currentLayerPos;
 }
 
+// Array of SetupTile Objects
 @property (nonatomic, strong) NSArray *board;
+// Array of SetupTile Objects
+@property (nonatomic, strong) NSArray *sideBoard;
+// Array of UnitObj
+@property (nonatomic, weak) NSMutableArray *unitList;
 @property (assign) id <SetupBrainDelegate> delegate;
 
+@property (nonatomic) CGAffineTransform toIso;
+@property (nonatomic) CGAffineTransform fromIso;
+
 - (void) restoreSetup;
-- (Tile *) findTile:(CGPoint)position absPos:(bool)absPos;
-- (void) swapPieces:(Tile *)tile with:(Tile*)original;
-- (void) saveState:(Tile *)tile save:(bool)save;
+- (SetupTile *) findTile:(CGPoint)position absPos:(bool)absPos;
+- (void) viewUnitsForTag:(NSString *)tag;
+- (BOOL) move:(SetupTile *)tile to:(SetupTile *)target;
 - (bool) saveSetup;
 - (void) setCurrentLayerPos:(CGPoint)position;
-
 
 - (int) isValidTile:(CGPoint)position;
 - (CGPoint) findBrdPos:(CGPoint)position;

@@ -5,11 +5,11 @@
 //  Created by David Zhang on 2012-12-16.
 //
 //
-#define DRAG_SCROLL_MULTIPLIER 0.25
+#define DRAG_SCROLL_MULTIPLIER 0.75
 #define MAX_SCROLL_X 0
-#define MAX_SCROLL_Y 20
+#define MAX_SCROLL_Y 0
 #define MIN_SCROLL_X 0
-#define MIN_SCROLL_Y -40
+#define MIN_SCROLL_Y -75
 
 #import "SetupLayer.h"
 #import "MainMenuViewController.h"
@@ -22,7 +22,7 @@
 @implementation SetupLayer
 @synthesize map = _map;
 @synthesize tmxLayer = _tmxLayer, setupLayer = _setupLayer, hudLayer = _hudLayer;
-@synthesize selection = _selection, display = _display, menu = _menu;
+@synthesize selection = _selection, display = _display, menu = _menu, search = _search;
 // private
 @synthesize brain = _brain, saveButton = _saveButton;
 
@@ -77,8 +77,9 @@
 {
     // Tile map
     _map = [CCTMXTiledMap tiledMapWithTMXFile:@"setup_tactics_v2.tmx"];
-    _map.position = ccp(-175,50);
-    _map.scale = SETUPMAPSCALE;
+    //_map.position = ccp(-60,-30);
+    _map.position = ccp(-105,0);
+    _map.scale = 1; // REAL SCALE IS HARDCODED
     _tmxLayer = [_map layerNamed:@"layer"];
     [_setupLayer addChild:_map z:MAPS];
 }
@@ -86,8 +87,20 @@
 - (void) createUI
 {
     // Setup Display
-    _display = [UnitDisplay displayWithPosition:ccp(10,300)];
+    _display = [SetupUnitDisplay displayWithPosition:ccp(0,0)];
     [_hudLayer addChild:_display z:DISPLAYS];
+    
+    _search = [[HTUnitTagAutocompleteTextField alloc] initWithFrame:CGRectMake(325,5,150,23)];
+    _search.textColor = [UIColor whiteColor];
+    _search.backgroundColor = [UIColor brownColor];
+    _search.autocorrectionType = UITextAutocorrectionTypeNo;
+    _search.placeholder = @"Search with tags";
+    _search.autocompleteTextOffset = CGPointMake(-0.5, -0.5);
+    _search.clearsOnBeginEditing = YES;
+    _search.adjustsFontSizeToFitWidth = YES;
+    _search.ignoreCase = YES;
+    _search.delegate = self;
+    [[[CCDirector sharedDirector] view] addSubview:_search];
 }
 
 - (void) createMenu
@@ -103,29 +116,27 @@
 
 - (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    [self textFieldShouldReturn:_search];
 	if ([touches count] == 1) {
         CGPoint position;
         UITouch *touch = [touches anyObject];
         position = [touch locationInView: [touch view]];
         position = [[CCDirector sharedDirector] convertToGL: position];
         position = [self convertToNodeSpace:position];
+        position = ccpAdd(position, ccp(0,-5));
         
-        scrolled = YES;
         // Tile pointers
-        Tile *tile = [self.brain findTile:position absPos:true];
+        SetupTile *tile = [self.brain findTile:position absPos:YES];
         
-        if( tile.unit == nil ) {
+        if( tile == nil || tile.unit == nil ) {
             scrolled = YES;
             
         } else {
             scrolled = NO;
             // Selected 
-            self.selection = [self.brain findTile:position absPos:true];
-            [self.brain saveState:self.selection save:YES];
-            
-            // "Lift" the current unit
-            id lift = [CCMoveBy actionWithDuration:0.075 position:ccp(0,40)];
-            [self.selection.unit.sprite runAction:lift];
+            self.selection = tile;
+            self.previous = [self.brain findAbsPos:tile.boardPos];
+            [self.display setDisplayFor:nil];
         }
     }
 }
@@ -153,21 +164,24 @@
                 pos = ccp(pos.x, MIN_SCROLL_Y);
             
             self.setupLayer.position = pos;
-            //NSLog(@"%@",NSStringFromCGPoint(pos));
+            self.hudLayer.position = pos;
+            [self.brain setCurrentLayerPos:self.setupLayer.position];
+            
         } else {
             CGPoint position;
             UITouch *touch = [touches anyObject];
             position = [touch locationInView: [touch view]];
             position = [[CCDirector sharedDirector] convertToGL: position];
             position = [self convertToNodeSpace:position];
-            // Dragging
+            
             if ( self.selection.unit != nil ) {
                 // "Lift" the current unit
-                self.selection.unit.sprite.position = ccpSub(ccp(position.x,position.y+40),self.setupLayer.position);
+                self.selection.unit.position = ccpSub(position,self.setupLayer.position);
                 
                 // Highlight the tile below the touch location
-                [self highlightTileAt:position final:NO];
+                [self highlightTileAt:position prev:prevPos final:NO];                
             }
+            prevPos = position;
         }
 	}
 }
@@ -186,93 +200,106 @@
         [self.brain setCurrentLayerPos:self.setupLayer.position];
 
     } else if ( [touches count] == 1 ){
+
         // Tile pointers
-        Tile *tile = [self.brain findTile:position absPos:true];
+        SetupTile *tile = [self.brain findTile:position absPos:true];
         
-        // Out of bounds check
-        if( tile != nil ) {
-            // If we put the unit there if its empty
-            if ( !tile.isOccupied ) {
-                // Reverting image before actual swap
-                if ( tile.boardPos.y == 5 ) {
-                    [tile.unit action:TURN at:ccpAdd(tile.unit.sprite.position,ccp(-1,-1))];
-                }
-                // Swap the pieces on the board
-                [self.brain swapPieces:tile with:self.selection];
-                [self reorderTile:tile];
-                [self highlightTileAt:position final:YES];
-            } else {
-                [self.brain saveState:self.selection save:NO];
-                [self highlightTileAt:position final:YES];
-            }
-        } else {
-        // else if the end location is invalid, revert location and image
-            CCLOG(@"tile was dragged out");
-            if ( self.selection.boardPos.y == 5 ) {
-                [self.brain saveState:self.selection save:NO];
-            } else {
-                // This should return the tile into a free spot on a setup tile
-                for ( int i = 0; i < MAXUNITS; i++ ) {
-                    Tile *temp = [[self.brain.board objectAtIndex:i] objectAtIndex:5];
-                    if ( !temp.isOccupied ) {
-                        CCLOG(@"The object at [%d,%d] is clear for putting back in",i,5);
-                        [self.brain swapPieces:temp with:self.selection];
-                        [self reorderTile:temp];
-                        break;
-                    }
-                    else {
-                        CCLOG(@"    %d is full",i);
-                    }
-                }
-            }
+        if ( ![self.brain move:self.selection to:tile] ) {
+            // else if the end location is invalid, revert location and image
+            NSLog(@">[MYLOG] Tried to drag to invalid location");
+            self.selection.unit.position = self.previous;
         }
-                // Always derefence the selection because each move is only 1 drag
+        [self highlightTileAt:position prev:position final:YES];
+
+        if ( tile.unit != nil ) self.selection = tile;
+        // set Display
+        [self.display setDisplayFor:self.selection];
+        CGPoint trueScreenPos = ccpAdd(self.setupLayer.position, self.selection.unit.position);
+        BOOL x = ( trueScreenPos.x > 255 )? NO:YES;
+        BOOL y = ( trueScreenPos.y > 220 )? NO:YES;
+        [self.display setPosition:self.selection.unit.position x:x y:y];
+        
+        NSLog(@"<><><><> %@", NSStringFromCGPoint(self.selection.unit.position));
+        // Always derefence the selection because each move is only 1 drag
         self.selection = nil;
+        self.previous = CGPointZero;
     }
+    NSLog(@"=====================================================================");
 }
 
-- (void) highlightTileAt:(CGPoint)position final:(bool)final
+- (void) highlightTileAt:(CGPoint)position prev:(CGPoint)prev final:(bool)final
 {
-    NSLog(@"highlight");
     // Hightlight position and revert previous
-    Tile *tile = [self.brain findTile:position absPos:YES];
-    Tile *prev = [self.brain findTile:previous absPos:YES];
+    SetupTile *tile = [self.brain findTile:position absPos:YES];
+    SetupTile *prevTile = [self.brain findTile:prev absPos:YES];
+    
+    if ( tile == nil ) {
+        return;
+    }
+    
     CCSprite *temp = [self.tmxLayer tileAt:
                       ccp(SETUPMAPLENGTH - 1 - tile.boardPos.x,
-                          SETUPMAPWIDTH - 1 - tile.boardPos.y)];
+                          SETUPMAPWIDTH+SETUPSIDEMAPWIDTH - tile.boardPos.y)];
     CCSprite *temp2 = [self.tmxLayer tileAt:
-                       ccp(SETUPMAPLENGTH - 1 - prev.boardPos.x,
-                           SETUPMAPWIDTH - 1 - prev.boardPos.y)];
-    
-    if ( !final ) {
+                       ccp(SETUPMAPLENGTH - 1 - prevTile.boardPos.x,
+                           SETUPMAPWIDTH+SETUPSIDEMAPWIDTH - prevTile.boardPos.y)];
+        
+    if ( !final && ![tile isEqual:prevTile] ) {
         [temp setColor:ccYELLOWGREEN];
-    }
-    
-    if ( !CGPointEqualToPoint(tile.boardPos,prev.boardPos) || final ) {
         [temp2 setColor:ccWHITE];
-        self->previous = position;
     }
-}
-
-- (void) reorderTile:(Tile *)tile
-{
-    int pos = tile.boardPos.x + tile.boardPos.y;
-    [self.setupLayer reorderChild:[[tile unit] spriteSheet] z:SPRITES_TOP - pos];
+    if ( final ) {
+        [temp setColor:ccWHITE];
+    }
 }
 
 -(void) savePressed
 {
     if ( [self.brain saveSetup] )
     {
-        [appDelegate switchToView:@"MainMenuViewController" uiViewController:[MainMenuViewController alloc]];
+        //[appDelegate switchToView:@"MainMenuViewController" uiViewController:[MainMenuViewController alloc]];
+        [appDelegate switchToScene:[BattleLayer scene]];
+        [_search removeFromSuperview];
     }
 }
 
 // Brain delegate
-- (void)loadTile:(Tile *)tile
+- (void)loadTile:(SetupTile *)tile
 {
-    tile.unit.sprite.position = [self.brain findAbsPos:tile.boardPos];
-    [self.setupLayer addChild:tile.unit.spriteSheet z:SPRITES_TOP];
+    NSLog(@">[MYLOG]    Adding %@",tile);
+    tile.unit.position = [self.brain findAbsPos:tile.boardPos];
+    [self.setupLayer addChild:tile.unit z:SPRITES_TOP];
     [self reorderTile:tile];
+}
+
+- (BOOL)removeTile:(SetupTile *)tile
+{
+    NSLog(@">[MYLOG]    Removing %@", tile);
+    [self.setupLayer removeChild:tile.unit cleanup:YES];
+    return YES;
+}
+
+- (void) reorderTile:(SetupTile *)tile
+{
+    int pos = tile.boardPos.x + tile.boardPos.y;
+    [self.setupLayer reorderChild:tile.unit z:SPRITES_TOP - pos];
+}
+
+#pragma mark - Autocomplete + textField delegate
+- (BOOL) textFieldShouldReturn:(UITextField *)textField {
+    if ( [self.search isFirstResponder] ) {
+        self.search.text = [self.search.text uppercaseString];
+        [self.setupLayer runAction:[CCMoveBy actionWithDuration:0.25 position:ccp(0,-50)]];
+        [self.search resignFirstResponder];
+        [self.search endEditing:YES];
+        [self.brain viewUnitsForTag:self.search.text];
+    }
+    return YES;
+}
+
+- (BOOL) textFieldShouldBeginEditing:(UITextField *)textField {
+    [self.display setDisplayFor:nil];
+    [self.setupLayer runAction:[CCMoveBy actionWithDuration:0.25 position:ccp(0,50)]];
+    return YES;
 }
 @end

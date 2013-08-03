@@ -120,10 +120,13 @@
     
     appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
     smartFox = appDelegate.smartFox;
-    
+    self.labelStatus.text = @"Connecting...";
     [self.username setDelegate:self];
     [self.password setDelegate:self];
     [self.confirm setDelegate:self];
+    
+    _something.text = @"There's heroes and there's legends.\n \
+        Heroes get remembered but legends never die.";
 }
 
 - (void)didReceiveMemoryWarning

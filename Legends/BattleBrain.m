@@ -7,6 +7,29 @@
 //
 
 #import "BattleBrain.h"
+
+@implementation TileVector
+@synthesize tile = _tile, direction = _direction;
++ (id) vectorWithTile:(Tile *)tile direction:(int)direction
+{
+    return [[TileVector alloc] initWithTile:tile direction:direction];
+}
+
+- (id) initWithTile:(Tile *)tile direction:(int)direction
+{
+    if ( self = [super init] ) {
+        _tile = tile;
+        _direction = direction;
+    }
+    return self;
+}
+
+- (NSString *) description
+{
+    return [NSString stringWithFormat:@"TileVector %@->%d",self.tile,self.direction];
+}
+@end
+
 @interface BattleBrain ()
 
 - (void)        constructPathAndStartAnimationFromStep:(ShortestPathStep *)step
@@ -26,6 +49,7 @@
 
 @synthesize board = _board;
 @synthesize delegate = _delegate;
+@synthesize toIso = _toIso, fromIso = _fromIso;
 
 #pragma mark - Init n Shit
 - (id) initWithMap:(CCTMXLayer *) map
@@ -34,8 +58,8 @@
     if (self)
     {
         // Matrices for conversion from cartesian to isometric and vice versa.
-        toIso = CGAffineTransformMake(-HALFLENGTH, HALFWIDTH, HALFLENGTH, HALFWIDTH, OFFSETX, OFFSETY);
-        fromIso = CGAffineTransformInvert(toIso);
+        _toIso = CGAffineTransformMake(-HALFLENGTH, HALFWIDTH, HALFLENGTH, HALFWIDTH, OFFSETX, OFFSETY);
+        _fromIso = CGAffineTransformInvert(_toIso);
         
         _board = [[NSArray alloc] initWithObjects:
                   [NSMutableArray array],
@@ -55,14 +79,15 @@
             for ( int k = 0 ; k < MAPWIDTH ; k++ ) {
                 if ( ![self isValidTile:ccp(i,k)] ) {
                     CCSprite *temp = [map tileAt:ccp(MAPLENGTH-1-i, MAPWIDTH-1-k)];
-                    [[self.board objectAtIndex:i] addObject:
-                     [Tile invalidTileWithPosition:ccp(i,k) sprite:temp]];
+                    Tile *tile = [Tile invalidTileWithPosition:ccp(i,k) sprite:temp];
+                    [[self.board objectAtIndex:i] addObject:tile];
+                    tile.delegate = self;
                     
                 } else {
                     CCSprite *temp = [map tileAt:ccp(MAPLENGTH-1-i, MAPWIDTH-1-k)];
-                    [[self.board objectAtIndex:i] addObject:
-                     [Tile tileWithPosition:ccp(i,k) sprite:temp]];
-                    
+                    Tile *tile = [Tile tileWithPosition:ccp(i,k) sprite:temp];
+                    [[self.board objectAtIndex:i] addObject:tile];
+                    tile.delegate = self;
                 }
             }
         }
@@ -73,54 +98,33 @@
 - (void) restoreSetup
 {
     // Populating pieces
-    for ( int i = 0; i < [[[UserSingleton get] pieces] count]; i++ )
+    NSLog(@"start");
+    for ( int i = 0; i < [[[UserSingleton get] setup] size]; i++ )
     {
         // The stored string is in the form of @type[@x,@y]
-        NSString *string = [[[UserSingleton get] pieces] objectAtIndex:i];
-        NSArray *values = [string componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
-        int type, x = -1, y = -1;
-        if ( [values objectAtIndex:5] != nil )
-        {
-            NSArray *pos = [[values objectAtIndex:5] componentsSeparatedByCharactersInSet:[UserSingleton get].stringSeparator];
-            x = [(NSString *)[pos objectAtIndex:0] integerValue];
-            y = [(NSString *)[pos objectAtIndex:1] integerValue];
-            if ( y == 5 ) continue;
-        }
-        type = [[values objectAtIndex:1] integerValue];
-        Unit *unit = [self makeUnit:type withValues:values owned:YES];
+        UnitObj *obj = [[[UserSingleton get] setup] getElementAt:i];
+        NSLog(@">[MYLOG]    SETUPBRAIN:restoreSetup got:\n%@",obj);
         
-        // Finding tile
-        Tile *tile = [self findTile:ccp(x,y) absPos:false];
+        Unit *unit = [self makeUnit:obj.type withObj:obj owned:YES];
+        Tile *tile;
+        tile = [self findTile:obj.position absPos:NO];
         tile.unit = unit;
-        tile.isOccupied = true;
-        tile.isOwned = true;
-
+        
         // Upload visually
         [self.delegate loadTile:tile];
     }
     
     // Populating opponent pieces
-    for ( int i = 0; i < [[[UserSingleton get] opPieces] count]; i++ )
+    for ( int i = 0; i < [[[UserSingleton get] opSetup] size]; i++ )
     {
         // The stored string is in the form of @type[@x,@y]
-        NSString *string = [[[UserSingleton get] pieces] objectAtIndex:i];
-        NSArray *values = [string componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
-        int type, x = -1, y = -1;
-        if ( string != nil )
-        {
-            NSArray *pos = [[values objectAtIndex:[values count]-1] componentsSeparatedByCharactersInSet:[UserSingleton get].stringSeparator];
-            x = 10 - [(NSString *)[pos objectAtIndex:0] integerValue];
-            y = 10 - [(NSString *)[pos objectAtIndex:1] integerValue];
-            if ( y == 5 ) continue;
-        }
-        type = [[values objectAtIndex:1] integerValue];
-        Unit *unit = [self makeUnit:type withValues:values owned:NO];
+        UnitObj *obj = [[[UserSingleton get] setup] getElementAt:i];
+        NSLog(@">[MYLOG]    SETUPBRAIN:restoreSetup got:\n%@",obj);
         
-        // Finding tile, mirroring
-        Tile *tile = [self findTile:ccp(x,y) absPos:false];
+        Unit *unit = [self makeUnit:obj.type withObj:obj owned:NO];
+        Tile *tile;
+        tile = [self findTile:obj.position absPos:NO];
         tile.unit = unit;
-        tile.isOccupied = true;
-        tile.isOwned = false;
         
         // Upload visually
         [self.delegate loadTile:tile];
@@ -128,61 +132,66 @@
 }
 
 #pragma mark - UNIT/ACTION SPECIFIC HANDLERS
-- (id) makeUnit:(int)type withValues:(NSArray *)values owned:(BOOL)side;
+- (id) makeUnit:(int)type withObj:(UnitObj *)obj owned:(BOOL)side;
 {
-    NSLog(@">[MYLOG]    findTypeCheck:%@",values);
+    NSLog(@">[MYLOG]    findTypeCheck:%@",obj);
     if (type == MINOTAUR) {
-        return [[Minotaur alloc] initMinotaurFor:side withValues:values];
+        return [[Minotaur alloc] initMinotaurFor:side withObj:obj];
         
     } else if ( type == GORGON ) {
-        return [[Gorgon alloc] initGorgonFor:side withValues:values];
+        return [[Gorgon alloc] initGorgonFor:side withObj:obj];
         
     } else if ( type == MUDGOLEM ) {
-        return [[MudGolem alloc] initMudGolemFor:side withValues:values];
+        return [[MudGolem alloc] initMudGolemFor:side withObj:obj];
         
     } else if ( type == DRAGON ) {
-        return [[Dragon alloc] initDragonFor:side withValues:values];
+        return [[Dragon alloc] initDragonFor:side withObj:obj];
+    
+    } else if ( type == LIONMAGE ) {
+        return [[LionMage alloc] initLionmageFor:side withObj:obj];
         
     } else {
         NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDTYPE %d", type);
         return nil;
-        
     }
 }
 
-- (BOOL) doAction:(int)action for:(Tile *)tile to:(CGPoint)finish targets:(SFSObject *)targets
+- (BOOL) doAction:(int)action for:(Tile *)tile toward:(TileVector *)vector oppObj:(SFSObject *)obj targets:(NSArray *)targets
 {
     CCLOG(@">[MYLOG]    Entering BattleBrain::doAction for %d", action);
     BOOL ret = YES;
     
     //check for errs
     if ( action == MOVE ) {
-        ret = [self moveToward:finish with:tile opp:NO];
+        ret = [self moveToward:vector with:tile opp:NO];
         
     } else if ( action == ATTK ) {
-        ret = [self attackToward:finish with:tile animate:action targets:targets opp:NO];
+        ret = [self attackToward:vector with:tile animate:action oppObj:obj targets:targets opp:NO];
         
     } else if ( action == GORGON_SHOOT ) {
-        ret = [self shootToward:finish with:tile animate:action targets:targets opp:NO];
+        ret = [self shootToward:vector with:tile animate:action oppObj:obj targets:targets opp:NO];
         
     } else if ( action == GORGON_FREEZE ) {
-        ret = [self freezeToward:finish with:tile opp:NO];
+        ret = [self freezeToward:vector with:tile opp:NO];
         
     } else if ( action == DEFN ) {
-        [[tile unit] action:action at:finish];
+        [[tile unit] action:action at:CGPointZero];
         
     } else if ( action == TELEPORT_MOVE ) {
-        ret = [self teleportMoveToward:finish with:tile opp:NO];
+        ret = [self teleportMoveToward:vector with:tile opp:NO];
         
     } else if ( action == MUDGOLEM_EARTHQUAKE ) {
-        ret = [self earthquakeAt:finish with:tile targets:targets opp:NO];
+        ret = [self earthquakeAt:vector with:tile oppObj:obj targets:targets opp:NO];
         
     } else if ( action == DRAGON_FIREBALL ) {
-        ret = [self fireballToward:finish with:tile animate:action targets:targets opp:NO];
+        ret = [self fireballToward:vector with:tile animate:action oppObj:obj targets:targets opp:NO];
         
     } else if ( action == DRAGON_FLAMEBREATH ) {
-        ret = [self flamebreathToward:finish with:tile targets:targets opp:NO];
+        ret = [self flamebreathToward:vector with:tile oppObj:obj targets:targets opp:NO];
         
+    } else if ( action == HEAL_ALL ) {
+        ret = [self healAll:vector with:tile oppObj:obj targets:targets opp:NO];
+
     } else {
         NSAssert(false, @">[FATAL]  BATTLEBRAIN:DOACTION CAN NOT HANDLE ACTION %d", action);
         
@@ -195,21 +204,20 @@
 
 - (BOOL) doOppAction:(SFSObject *)data
 {
-    int xPos = [data getInt:@"xPos"];
-    int yPos = [data getInt:@"yPos"];
+
     int xBoard = [data getInt:@"xBoard"];
     int yBoard = [data getInt:@"yBoard"];
     int action = [data getInt:@"action"];
-    SFSObject *targets = [data getSFSObject:@"effect"];
+    SFSObject *obj = [data getSFSObject:@"effect"];
     int time = [data getInt:@"timeDuration"];
+    TileVector *vector = [data getClass:@"vector"];
+    
     // Converting factor
     int invertFactor = MAPLENGTH -1;
     
     // Invert the positions
     CGPoint startPos = ccp(invertFactor - xBoard, invertFactor - yBoard);
-    CGPoint targetPos = ccp(xPos, yPos);
-    targetPos = [self findBrdPos:targetPos];
-    targetPos = ccp(invertFactor - targetPos.x, invertFactor - targetPos.y);
+    vector.tile = [self findTile:[self getOppPos:vector.tile.boardPos] absPos:NO];
     
     NSLog(@">[MYLOG]    Received data: \
           \n>           From: %@ \
@@ -217,47 +225,51 @@
           \n            For Action: %d and Duration: %d \
           \n            Effect: %@",
           NSStringFromCGPoint(startPos),
-          NSStringFromCGPoint(targetPos),
+          NSStringFromCGPoint(vector.tile.boardPos),
           action, time,
-          [targets description] );
+          [obj description] );
     
     Tile *tile = [self findTile:startPos absPos:false];
     
     if ( action == MOVE ) {
-        CCLOG(@"    Opponent MOVED to %d,%d",(int)targetPos.x, (int)targetPos.y);
-        [self moveToward:[self findAbsPos:targetPos] with:tile opp:YES];
+        CCLOG(@"    Opponent MOVED to %@", NSStringFromCGPoint(vector.tile.boardPos));
+        [self moveToward:vector with:tile opp:YES];
         
     } else if ( action == ATTK ) {
         CCLOG(@"    Opponent ATTK");
-        [self attackToward:[self findAbsPos:targetPos] with:tile animate:action targets:targets opp:YES];
+        [self attackToward:vector with:tile animate:action oppObj:obj targets:nil opp:YES];
         
     } else if ( action == GORGON_SHOOT ) {
         NSLog(@"    Opponent GORGON_SHOOT");
-        [self shootToward:[self findAbsPos:targetPos] with:tile animate:action targets:targets opp:YES];
+        [self shootToward:vector with:tile animate:action oppObj:obj targets:nil opp:YES];
         
     } else if ( action == GORGON_FREEZE ) {
         NSLog(@"    Opponent GORGON_FREEZE");
-        [self freezeToward:[self findAbsPos:targetPos] with:tile opp:YES];
+        [self freezeToward:vector with:tile opp:YES];
         
     } else if ( action == DEFN ) {
         CCLOG(@"    Opponent DEFN");
-        [[tile unit] action:DEFN at:[self findAbsPos:targetPos]];
+        [[tile unit] action:DEFN at:CGPointZero];
         
     } else if ( action == TELEPORT_MOVE ) {
         NSLog(@"    Opponent TELEPORT_MOVE");
-        [self teleportMoveToward:[self findAbsPos:targetPos] with:tile opp:YES];
+        [self teleportMoveToward:vector with:tile opp:YES];
         
     } else if ( action == MUDGOLEM_EARTHQUAKE ) {
         NSLog(@"    Opponent MUDGOLEM_EARTHQUAKE");
-        [self earthquakeAt:[self findAbsPos:targetPos] with:tile targets:targets opp:YES];
+        [self earthquakeAt:vector with:tile oppObj:obj targets:nil opp:YES];
         
     } else if ( action == DRAGON_FIREBALL ) {
         NSLog(@"    Opponent DRAGON_FIREBALL");
-        [self fireballToward:[self findAbsPos:targetPos] with:tile animate:action targets:targets opp:YES];
+        [self fireballToward:vector with:tile animate:action oppObj:obj targets:nil opp:YES];
         
     } else if ( action == DRAGON_FLAMEBREATH ) {
         NSLog(@"    Opponent DRAGON_FLAMEBREATH");
-        [self flamebreathToward:[self findAbsPos:targetPos] with:tile targets:targets opp:YES];
+        [self flamebreathToward:vector with:tile oppObj:obj targets:nil opp:YES];
+        
+    } else if ( action == HEAL_ALL ) {
+        NSLog(@"    Opponent HEAL_ALL");
+        [self healAll:vector with:tile oppObj:obj targets:nil opp:YES];
         
     } else {
         NSAssert(false, @">[FATAL]  BATTLEBRAIN:DOOPPACTION CAN NOT HANDLE ACTION %d", action);
@@ -302,6 +314,9 @@
     } else if ( action == DRAGON_FLAMEBREATH ) {
         return [self bridge:[(Dragon *)[tile unit] getFlamebreathArea] from:tile.boardPos at:NE];
         
+    } else if ( action == HEAL_ALL ) {
+        return [NSArray arrayWithObject:[NSValue valueWithCGPoint:tile.boardPos]];
+        
     } else {
         NSAssert(false, @">[FATAL]  BATTLEBRAIN:FINDACTIONTILES CAN NOT HANDLE ACTION %d", action);
         return nil;
@@ -317,17 +332,17 @@
     } else if (action == ATTK) {
         // all ATTK action should have melee range. if it doesn't, make a new one
         if ( [tile.unit isKindOfClass:[Minotaur class]] )
-            return [self bridge:[(Minotaur *)[tile unit] getAttkEffect] from:position at:direction];
+            return [self bridge:[(Minotaur *)[tile unit] getAttkEffect] from:position at:0];
         else if ( [tile.unit isKindOfClass:[MudGolem class]] )
-            return [self bridge:[(MudGolem *)[tile unit] getAttkEffect] from:position at:direction];
+            return [self bridge:[(MudGolem *)[tile unit] getAttkEffect] from:position at:0];
         else
             return nil;
         
     } else if ( action == GORGON_SHOOT ) {
-        return [self bridge:[(Gorgon *)[tile unit] getShootEffect] from:position at:direction];
+        return [self bridge:[(Gorgon *)[tile unit] getShootEffect] from:position at:0];
         
     } else if ( action == GORGON_FREEZE ) {
-        return [self bridge:[(Gorgon *)[tile unit] getFreezeEffect] from:position at:direction];
+        return [self bridge:[(Gorgon *)[tile unit] getFreezeEffect] from:position at:0];
         
     } else if ( action == DEFN ) {
         return [NSArray arrayWithObject:[NSValue valueWithCGPoint:position]];
@@ -336,13 +351,16 @@
         return [NSArray arrayWithObject:[NSValue valueWithCGPoint:position]];
         
     } else if ( action == MUDGOLEM_EARTHQUAKE ) {
-        return [self bridge:[(MudGolem *)[tile unit] getEarthquakeEffect] from:position at:direction];
+        return [self bridge:[(MudGolem *)[tile unit] getEarthquakeEffect] from:position at:0];
         
     } else if ( action == DRAGON_FIREBALL ) {
-        return [self bridge:[(Dragon *)[tile unit] getFireballEffect] from:position at:direction];
+        return [self bridge:[(Dragon *)[tile unit] getFireballEffect] from:position at:0];
         
     } else if ( action == DRAGON_FLAMEBREATH ) {
         return [self bridge:[(Dragon *)[tile unit] getFlamebreathEffect] from:position at:direction];
+        
+    } else if ( action == HEAL_ALL ) {
+        return [self findAllOwnedPositions];
         
     } else {
         NSAssert(false,
@@ -352,22 +370,68 @@
     }
 }
 
-#pragma mark - ACTION SPECIFIC FUNCTION HANDLERS
-- (BOOL) flamebreathToward:(CGPoint)position with:(Tile *)tile targets:(SFSObject *)targets opp:(BOOL)opp
+- (NSArray *) findAllOwnedPositions
 {
-    [[tile unit] action:DRAGON_FLAMEBREATH at:ccpSub(position, currentLayerPos)];
+    NSLog(@">[MYLOG]    findAllOwnedPositions");
+    NSMutableArray *array = [NSMutableArray array];
+    // Cycle through the tiles
+    for ( int i = 0 ; i < MAPLENGTH ; i++ ) {
+        for ( int k = 0 ; k < MAPWIDTH ; k++ ) {
+            Tile * tile = [self findTile:ccp(i,k) absPos:NO];
+            if ( tile.unit != nil ) {
+                if ( [tile isOwned] ) {
+                    NSLog(@">       Found %@",tile);
+                    [array addObject:[NSValue valueWithCGPoint:tile.boardPos]];
+                }
+            }
+        }
+    }
+    return array;
+}
+
+#pragma mark - ACTION SPECIFIC FUNCTION HANDLERS
+- (BOOL) healAll:(TileVector *)vector with:(Tile *)tile oppObj:(SFSObject *)obj targets:(NSArray *)targets opp:(BOOL)opp
+{
+#define HEALALLDELAY 0.6
     
+    int heal;
+    NSMutableArray *animationTargets = [NSMutableArray array];
+    for ( NSValue *v in targets ) {
+        CGPoint p = [v CGPointValue];
+        Tile *target = [self findTile:p absPos:NO];
+        
+        if ( target == nil || target.unit == nil )
+            continue;
+        
+        if ( !opp ) {
+            heal = [target.unit calculate:[tile.unit.attribute getInt]*2 type:RANGE_MAGIC];
+            [obj putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:heal]];
+        } else {
+            heal = [obj getInt:NSStringFromCGPoint(p)];
+        }
+        
+        [target.unit heal:heal after:HEALALLDELAY];
+        if ( ![target.unit isEqual:tile.unit] )
+            [animationTargets addObject:[NSValue valueWithCGPoint:target.unit.sprite.position]];
+    }
+    
+    if ( [tile.unit putTargets:animationTargets] ) { // make sure the unit has all the targets
+        [[tile unit] action:HEAL_ALL at:[self findAbsPos:vector.tile.boardPos]];
+    }
+
     return YES;
 }
- 
-- (BOOL) freezeToward:(CGPoint)position with:(Tile *)tile opp:(BOOL)opp
+
+- (BOOL) freezeToward:(TileVector *)vector with:(Tile *)tile opp:(BOOL)opp
 {
     // Find the list of tiles in line of sight, set target to the last one of the list
-    NSMutableArray *bresenhamList = [self bresenhamList:tile.boardPos to:[self findBrdPos:position] inclusive:YES];
+    NSMutableArray *bresenhamList = [self bresenhamList:tile.boardPos
+                                                     to:vector.tile.boardPos
+                                              inclusive:YES];
     Tile *target = [bresenhamList lastObject];
     
     // Run action + Freeze enemy
-    [[tile unit] action:GORGON_FREEZE at:ccpSub([self findAbsPos:target.boardPos], currentLayerPos)];
+    [[tile unit] action:GORGON_FREEZE at:[self findAbsPos:target.boardPos]];
     
     // Create buff, will handle all the delgation setting
     Buff *buff = [StoneGazeDebuff stoneGazeDebuffFromCaster:tile.unit atTarget:target.unit withPath:bresenhamList for:-1];
@@ -377,14 +441,43 @@
     return YES;
 }
 
-- (BOOL) earthquakeAt:(CGPoint)position with:(Tile *)tile targets:(SFSObject *)targets opp:(BOOL)opp
+- (BOOL) flamebreathToward:(TileVector *)vector with:(Tile *)tile oppObj:(SFSObject *)obj targets:(NSArray *)targets opp:(BOOL)opp
+{
+#define FLAMEBREATH_DELAY 0.8
+    [[tile unit] action:DRAGON_FLAMEBREATH at:[self findAbsPos:vector.tile.boardPos]];
+    
+    NSMutableArray *targetList = [NSMutableArray mutableArrayUsingWeakReferences];
+    if ( !opp ) {
+        for ( NSValue *v in targets ) {
+            CGPoint p = [v CGPointValue];
+            [obj putInt:NSStringFromCGPoint([self getOppPos:p]) value:[NSNumber numberWithInt:0]];
+            [targetList addObject:[self findTile:p absPos:NO]];
+        }
+    } else {
+        NSArray *oppTargets = [obj getKeys];
+        for ( NSString *string in oppTargets ) {
+            // We only need the strings
+            NSLog(@"><><><><><>< Got %@",string);
+            CGPoint p = CGPointFromString(string);
+            [targetList addObject:[self findTile:p absPos:NO]];
+        }
+    }
+
+    
+    Buff *buff = [BlazeDebuff blazeDebuffFromCaster:tile.unit atTargets:targetList for:4 damage:[tile.unit.attribute getInt]];
+    // avoid warning
+    [buff duration];
+    
+    return YES;
+}
+ 
+- (BOOL) earthquakeAt:(TileVector *)vector with:(Tile *)tile oppObj:(SFSObject *)obj targets:(NSArray *)targets opp:(BOOL)opp
 {
 #define EARTHQUAKE_DELAY 0.6
-    [[tile unit] action:MUDGOLEM_EARTHQUAKE at:ccpSub(position, currentLayerPos)];
+    [[tile unit] action:MUDGOLEM_EARTHQUAKE at:[self findAbsPos:vector.tile.boardPos]];
     
-    NSArray *list = [self bridge:[(MudGolem *)tile.unit getEarthquakeEffect] from:tile.boardPos at:NE];
     int damage;
-    for ( NSValue *v in list ) {
+    for ( NSValue *v in targets ) {
         CGPoint p = [v CGPointValue];
         Tile *target = [self findTile:p absPos:NO];
         
@@ -393,107 +486,96 @@
         
         if ( !opp ) {
             damage = [target.unit calculate:[tile.unit.attribute getInt] type:RANGE_PHYSICAL];
-            [targets putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
+            [obj putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
         } else {
-            damage = [targets getInt:NSStringFromCGPoint(p)];
+            damage = [obj getInt:NSStringFromCGPoint(p)];
         }
 
         [target.unit take:damage after:EARTHQUAKE_DELAY];
-        [self.delegate displayCombatMessage:[NSString stringWithFormat:@"%d", damage]
-                                 atPosition:ccpSub([self findAbsPos:target.boardPos],currentLayerPos)
-                                  withColor:ccRED
-                                  withDelay:EARTHQUAKE_DELAY];
     }
+    
+    [self.delegate shakeScreenAfter:EARTHQUAKE_DELAY];
 
     return YES;
 }
 
-- (BOOL) fireballToward:(CGPoint)position with:(Tile *)tile animate:(int)action targets:(SFSObject *)targets opp:(BOOL)opp
+- (BOOL) fireballToward:(TileVector *)vector with:(Tile *)tile animate:(int)action oppObj:(SFSObject *)obj targets:(NSArray *)targets opp:(BOOL)opp
 {
-    CGPoint bresenham = [self bresenham:tile.boardPos to:[self findBrdPos:position]];
+    CGPoint bresenham = [self bresenham:tile.boardPos
+                                     to:vector.tile.boardPos];
+    Tile *target = [self findTile:bresenham absPos:NO];
+    CGPoint placement = [self fixProjectile:[self findAbsPos:bresenham]
+                                toLineStart:[self findAbsPos:tile.boardPos]
+                                        end:[self findAbsPos:vector.tile.boardPos]];
+    [[tile unit] action:action at:placement];
+    
+    int damage;
+    if ( !opp ) {
+        // Not opponent calculation, need damage creation
+        damage = [[target unit] calculate:[tile.unit.attribute getDamageForType:RANGE_MAGIC] type:RANGE_MAGIC];
+        [obj putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
+    } else {
+        // Find damage from dictionary and use
+        damage = [obj getInt:NSStringFromCGPoint(target.boardPos)];
+    }
+    
+    [target.unit take:damage after:0.2];
+
+    return YES;
+}
+
+- (BOOL) shootToward:(TileVector *)vector with:(Tile *)tile animate:(int)action oppObj:(SFSObject *)obj targets:(NSArray *)targets opp:(BOOL)opp
+{
+    CGPoint bresenham = [self bresenham:tile.boardPos
+                                     to:vector.tile.boardPos];
     
     Tile *target = [self findTile:bresenham absPos:NO];
     CGPoint placement = [self fixProjectile:[self findAbsPos:bresenham]
-                                toLineStart:[self findAbsPos:tile.boardPos] end:position];
-    [[tile unit] action:action at:ccpSub(placement, currentLayerPos)];
+                                toLineStart:[self findAbsPos:tile.boardPos]
+                                        end:[self findAbsPos:vector.tile.boardPos]];
+
+    [[tile unit] action:action at:placement];
     
     int damage;
     if ( !opp ) {
         // Not opponent calculation, need damage creation
-        damage = [[target unit] calculate:tile.unit.attribute->damage type:RANGE_MAGIC];
-        [targets putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
+        damage = [[target unit] calculate:[tile.unit.attribute getDamageForType:RANGE_PHYSICAL] type:RANGE_PHYSICAL];
+        [obj putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
     } else {
         // Find damage from dictionary and use
-        damage = [targets getInt:NSStringFromCGPoint(target.boardPos)];
+        damage = [obj getInt:NSStringFromCGPoint(target.boardPos)];
     }
     
-    [target.unit take:damage after:0];
+    [target.unit take:damage after:0.1];
     
-    [self.delegate displayCombatMessage:[NSString stringWithFormat:@"%d", damage]
-                             atPosition:ccpSub([self findAbsPos:target.boardPos],currentLayerPos)
-                              withColor:ccRED
-                              withDelay:0];
     return YES;
 }
 
-- (BOOL) shootToward:(CGPoint)position with:(Tile *)tile animate:(int)action targets:(SFSObject *)targets opp:(BOOL)opp
+- (BOOL) attackToward:(TileVector *)vector with:(Tile *)tile animate:(int)action oppObj:(SFSObject *)obj targets:(NSArray *)targets opp:(BOOL)opp
 {
-    CGPoint bresenham = [self bresenham:tile.boardPos to:[self findBrdPos:position]];
-    
-    Tile *target = [self findTile:bresenham absPos:NO];
-    CGPoint placement = [self fixProjectile:[self findAbsPos:bresenham]
-                                toLineStart:[self findAbsPos:tile.boardPos] end:position];
-    [[tile unit] action:action at:ccpSub(placement, currentLayerPos)];
+    Tile *target = vector.tile;
+    [tile.unit action:action at:[self findAbsPos:vector.tile.boardPos]];
     
     int damage;
     if ( !opp ) {
         // Not opponent calculation, need damage creation
-        damage = [[target unit] calculate:tile.unit.attribute->damage type:RANGE_PHYSICAL];
-        [targets putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
+        damage = [[target unit] calculate:[tile.unit.attribute getDamageForType:MELEE_PHYSICAL] type:MELEE_PHYSICAL];
+        [obj putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
     } else {
         // Find damage from dictionary and use
-        damage = [targets getInt:NSStringFromCGPoint(target.boardPos)];
-    }
-    
-    [target.unit take:damage after:0];
-    
-    [self.delegate displayCombatMessage:[NSString stringWithFormat:@"%d", damage]
-                             atPosition:ccpSub([self findAbsPos:target.boardPos],currentLayerPos)
-                              withColor:ccRED
-                              withDelay:0];
-    return YES;
-}
-
-- (BOOL) attackToward:(CGPoint)position with:(Tile *)tile animate:(int)action targets:(SFSObject *)targets opp:(BOOL)opp
-{
-    Tile *target = [self findTile:position absPos:YES];
-    [[tile unit] action:action at:ccpSub(position, currentLayerPos)];
-    
-    int damage;
-    if ( !opp ) {
-        // Not opponent calculation, need damage creation
-        damage = [[target unit] calculate:tile.unit.attribute->damage type:MELEE_PHYSICAL];
-        [targets putInt:NSStringFromCGPoint(target.boardPos) value:[NSNumber numberWithInt:damage]];
-    } else {
-        // Find damage from dictionary and use
-        damage = [targets getInt:NSStringFromCGPoint(target.boardPos)];
+        damage = [obj getInt:NSStringFromCGPoint(target.boardPos)];
     }
     
     [target.unit take:damage after:0.2];
     
-    [self.delegate displayCombatMessage:[NSString stringWithFormat:@"%d", damage]
-                             atPosition:ccpSub([self findAbsPos:target.boardPos],currentLayerPos)
-                              withColor:ccRED
-                              withDelay:0.2];
-    
     return YES;
 }
 
-- (BOOL) teleportMoveToward:(CGPoint)position with:(Tile *)tile opp:(BOOL)opp
+- (BOOL) teleportMoveToward:(TileVector *)vector with:(Tile *)tile opp:(BOOL)opp
 {
-    NSLog(@">[MYLOG] Teleporting to %@", NSStringFromCGPoint(position));
+    NSLog(@">[MYLOG] Teleporting to %@", NSStringFromCGPoint(vector.tile.boardPos));
     // Find the board tiles
-    Tile *end = [self findTile:position absPos:true];
+    Tile *end = vector.tile;
     
     // check if we're already there
     if ( CGPointEqualToPoint ([end boardPos], [tile boardPos]) )
@@ -509,24 +591,17 @@
         return NO;
     }
     
-    [[tile unit] action:MOVE at:ccpSub([self findAbsPos:end.boardPos],currentLayerPos)];
+    [[tile unit] action:MOVE at:[self findAbsPos:end.boardPos]];
 
     [end setUnit:[tile unit]];
-    [end setIsOccupied:true];
-    [end setIsOwned:true];
-    
     [tile setUnit:nil];
-    [tile setIsOccupied:false];
-    [tile setIsOwned:false];
-    [self.delegate unitDidMoveTo:end];
-    
     return YES;
 }
 
-- (BOOL) moveToward:(CGPoint)position with:(Tile *)tile opp:(BOOL)opp
+- (BOOL) moveToward:(TileVector *)vector with:(Tile *)tile opp:(BOOL)opp
 {
     // Find the board tiles
-    Tile *end = [self findTile:position absPos:true];
+    Tile *end = vector.tile;
     
     // check if we're already there
     if ( CGPointEqualToPoint ([end boardPos], [tile boardPos]) )
@@ -655,13 +730,7 @@
         return NO;
     } else {
         [end setUnit:[tile unit]];
-        [end setIsOccupied:true];
-        [end setIsOwned:true];
-        
         [tile setUnit:nil];
-        [tile setIsOccupied:false];
-        [tile setIsOwned:false];
-        [self.delegate unitDidMoveTo:end];
         return YES;
     }
 }
@@ -675,7 +744,7 @@
     {
 		if ( step.parent != nil )
         { // Don't add the last step which is the start position (remember we go backward, so the last one is the origin position ;-)
-            [step setPosition:ccpSub([self findAbsPos:step.position], currentLayerPos)];
+            [step setPosition:[self findAbsPos:step.position]];
 			[[[tile unit] shortestPath] insertObject:step atIndex:0]; // Always insert at index 0 to reverse the path
 		}
 		step = step.parent; // Go backward
@@ -793,6 +862,16 @@
     CCLOG(@"    *******************************************");
 }
 
+- (int) findDirection:(CGPoint)p1 to:(CGPoint)p2
+{
+    CGPoint difference = ccpSub(p2, p1);
+    if (difference.x > 0 ) return NW;
+    else if (difference.x < 0 ) return SE;
+    else if (difference.y > 0 ) return NE;
+    else if (difference.y < 0 ) return SW;
+    else return NE;
+}
+
 - (void) killtile:(CGPoint)position
 {
     Tile *tile = [self findTile:position absPos:true];
@@ -800,8 +879,22 @@
     
     [tile.unit setDelegate:nil];
     [tile setUnit:nil];
-    [tile setIsOccupied:false];
-    [tile setIsOwned:false];
+}
+
+- (void) resetTurnForSide:(BOOL)side
+{
+    // Cycle through the tiles
+    for ( int i = 0 ; i < MAPLENGTH ; i++ ) {
+        for ( int k = 0 ; k < MAPWIDTH ; k++ ) {
+            Tile * tile = [self findTile:ccp(i,k) absPos:NO];
+            NSLog(@">[RESET]    Tile:%@", tile);
+            if ( tile.unit != nil ) {
+                if ( ![tile isOwned] ^ side ) {
+                    [tile.unit reset];
+                }
+            }
+        }
+    }
 }
 
 - (void) actionDidFinish
@@ -842,8 +935,8 @@
     int sx = ( start.x < end.x ) ? 1 : -1;
     int sy = ( start.y < end.y ) ? 1 : -1;
     int err = dx - dy;
-    NSMutableArray *ret = [NSMutableArray array];
-    
+    NSMutableArray *ret = [NSMutableArray mutableArrayUsingWeakReferences];
+
     if ( inc ) [ret addObject:[self findTile:start absPos:NO]]; // start
     do {
         if ( start.x == end.x && start.y == end.y )
@@ -854,7 +947,8 @@
             start.x = start.x + sx;
         }
         if ( start.x == end.x && start.y == end.y ) {
-            if ( inc ) [ret addObject:[self findTile:start absPos:NO]]; // end
+            if ( inc ) { [ret addObject:[self findTile:start absPos:NO]];
+            }// end
             break;
         }
         if ( err2 < dx ) {
@@ -862,7 +956,7 @@
             start.y = start.y + sy;
         }
         [ret addObject:[self findTile:start absPos:NO]]; // everything else
-    } while ( [self isValidTile:start] && [self isOccupiedTile:start] ) ;
+    } while ( [self isValidTile:start] && ![self isOccupiedTile:start] ) ;
     
     return ret;
 }
@@ -870,13 +964,13 @@
 - (CGPoint) fixProjectile:(CGPoint)destination toLineStart:(CGPoint)start end:(CGPoint)end
 {
     // Line A - P
-    CGPoint startToDestination = ccp( destination.x - start.x , destination.y - start.y );
+    CGPoint startToDestination = ccpSub(destination, start);
     // Line A - B
-    CGPoint startToEnd = ccp( end.x - start.x, end.y - start.y );
+    CGPoint startToEnd = ccpSub(end, start);
     // Magnitude of A - B
     float startToEndSq = pow(startToEnd.x, 2) + pow(startToEnd.y, 2);
     // Dot product of A - B . A - P
-    float dotProduct = startToDestination.x * startToEnd.x + startToDestination.y + startToEnd.y;
+    float dotProduct = startToDestination.x * startToEnd.x + startToDestination.y * startToEnd.y;
     // Normalized distance
     float t = dotProduct/startToEndSq;
     // SHIT SON EZ GAME
@@ -904,10 +998,14 @@
     for ( int i = 0; i < 4; i++ )
         if ( direction == list[start].x ) continue;
         else start += list[start].y +1;
-
     int array_size = list[start].y;
+    if ( array_size == 0 )
+        return nil;
     for (int i = start + 1; i <= start+array_size; i ++) {
-        [array addObject:[NSValue valueWithCGPoint:ccpAdd(list[i],position)]];
+        CGPoint point = ccpAdd(list[i],position);
+        if ( [self isValidTile:point] ) {
+            [array addObject:[NSValue valueWithCGPoint:point]];
+        }
     }
     return array;
 }
@@ -934,10 +1032,7 @@
     // Holding array
     NSMutableArray *array = [NSMutableArray array];
     
-    // Add ourself only if we are empty
-    if ( [self isValidTile:position] && ![self isOccupiedTile:position])
-        if ( ![array containsObject:[NSValue valueWithCGPoint:position]] )
-            [array addObject:[NSValue valueWithCGPoint:position]];
+
     
     CGPoint p = ccp(position.x - 1, position.y);
     if ( [self isValidTile:p] && area != 0 )
@@ -959,16 +1054,21 @@
         if ( [self isOwnedTile:p] || ![self isOccupiedTile:p] )
             [array addObjectsFromArray: [self findMoveTiles:p for:area - 1]];
     
+    // Add ourself only if we are empty
+    if ( [self isValidTile:position] && ![self isOccupiedTile:position])
+        if ( ![array containsObject:[NSValue valueWithCGPoint:position]] )
+            [array addObject:[NSValue valueWithCGPoint:position]];
+    
     return [NSArray arrayWithArray:array];
 }
 
 - (void) setCurrentLayerPos:(CGPoint)position
 {
     currentLayerPos = position;
-    toIso = CGAffineTransformMake(-HALFLENGTH, HALFWIDTH,
-                                  HALFLENGTH, HALFWIDTH,
-                                  OFFSETX + position.x, OFFSETY + position.y);
-    fromIso = CGAffineTransformInvert(toIso);
+    self.toIso = CGAffineTransformMake(-HALFLENGTH, HALFWIDTH,
+                                       HALFLENGTH, HALFWIDTH,
+                                       OFFSETX + position.x, OFFSETY + position.y);
+    self.fromIso = CGAffineTransformInvert(self.toIso);
 }
 
 /* findTile - Find the tile located at an absolute position
@@ -984,7 +1084,7 @@
     // Convert touch location to a tile location
     
     if (absPos)
-        position = CGPointApplyAffineTransform(position, fromIso);
+        position = CGPointApplyAffineTransform(position, self.fromIso);
     
     tileX = (int)floor(position.x);
     tileY = (int)floor(position.y);
@@ -1004,7 +1104,7 @@
  */
 - (CGPoint) findBrdPos:(CGPoint)position
 {
-    CGPoint ret = CGPointApplyAffineTransform(position, fromIso);
+    CGPoint ret = CGPointApplyAffineTransform(position, self.fromIso);
     ret = ccp(floor(ret.x), floor(ret.y));
     return ret;
 }
@@ -1015,8 +1115,10 @@
  */
 - (CGPoint) findAbsPos:(CGPoint)position
 {
-    CGPoint ret = CGPointApplyAffineTransform(position, toIso);
-    ret = ccp(ret.x,ret.y + HALFWIDTH);
+    
+    CGPoint ret = CGPointApplyAffineTransform(position, self.toIso);
+    ret = ccp(ret.x - currentLayerPos.x,
+              ret.y + HALFWIDTH - currentLayerPos.y);
     return ret;
 }
 
@@ -1045,5 +1147,16 @@
     Tile *tile = [[[self board] objectAtIndex:position.x] objectAtIndex:position.y];
     if ( tile.unit != nil && [tile.unit canIDo:MOVE] && tile.unit->isFocused) return NO;
     else return [tile isOwned];
+}
+
+- (CGPoint) getOppPos:(CGPoint)position
+{
+    return ccp(MAPLENGTH - 1 - position.x, MAPWIDTH - 1 - position.y);
+}
+
+#pragma mark - Tile Delegate
+- (void) transformTileMe:(Tile *)tile toGid:(int)start toGid:(int)end
+{
+    [self.delegate transformTileAt:tile.boardPos fromGid:start toGid:end delay:FLAMEBREATH_DELAY];
 }
 @end

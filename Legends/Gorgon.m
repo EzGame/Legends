@@ -5,7 +5,8 @@
 //  Created by David Zhang on 2013-05-10.
 //
 //
-
+#define GORGONSCALE 0.5
+#define GORGONSETUPSCALE GORGONSCALE * SETUPMAPSCALE
 #import "Gorgon.h"
 @implementation Gorgon
 
@@ -14,24 +15,24 @@
 
 #pragma mark - Alloc n Init
 
-+ (id) gorgonWithValues:(NSArray *)values;
++ (id) gorgonWithObj:(UnitObj *)obj;
 {
-    return [[Gorgon alloc] initGorgonFor:YES withValues:values];
+    return [[Gorgon alloc] initGorgonFor:YES withObj:obj];
 }
 
-+ (id) gorgonForEnemyWithValues:(NSArray *)values;
++ (id) gorgonForEnemyWithObj:(UnitObj *)obj;
 {
-    return [[Gorgon alloc] initGorgonFor:NO withValues:values];
+    return [[Gorgon alloc] initGorgonFor:NO withObj:obj];
 }
 
-+ (id) gorgonForSetupWithValues:(NSArray *)values;
++ (id) gorgonForSetupWithObj:(UnitObj *)obj;
 {
-    return [[Gorgon alloc] initGorgonForSetupWithValues:values];
+    return [[Gorgon alloc] initGorgonForSetupWithObj:obj];
 }
 
-- (id) initGorgonFor:(BOOL)side withValues:(NSArray *)values
+- (id) initGorgonFor:(BOOL)side withObj:(UnitObj *)obj
 {
-    self = [super initForSide:side withValues:values];
+    self = [super initForSide:side withObj:obj];
     if (self)
     {        
         // Cache the sprite frames and texture
@@ -54,16 +55,16 @@
         // Create the menu
         if (side) [self initMenu];
         
-        self.sprite.scale = 0.5;
+        self.sprite.scale = GORGONSCALE;
 
         [self.spriteSheet addChild:self.sprite];
     }
     return self;
 }
 
-- (id) initGorgonForSetupWithValues:(NSArray *)values
+- (id) initGorgonForSetupWithObj:(UnitObj *)obj
 {
-    self = [super initForSide:YES withValues:values];
+    self = [super initForSide:YES withObj:obj];
     if (self)
     {
         // Cache the sprite frames and texture
@@ -75,7 +76,7 @@
         //Create the sprite
         self.sprite = [CCSprite spriteWithSpriteFrameName:@"Medusa_SW.png"];
         
-        self.sprite.scale = 0.5;
+        self.sprite.scale = GORGONSETUPSCALE;
         
         [self.spriteSheet addChild:self.sprite];
     }
@@ -246,6 +247,23 @@
         [self action:DEAD at:CGPointZero];
 }
 
+- (void) heal:(int)damage after:(float)delay
+{
+    [self.sprite stopAllActions];
+    health = MIN(health+damage, self.attribute->max_health);
+    
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCDelayTime actionWithDuration:delay],
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccGREEN];
+         [self.delegate displayCombatMessage:[NSString stringWithFormat:@"+%d",damage]
+                                  atPosition:self.sprite.position withColor:ccGREEN];
+     }],
+      [CCDelayTime actionWithDuration:0.2],
+      [CCTintTo actionWithDuration:1 red:255 green:255 blue:255], nil]];
+}
+
 - (int) calculate:(int)damage type:(int)dmgType
 {
     return damage;
@@ -293,6 +311,7 @@
 
 - (void) reset
 {
+    [super reset];
     self.coolDown--;
     if ( self.moveButton.isUsed )
         self.coolDown+= self.moveButton.costOfButton;
@@ -311,6 +330,11 @@
 - (CGPoint *) getShootEffect { return (CGPoint *)gorgonShootEffect; }
 - (CGPoint *) getFreezeArea { return (CGPoint *)gorgonFreezeArea; }
 - (CGPoint *) getFreezeEffect { return (CGPoint *)gorgonFreezeEffect; }
+
+- (BOOL) hasActionLeft
+{
+    return !self.moveButton.isUsed || !self.shootButton.isUsed || !self.freezeButton.isUsed;
+}
 
 - (NSString *) description
 {

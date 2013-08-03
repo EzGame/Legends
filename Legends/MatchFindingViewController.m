@@ -9,7 +9,7 @@
 #import "MatchFindingViewController.h"
 
 @interface MatchFindingViewController ()
-
+@property (nonatomic, strong) SFSUser *tempOppPtr;
 @end
 
 @implementation MatchFindingViewController
@@ -17,12 +17,12 @@
 @synthesize labelStatus = _labelStatus;
 @synthesize startGameButton = _startGameButton;
 
-- (IBAction)startGame:(id)sender {
+- (IBAction)startGame:(id)sender { /*
     self.startGameButton.hidden = YES;
     sent = YES;
     [smartFox send:[PublicMessageRequest requestWithMessage:@"GO" params:nil targetRoom:nil]];
     if ( received ) [appDelegate switchToScene:[BattleLayer scene]];
-    else [self.labelStatus setText:@"Waiting for Opponent to start!"];
+    else [self.labelStatus setText:@"Waiting for Opponent to start!"]; */
 }
 
 - (void) findMatchFor:(int)time
@@ -32,7 +32,10 @@
     self.labelStatus.text = [NSString stringWithFormat:@"Searching... %d",attemptCount];
     // Matchmaking algorithm,
     // First we setup the rules of finding:
-    MatchExpression *exp = [MatchExpression expressionWithVarName:@"ELO" condition:[NumberMatch numberMatchGreaterThanOrEqualTo] value:[NSNumber numberWithInt:1]];
+    MatchExpression *exp = [MatchExpression
+                            expressionWithVarName:@"ELO"
+                            condition:[NumberMatch numberMatchGreaterThanOrEqualTo]
+                            value:[NSNumber numberWithInt:1]];
     exp = [exp and:@"ELO" condition:[NumberMatch numberMatchLessThanOrEqualTo] value:[NSNumber numberWithInt:3000]];
     //exp = [exp and:UserProperties_NAME condition:[StringMatch stringMatchNotEquals] value:"simulator"];
 
@@ -78,6 +81,16 @@
     */
 }
 
+- (void) restart:(id)param
+{
+    matchFound = NO;
+    joined = NO;
+    sent = NO;
+    received = NO;
+    _tempOppPtr = nil;
+    [self findMatchFor:-1];
+}
+
 - (void) onUserVariablesUpdate:(SFSEvent *)evt
 {
     SFSUser *user = [evt.params objectForKey:@"user"];
@@ -108,41 +121,14 @@
         {
             self.labelStatus.text = @"Attempting to connect to user";
             NSLog(@">[MYLOG]    Found users! Inviting random user");
-            // Make a SFSObject to send
-            SFSObject *mySetup = [SFSObject newInstance];
-            [mySetup putUtfString:@"SETUP" value:[[UserSingleton get] getPieces]];
+            self.tempOppPtr = user;
             
+            // SEND
+            SFSObject *myData = [SFSObject newInstance];
+            [myData putSFSArray:@"SETUP" value:[[UserSingleton get] setup]];
             NSArray *users = [NSArray arrayWithObject:user];
-            [smartFox send:[InviteUsersRequest requestWithInvitedUsers:users secondsForAnswer:15 params:mySetup]];
+            [smartFox send:[InviteUsersRequest requestWithInvitedUsers:users secondsForAnswer:15 params:myData]];
         }
-    }
-}
-
-- (void) onInvitationReply:(SFSEvent *)evt
-{
-    // invitation replied
-    if ( [[evt.params objectForKey:@"reply"] integerValue] == InvitationReply_ACCEPT )
-    {
-        // Lock state! no more accepting
-        self.labelStatus.text = @"Found Opponent! Setting up match";
-        NSLog(@">>>>>>>>>> I'm the inviter <<<<<<<<<<");
-        matchFound = YES;
-        [UserSingleton get].amIPlayerOne = YES;
-        
-        // Load opponents shit
-        SFSObject *setup = [evt.params objectForKey:@"data"];
-        NSString *oppSetup = [setup getUtfString:@"SETUP"];
-        NSString *roomName = [setup getUtfString:@"ROOM"];
-        NSLog(@">[MYLOG]        room name is %@ and their setup is %@",roomName,oppSetup);
-        [[UserSingleton get] loadOppSetup:oppSetup];
-        
-        // Join room
-        [smartFox send:[JoinRoomRequest requestWithId:[NSString stringWithString:roomName] pass:nil roomIdToLeave:nil asSpect:NO]];//@"dev game"]];
-    }
-    else
-    {
-        NSLog(@"faggot rejected, try again");
-        [self findMatchFor:-1];
     }
 }
 
@@ -153,13 +139,13 @@
 
     if ( !matchFound )
     {
-        // Lock state! no more searching
+        // LOCK
         self.labelStatus.text = @"Found Opponent! Setting up match";
         NSLog(@">>>>>>>>>> I'm the invitee <<<<<<<<<<");
         matchFound = YES;
         [UserSingleton get].amIPlayerOne = NO;
          
-        // Create room
+        // CREATE ROOM
         NSString *gameName = @"dev_game";
         RoomSettings *settings = [RoomSettings settingsWithName:gameName];
         settings.password = nil;
@@ -167,18 +153,16 @@
         settings.isGame = YES;
         settings.maxUsers = 2;
         settings.maxSpectators = 0;
+        [smartFox send:[CreateRoomRequest requestWithRoomSettings:settings autoJoin:YES roomToLeave:nil]];
+
+        // RECEIVE
+        SFSArray *opSetup = [invite.params getSFSArray:@"SETUP"];
+        [[UserSingleton get] saveOpp:invite.inviter setup:opSetup];
         
-        [[UserSingleton get] loadOppSetup:[invite.params getUtfString:@"SETUP"]];
-        
-        // Make a SFSObject to return
+        // SEND
         SFSObject *myResponse = [SFSObject newInstance];
-        [myResponse putUtfString:@"SETUP"
-                           value:[[UserSingleton get] getPieces]];
-        [myResponse putUtfString:@"ROOM"
-                           value:gameName];
-        
-        [smartFox send:[CreateRoomRequest requestWithRoomSettings:settings autoJoin:YES roomToLeave:smartFox.lastJoinedRoom]];
-        
+        [myResponse putSFSArray:@"SETUP" value:[[UserSingleton get] setup]];
+        [myResponse putUtfString:@"ROOM" value:gameName];
         [smartFox send:[InvitationReplyRequest requestWithInvitation:invite invitationReply:InvitationReply_ACCEPT params:myResponse]];
     }
     else
@@ -187,42 +171,97 @@
     }
 }
 
-- (void) onRoomJoin:(SFSEvent *)evt
+- (void) onInvitationReply:(SFSEvent *)evt
 {
-    SFSRoom *room = [evt.params objectForKey:@"room"];
-    NSLog(@"The Room %@ was successfully joined!", room.name);
-    self.labelStatus.text = @"Game Ready!";
-    self.startGameButton.hidden = NO;
-}
-
-- (void) onPublicMessage:(SFSEvent *)evt
-{
-    SFSUser *sender = [evt.params objectForKey:@"sender"];
-    if ([[evt.params objectForKey:@"message"] isEqual:@"GO"] &&
-        ![sender.name isEqual:smartFox.mySelf.name])
+    // invitation replied
+    if ( [[evt.params objectForKey:@"reply"] integerValue] == InvitationReply_ACCEPT )
     {
-        received = YES;
-        if ( sent ) [appDelegate switchToScene:[BattleLayer scene]];
-        else self.labelStatus.text = @"Your opponent doesnt have all day! Hurry up!";
+        // LOCK
+        self.labelStatus.text = @"Found Opponent! Setting up match";
+        NSLog(@">>>>>>>>>> I'm the inviter <<<<<<<<<<");
+        matchFound = YES;
+        [UserSingleton get].amIPlayerOne = YES;
+        
+        // RECEIVED
+        SFSObject *oppData = [evt.params objectForKey:@"data"];
+        SFSArray *oppSetup = [oppData getSFSArray:@"SETUP"];
+        NSString *roomName = [oppData getUtfString:@"ROOM"];
+        NSLog(@">[MYLOG]        room name is %@ and their setup is %@",roomName,oppSetup);
+        [[UserSingleton get] saveOpp:self.tempOppPtr setup:oppSetup];
+        
+        // JOIN ROOM
+        [smartFox send:[JoinRoomRequest requestWithId:[NSString stringWithString:roomName] pass:nil roomIdToLeave:nil asSpect:NO]];
+    }
+    else
+    {
+        NSLog(@"faggot rejected, try again");
+        self.tempOppPtr = nil;
+        [self findMatchFor:-1];
     }
 }
 
 - (void) onInvitationReplyError:(SFSEvent *)evt
 {
-    NSLog(@"This should not run");
-    self.labelStatus.text = @"An error occurred";
+    self.labelStatus.text = [NSString stringWithFormat:@"ERROR: %@", [evt.params objectForKey:@"errorMessage"]];
+    NSAssert(NO, @">[FATAL] INVITATION REPLY ERROR");
+}
+
+- (void) onRoomJoin:(SFSEvent *)evt
+{
+    SFSRoom *room = [evt.params objectForKey:@"room"];
+    if ( room.userCount > 1 ) {
+        [NSObject cancelPreviousPerformRequestsWithTarget:self
+                                                 selector:@selector(restart:)
+                                                   object:nil];
+        [smartFox send:[PublicMessageRequest requestWithMessage:@"GO"
+                                                         params:nil
+                                                     targetRoom:nil]];
+        
+    } else {
+        self.labelStatus.text = @"Waiting for Opponent to join room!";
+        [self performSelector:@selector(restart:)
+                   withObject:nil
+                   afterDelay:30];
+    }
+    /*
+    SFSRoom *room = [evt.params objectForKey:@"room"];
+    NSLog(@"The Room %@ was successfully joined!", room.name);
+    self.startGameButton.hidden = NO;
+     */
 }
 
 - (void) onRoomJoinError:(SFSEvent *)evt
 {
     self.labelStatus.text = [NSString stringWithFormat:@"ERROR: %@", [evt.params objectForKey:@"errorMessage"]];
+    NSAssert(NO, @">[FATAL] FAIL TO JOIN ROOM");
 }
-/* Other stuff */
 
+- (void) onPublicMessage:(SFSEvent *)evt
+{
+    SFSUser *sender = [evt.params objectForKey:@"sender"];
+    if ([[evt.params objectForKey:@"message"] isEqual:@"GO"]
+        && ![sender.name isEqual:smartFox.mySelf.name]) {
+        received = YES;
+        if ( sent ) [appDelegate switchToScene:[BattleLayer scene]];
+    } else {
+        sent = YES;
+        if ( received ) [appDelegate switchToScene:[BattleLayer scene]];
+    }
+}
+
+#pragma mark - Other shit
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
+        smartFox = appDelegate.smartFox;
+        matchFound = NO;
+        attemptCount = 0;
+        joined = NO;
+        sent = NO;
+        received = NO;
+        _tempOppPtr = nil;
     }
     return self;
 }
@@ -230,12 +269,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
-    smartFox = appDelegate.smartFox;
-    matchFound = NO;
-    attemptCount = 0;
-    sent = NO;
-    received = NO;
+
     // Send our values
     [self findMatchFor:-1];
 }

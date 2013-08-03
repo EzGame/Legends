@@ -40,6 +40,7 @@
     
     if ( self )
     {
+        /*
         isTouchEnabled_ = YES;
         
         _display = [UnitDisplay displayWithPosition:ccp(85,265)];
@@ -60,7 +61,7 @@
         [self addChild:_unit.spriteSheet z:SPRITES_TOP];
         [self addChild:_unit.menu z:MENUS];
         [_unit action:IDLE at:CGPointZero];
-        [_unit toggleMenu:YES];
+        [_unit toggleMenu:YES];*/
     }
     return self;
 }

@@ -9,6 +9,29 @@
 #import "Buff.h"
 #import "Tile.h"
 
+@implementation NSMutableArray (WeakReferences)
+
+
++ (id)mutableArrayUsingWeakReferences
+{
+    return [self mutableArrayUsingWeakReferencesWithCapacity:0];
+}
+
+
+
++ (id)mutableArrayUsingWeakReferencesWithCapacity:(NSUInteger)capacity
+{
+    // The two NULLs are for the CFArrayRetainCallBack and CFArrayReleaseCallBack methods.  Since they are
+    // NULL no retain or releases sill be done.
+    //
+    CFArrayCallBacks callbacks = {0, NULL, NULL, CFCopyDescription, CFEqual};
+    
+    // We create a weak reference array
+    return (__bridge id)(CFArrayCreateMutable(0, capacity, &callbacks));
+}
+
+@end
+#pragma mark - Buff
 @implementation Buff
 @synthesize duration = _duration, hasBuffBeenRemoved = _hasBuffBeenRemoved;
 
@@ -32,9 +55,9 @@
     }
 }
 
-- (void) turnEnd
+- (void) reset
 {
-    NSLog(@">[MYLOG] Entering Buff:turnEnded");
+    NSLog(@">[RESET]    Buff:%@", self);
     self.duration -= 1;
 }
 
@@ -58,7 +81,10 @@
 }
 @end
 
+
+
 #pragma mark - Stone Gaze
+
 @implementation StoneGazeDebuff
 @synthesize path = _path;
 
@@ -72,12 +98,15 @@
     self = [super init];
     if ( self )
     {
+        NSLog(@">[MYLOG] Creating freeze debuff from %@ to %@\n\
+              Within %@", caster, target, path);
         self.duration = duration;
         self.caster = caster;
         self.target = target;
         [self.caster buffCasterStarted:self];
         [self.target buffTargetStarted:self];
         _path = path; // has to be weak!!
+        //_path = [NSMutableArray mutableArrayUsingWeakReferences];
         for (id delegate in _path)
              [delegate buffTargetStarted:self];
     }
@@ -111,24 +140,31 @@
 }
 @end
 
+
+
 #pragma mark - Blaze
 
 @implementation BlazeDebuff
 @synthesize targets = _targets;
 
-+ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration
++ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration damage:(int)damage
 {
-    return [[BlazeDebuff alloc] initBlazeDebuffFromCaster:caster atTargets:targets for:duration];
+    return [[BlazeDebuff alloc] initBlazeDebuffFromCaster:caster atTargets:targets for:duration damage:damage];
 }
 
-- (id) initBlazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration
+- (id) initBlazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration damage:(int)damage
 {
     self = [super init];
     if ( self )
     {
+        NSLog(@">[MYLOG] Creating Blaze debuff from %@\n\
+              Within %@ for dmg %d", caster, targets, damage);
+        dmg = damage;
         self.duration = duration;
+        
         self.caster = caster;
         self.targets = targets;
+        
         [self.caster buffCasterStarted:self];
         for ( id delegate in self.targets )
             [delegate buffTargetStarted:self];
@@ -151,6 +187,19 @@
     NSLog(@">[MYLOG] BlazeDebuff:removeMyReferences");
     [super removeMyReferences];
     [_targets removeAllObjects];
+}
+
+- (NSString *)description
+{
+    return [NSString stringWithFormat:@"Blaze"];
+}
+
+- (void) reset
+{
+    [super reset];
+    for ( id delegate in self.targets ) {
+        [delegate damage:dmg type:MELEE_MAGIC fromBuff:self fromCaster:self.caster];
+    }
 }
 @end
 

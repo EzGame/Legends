@@ -523,7 +523,6 @@ int compareInts (const void * a, const void * b)
 				rect = CC_RECT_PIXELS_TO_POINTS(rect);
 
 				[sprite setTextureRect:rect rotated:NO untrimmedSize:rect.size];
-
 				if (flags) 
 					[self setupTileSprite:sprite position:[sprite position] withGID:gidAndFlags];
 

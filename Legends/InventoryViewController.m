@@ -5,6 +5,9 @@
 //  Created by David Zhang on 2013-05-28.
 //
 //
+#define UNITSTABVIEW 123
+#define CONSUMMABLESTABVIEW 234
+#define MISCTABVIEW 345
 
 #import "InventoryViewController.h"
 #import "MainMenuViewController.h"
@@ -12,138 +15,26 @@
 #import "ForgeLayer.h"
 
 @interface InventoryViewController ()
-@property (nonatomic, strong) NSMutableArray *inventory;
-@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UITabbedView *unitsPageView;
+@property (nonatomic, strong) UITabbedView *consummablePageView;
+@property (nonatomic, strong) UITabbedView *miscPageView;
 @end
 
 @implementation InventoryViewController
-@synthesize scrollView = _scrollView;
-@synthesize forge = _forge, home = _home;
+@synthesize inventoryView = _inventoryView;
+@synthesize displayImageView = _displayImageView;
+@synthesize okButton = _okButton, home = _home;
 
 - (IBAction)homePressed:(id)sender {
     [appDelegate switchToView:@"MainMenuViewController" uiViewController:[MainMenuViewController alloc]];
 }
 
-- (IBAction)forgePressed:(id)sender {
-    //[appDelegate switchToScene:[ForgeLayer scene]];
-    [appDelegate switchToView:@"ForgeViewController" uiViewController:[ForgeViewController alloc]];
-}
-
-- (CGPoint) findTouchPositionWith:(CGPoint)slotPosition
+- (void) itemDidGetSelected:(ItemView *)item
 {
-    int xPos = (slotPosition.x ) * (SLOTLENGTH) + slotPosition.x * SPACEBETWEENSLOTS;
-    int yPos = (slotPosition.y ) * (SLOTWIDTH) + slotPosition.y * SPACEBETWEENSLOTS;
-    
-    xPos += FIRSTSLOTXOFFSET;
-    yPos += FIRSTSLOTYOFFSET;
-    NSLog(@"Returning touch location %d,%d",xPos,yPos);
-    return ccp(xPos, yPos);
-}
-
-- (ItemView *) findItemAt:(CGPoint)position
-{
-    return [[self.inventory objectAtIndex:position.y] objectAtIndex:position.x];
-}
-
-- (void) printInventory
-{
-    for ( int i = 0; i < inventorySlots/6; i++ ) {
-        NSMutableString *print = [NSMutableString string];
-        for ( int j = 0; j < 6; j++ ) {
-            ItemView *item = [self findItemAt:ccp(j,i)];
-            if ( [item isKindOfClass:[NSNull class]] )
-                [print appendString:@" E"];
-            else
-                [print appendString:@" I"];
-        }
-        NSLog(@"%@", print);
+    if ( [item.objPtr isKindOfClass:[UnitObj class]] ) {
+        UnitObj *ptr = item.objPtr;
+        [_displayImageView setDisplayForObj:ptr];
     }
-}
-
-- (NSString *) findIconName:(int)type
-{
-    if ( type == MINOTAUR ) {
-        return @"minotaur_icon.png";
-    } else if ( type == GORGON ) {
-        return @"medusa_icon.png";
-    } else {
-        return @"UNKNOWN";
-    }
-}
-
-- (CGPoint) findOpenSlot
-{
-    for ( int i = 0; i < inventorySlots/6; i++ ) {
-        NSMutableArray *temp = [self.inventory objectAtIndex:i];
-        for ( int j = 0; j < 6; j++ ) {
-            if ( [[temp objectAtIndex:j] isEqual:[NSNull null]] ) {
-                NSLog(@"    returning %d,%d",i,j);
-                return [self findTouchPositionWith:ccp(j,i)];
-            }
-        }
-    }
-    return CGPointZero;
-}
-
-- (void) loadItems
-{
-    for ( NSString *itemString in items )
-    {
-        NSArray *itemValues = [itemString componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
-        if ( [[itemValues objectAtIndex:0] isEqual:@"u"] )
-        {
-            ItemView *test = [[ItemView alloc]
-                              initUnitWithImage:[self findIconName:[[itemValues objectAtIndex:1] integerValue]]
-                              at:[self findOpenSlot]
-                              with:itemString];
-            test.delegate = self;
-            [_scrollView addSubview:test];
-            NSLog(@"what is test.position %@",NSStringFromCGPoint(test.position));
-            [self putItem:test at:test.position];
-        }
-    }
-}
-
-/* ItemViewDelegates */
-- (BOOL) removeItemAt:(CGPoint) position
-{
-    position = [self findSlotPositionWith:position];
-    NSMutableArray *temp = [self.inventory objectAtIndex:position.y];
-    if ( [[temp objectAtIndex:position.x] isEqual:[NSNull null]] ) {
-        NSLog(@"    Cannot remove item at %d,%d, its empty", (int)position.x, (int)position.y);
-        return NO;
-    } else {
-        NSLog(@"    Removing reference at %d,%d", (int)position.x, (int)position.y);
-        [temp replaceObjectAtIndex:position.x withObject:[NSNull null]];
-        return YES;
-    }
-    [self printInventory];
-}
-
-- (BOOL) putItem:(ItemView *)item at:(CGPoint)position;
-{
-    position = [self findSlotPositionWith:position];
-    NSMutableArray *temp = [self.inventory objectAtIndex:position.y];
-    if ( [[temp objectAtIndex:position.x] isEqual:[NSNull null]] ) {
-        NSLog(@"    Putting an item at slot %d,%d", (int)position.x, (int)position.y);
-        [temp insertObject:item atIndex:position.x];
-        item.position = [self findTouchPositionWith:position];
-        return YES;
-    } else {
-        NSLog(@"    Slot %d,%d is filled",(int)position.x,(int)position.y);
-        return NO;
-    }
-}
-
-- (CGPoint) findSlotPositionWith:(CGPoint)touchPosition
-{
-    int xPos = touchPosition.x - FIRSTSLOTXOFFSET;
-    int yPos = touchPosition.y - FIRSTSLOTYOFFSET;
-    
-    xPos /= (SLOTLENGTH+SPACEBETWEENSLOTS);
-    yPos /= (SLOTWIDTH+SPACEBETWEENSLOTS);
-    NSLog(@"Returning slot location %d,%d",xPos,yPos);
-    return ccp(xPos, yPos);
 }
 
 /* Other Stuff */
@@ -153,15 +44,6 @@
     if (self) {
         appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
         smartFox = appDelegate.smartFox;
-
-        inventorySlots = 96;
-        items = [[UserSingleton get] items];
-        _inventory = [NSMutableArray arrayWithCapacity:inventorySlots/6];
-        for (int i = 0; i < inventorySlots/6; i++){
-            [_inventory addObject:[NSMutableArray arrayWithObjects:
-                                   [NSNull null], [NSNull null], [NSNull null],
-                                   [NSNull null], [NSNull null], [NSNull null], nil]];
-        }
     }
     return self;
 }
@@ -170,16 +52,36 @@
 {
     [super viewDidLoad];
     
-    // Load inventory background
-    UIImage *inventoryBKG = [UIImage imageNamed:@"inventory96.png"];
-    _imageView = [[UIImageView alloc] initWithImage:inventoryBKG];
-    _imageView.frame = (CGRect){.origin=CGPointMake(0.0f, 0.0f), .size=inventoryBKG.size};
-    [_scrollView addSubview:_imageView];
-    _scrollView.contentSize = inventoryBKG.size;
-    _scrollView.decelerationRate = UIScrollViewDecelerationRateFast+10;
-    _imageView.exclusiveTouch = NO;
-
-    [self loadItems];
+    _inventoryView.exclusiveTouch = NO;
+    
+    UIImage *miscPage = [UIImage imageNamed:@"inventory_misc_page.png"];
+    _miscPageView = [UITabbedView tabbedViewWithImage:miscPage
+                                                frame:_inventoryView.frame
+                                                 item:[[UserSingleton get] misc]
+                                                 type:UITabbedViewGridType];
+    _miscPageView.tag = MISCTABVIEW;
+    _miscPageView.delegate = self;
+    [_inventoryView addSubview:_miscPageView];
+    
+    UIImage *consummablePage = [UIImage imageNamed:@"inventory_consummables_page.png"];
+    _consummablePageView = [UITabbedView tabbedViewWithImage:consummablePage
+                                                       frame:_inventoryView.frame
+                                                        item:[[UserSingleton get] consummables]
+                                                        type:UITabbedViewGridType];
+    _consummablePageView.tag = CONSUMMABLESTABVIEW;
+    _consummablePageView.delegate = self;
+    [_inventoryView addSubview:_consummablePageView];
+    
+    UIImage *unitPage = [UIImage imageNamed:@"inventory_units.png"];
+    _unitsPageView = [UITabbedView tabbedViewWithImage:unitPage
+                                                 frame:_inventoryView.frame
+                                                  item:[[UserSingleton get] units]
+                                                  type:UITabbedViewFloatingType];
+    _unitsPageView.tag = UNITSTABVIEW;
+    _unitsPageView.delegate = self;
+    [_inventoryView addSubview:_unitsPageView];
+    
+    [_displayImageView loadView];
 }
 
 - (void)didReceiveMemoryWarning
@@ -188,7 +90,165 @@
     // Dispose of any resources that can be recreated.
 }
 
-
-
 @end
 
+#pragma mark - UITabbedView
+@implementation UITabbedView
+#define FLOATINGVIEWITEMWIDTH 71
+#define FLOATINGVIEWITEMHEIGHT 100
+@synthesize items = _items, itemGrid = _itemGrid;
+@synthesize scrollView = _scrollView;
+
+#pragma mark - Init and shit
+- (void) initGrid
+{
+    /* Create a grid */
+    int itemCount = [_items count];
+    if ( viewType == UITabbedViewFloatingType ) {
+        numOfColumns = _scrollView.frame.size.width / 71;
+        numOfRows = (int)(ceil((float)itemCount / numOfColumns));
+        _itemGrid = [NSMutableArray array];
+        for ( int i = 0 ; i < numOfRows ; i++ ) {
+            [_itemGrid addObject:[NSMutableArray arrayWithCapacity:numOfColumns]];
+            for ( int k = 0 ; k < numOfColumns ; k++ ) {
+                [[_itemGrid objectAtIndex:i] addObject:[NSNull null]];
+            }
+        }
+        
+        for ( UnitObj *obj in _items ) {
+            ItemView *test = [[ItemView alloc] initUnitWithPosition:[self findTouchPositionWith:[self findOpenSlot]] with:obj];
+            test.delegate = self;
+            [_scrollView addSubview:test];
+            [self putItem:test at:test.position];
+        }
+    }
+}
++ (id) tabbedViewWithImage:(UIImage *)image frame:(CGRect)frame item:(NSMutableArray *)items type:(TabbedViewType)type
+{
+    return [[UITabbedView alloc] initViewWithImage:image frame:frame item:items type:type];
+}
+- (id) initViewWithImage:(UIImage *)image frame:(CGRect)frame item:(NSMutableArray *)items type:(TabbedViewType)type
+{
+    self = [super initWithImage:image];
+    if ( self )
+    {
+        viewType = type;
+        _items = items;
+
+        self.exclusiveTouch = NO;
+        self.contentMode = UIViewContentModeScaleAspectFit;
+        self.userInteractionEnabled = YES;
+        self.frame = frame;
+        
+        _scrollView = [[UIScrollView alloc] initWithFrame:
+                       (CGRect){CGPointMake(0, 4), CGSizeMake(frame.size.width - 27,frame.size.height-8)}];;
+        _scrollView.contentSize = CGSizeMake(frame.size.width - 27, [items count]*FLOATINGVIEWITEMHEIGHT);
+        _scrollView.exclusiveTouch = NO;
+        _scrollView.decelerationRate = UIScrollViewDecelerationRateFast;
+        [_scrollView setShowsHorizontalScrollIndicator:NO];
+        [_scrollView setShowsVerticalScrollIndicator:NO];
+        [self addSubview:_scrollView];
+        
+        [self initGrid];
+    }
+    return self;
+}
+
+#pragma mark - Touches and view
+- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
+    UITouch *touch = [touches anyObject];
+    CGPoint position = [touch locationInView:self.superview];
+    [self.superview inventorySwitchTabAt:position];
+}
+
+- (CGPoint) findOpenSlot
+{
+    for ( int i = 0; i < numOfRows; i++ ) {
+        NSMutableArray *temp = [self.itemGrid objectAtIndex:i];
+        for ( int j = 0; j < numOfColumns; j++ ) {
+            if ( [[temp objectAtIndex:j] isEqual:[NSNull null]] ) {
+                return ccp(j,i);
+            }
+        }
+    }
+    NSLog(@"wtf full?");
+    return CGPointZero;
+}
+
+- (CGPoint) findTouchPositionWith:(CGPoint)slotPosition
+{
+    int xPos, yPos;
+    if ( viewType == UITabbedViewFloatingType ) {
+        xPos = (slotPosition.x ) * (FLOATINGVIEWITEMWIDTH) + slotPosition.x * SPACEBETWEENSLOTS;
+        yPos = (slotPosition.y ) * (FLOATINGVIEWITEMHEIGHT) + slotPosition.y * SPACEBETWEENSLOTS;
+    
+        xPos += FIRSTSLOTXOFFSET;
+        yPos += FIRSTSLOTYOFFSET;
+    } else if ( viewType == UITabbedViewGridType ) {
+        
+    }
+    return ccp(xPos, yPos);
+}
+
+- (CGPoint) findSlotPositionWith:(CGPoint)touchPosition
+{
+    int xPos, yPos;
+    if ( viewType == UITabbedViewFloatingType ) {
+        xPos = touchPosition.x - FIRSTSLOTXOFFSET;
+        yPos = touchPosition.y - FIRSTSLOTYOFFSET;
+        
+        xPos /= (FLOATINGVIEWITEMWIDTH+SPACEBETWEENSLOTS);
+        yPos /= (FLOATINGVIEWITEMHEIGHT+SPACEBETWEENSLOTS);
+    } else if ( viewType == UITabbedViewGridType ) {
+        
+    }
+    return ccp(xPos, yPos);
+}
+
+- (BOOL) putItem:(ItemView *)item at:(CGPoint)position;
+{
+     position = [self findSlotPositionWith:position];
+     NSMutableArray *temp = [self.itemGrid objectAtIndex:position.y];
+     if ( [[temp objectAtIndex:position.x] isEqual:[NSNull null]] ) {
+         [temp insertObject:item atIndex:position.x];
+         item.position = [self findTouchPositionWith:position];
+         return YES;
+     } else {
+         return NO;
+     }
+}
+
+#pragma mark - delegates
+- (BOOL) removeItemAt:(CGPoint) position
+{
+    return YES;
+}
+
+- (void) itemDidGetDoubleTapped:(ItemView *)item
+{
+    NSLog(@"I got double tapped %@",item);
+}
+
+- (void) itemDidGetTouchEnded:(ItemView *)item
+{
+    [self.delegate itemDidGetSelected:item];
+}
+@end
+
+#pragma mark - UIView Extra
+@implementation UIView (Extra)
+static CGRect CGRectUnit = (CGRect){.origin.x = 320, .origin.y = 5, .size.width = 20, .size.height = 90};
+static CGRect CGRectConsummable = (CGRect){.origin.x = 320, .origin.y = 95, .size.width = 20, .size.height = 90};
+static CGRect CGRectMisc = (CGRect){.origin.x = 320, .origin.y = 185, .size.width = 20, .size.height = 90};
+
+- (void)inventorySwitchTabAt:(CGPoint)position
+{
+    if ( CGRectContainsPoint(CGRectUnit, position) ) {
+        [self bringSubviewToFront:[self viewWithTag:UNITSTABVIEW]];
+    } else if ( CGRectContainsPoint(CGRectConsummable, position) ) {
+        [self bringSubviewToFront:[self viewWithTag:CONSUMMABLESTABVIEW]];
+    } else if ( CGRectContainsPoint(CGRectMisc, position) ) {
+        [self bringSubviewToFront:[self viewWithTag:MISCTABVIEW]];
+    }
+}
+@end

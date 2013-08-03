@@ -26,12 +26,12 @@
 @property (nonatomic, strong) MenuItemSprite *attkButton;
 @property (nonatomic, strong) MenuItemSprite *defnButton;
 
-+ (id) minotaurWithValues:(NSArray *)values;
-+ (id) minotaurForEnemyValues:(NSArray *)values;
-+ (id) minotaurForSetupValues:(NSArray *)values;
++ (id) minotaurWithObj:(UnitObj *)obj;
++ (id) minotaurForEnemyObj:(UnitObj *)obj;
++ (id) minotaurForSetupObj:(UnitObj *)obj;
 
-- (id) initMinotaurFor:(BOOL)side withValues:(NSArray *)values;
-- (id) initMinotaurForSetupWithValues:(NSArray *)values;
+- (id) initMinotaurFor:(BOOL)side withObj:(UnitObj *)obj;
+- (id) initMinotaurForSetupWithObj:(UnitObj *)obj;
 
 - (CGPoint *) getAttkArea;
 - (CGPoint *) getAttkEffect;

@@ -22,7 +22,7 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 1374}, {160, 139}}</string>
+			<string>{{0, 302}, {160, 139}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
@@ -44,7 +44,7 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1052, 819}, {160, 139}}</string>
+			<string>{{404, 745}, {160, 139}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
@@ -66,7 +66,7 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 1515}, {160, 139}}</string>
+			<string>{{404, 604}, {160, 139}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
@@ -88,7 +88,7 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 1233}, {160, 139}}</string>
+			<string>{{0, 584}, {160, 139}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
@@ -110,327 +110,129 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 872}, {160, 139}}</string>
+			<string>{{0, 443}, {160, 139}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>earthquake_crack.png</key>
+		<key>heal_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{11, 7}, {512, 376}}</string>
+			<string>{{83, 127}, {36, 34}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{524, 434}</string>
+			<string>{200, 300}</string>
 			<key>spriteSourceSize</key>
-			<string>{524, 434}</string>
+			<string>{200, 300}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 436}, {524, 434}}</string>
+			<string>{{364, 302}, {200, 300}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>earthquake_crack_glow.png</key>
+		<key>heal_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{11, 7}, {512, 376}}</string>
+			<string>{{61, 97}, {80, 70}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{524, 434}</string>
+			<string>{200, 300}</string>
 			<key>spriteSourceSize</key>
-			<string>{524, 434}</string>
+			<string>{200, 300}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 0}, {524, 434}}</string>
+			<string>{{162, 302}, {200, 300}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_idle_NE_0.png</key>
+		<key>heal_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{27, 34}, {110, 123}}</string>
+			<string>{{49, 113}, {104, 72}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 300}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 300}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 1779}, {160, 271}}</string>
+			<string>{{202, 0}, {200, 300}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_idle_NE_1.png</key>
+		<key>heal_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{27, 33}, {110, 123}}</string>
+			<string>{{64, 129}, {80, 56}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 300}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 300}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{648, 3144}, {160, 271}}</string>
+			<string>{{404, 0}, {200, 300}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_idle_NW_0.png</key>
+		<key>heal_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 34}, {110, 123}}</string>
+			<string>{{75, 135}, {46, 42}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 300}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 300}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{648, 2052}, {160, 271}}</string>
+			<string>{{0, 0}, {200, 300}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_idle_NW_1.png</key>
+		<key>lionmage_cast_NE_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 33}, {110, 123}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{972, 2616}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_idle_SE_0.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{30, 27}, {112, 141}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{486, 1779}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_idle_SE_1.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{30, 25}, {112, 143}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{324, 1418}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_idle_SW_0.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{19, 27}, {112, 141}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{648, 2325}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_idle_SW_1.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{19, 25}, {112, 143}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{324, 2783}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_knockback_NE.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{16, 31}, {118, 125}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{1214, 546}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_knockback_NW.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{26, 31}, {118, 125}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{324, 1145}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_knockback_SE.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{12, 23}, {144, 145}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{324, 3056}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_knockback_SW.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{5, 23}, {144, 145}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{162, 2237}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_punch_NE_0.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{50, 35}, {106, 121}}</string>
+			<string>{{50, 12}, {76, 143}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -440,19 +242,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{526, 273}, {200, 271}}</string>
+			<string>{{566, 575}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NE_1.png</key>
+		<key>lionmage_cast_NE_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{50, 38}, {104, 119}}</string>
+			<string>{{50, 5}, {80, 149}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -462,19 +264,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{688, 546}, {200, 271}}</string>
+			<string>{{1374, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NE_2.png</key>
+		<key>lionmage_cast_NE_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{50, 37}, {134, 119}}</string>
+			<string>{{46, 2}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -484,19 +286,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{526, 0}, {200, 271}}</string>
+			<string>{{1576, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NE_3.png</key>
+		<key>lionmage_cast_NE_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{50, 35}, {106, 121}}</string>
+			<string>{{46, 1}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -506,19 +308,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{364, 872}, {200, 271}}</string>
+			<string>{{1374, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NW_0.png</key>
+		<key>lionmage_cast_NE_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{45, 35}, {106, 121}}</string>
+			<string>{{46, 2}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -528,19 +330,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{728, 273}, {200, 271}}</string>
+			<string>{{2788, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NW_1.png</key>
+		<key>lionmage_cast_NE_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{47, 38}, {104, 119}}</string>
+			<string>{{46, 1}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -550,19 +352,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{688, 819}, {200, 271}}</string>
+			<string>{{2384, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NW_2.png</key>
+		<key>lionmage_cast_NW_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{17, 37}, {134, 119}}</string>
+			<string>{{75, 12}, {76, 143}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -572,19 +374,19 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{728, 0}, {200, 271}}</string>
+			<string>{{1980, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_NW_3.png</key>
+		<key>lionmage_cast_NW_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{45, 35}, {106, 121}}</string>
+			<string>{{70, 5}, {80, 149}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
@@ -594,1547 +396,1349 @@
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 872}, {200, 271}}</string>
+			<string>{{3434, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SE_0.png</key>
+		<key>lionmage_cast_NW_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 25}, {118, 143}}</string>
+			<string>{{66, 2}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{648, 2598}, {160, 271}}</string>
+			<string>{{3434, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SE_1.png</key>
+		<key>lionmage_cast_NW_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{12, 25}, {126, 143}}</string>
+			<string>{{66, 1}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 2052}, {160, 271}}</string>
+			<string>{{2990, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SE_2.png</key>
+		<key>lionmage_cast_NW_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{36, 26}, {108, 141}}</string>
+			<string>{{66, 2}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 1233}, {160, 271}}</string>
+			<string>{{606, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SE_3.png</key>
+		<key>lionmage_cast_NW_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 25}, {118, 143}}</string>
+			<string>{{66, 1}, {88, 153}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1254, 273}, {160, 271}}</string>
+			<string>{{808, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SW_0.png</key>
+		<key>lionmage_cast_SE_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{19, 25}, {118, 143}}</string>
+			<string>{{55, 24}, {82, 131}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 3197}, {160, 271}}</string>
+			<string>{{0, 725}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SW_1.png</key>
+		<key>lionmage_cast_SE_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{22, 25}, {126, 143}}</string>
+			<string>{{55, 20}, {98, 135}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 1365}, {160, 271}}</string>
+			<string>{{1616, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SW_2.png</key>
+		<key>lionmage_cast_SE_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{16, 26}, {108, 141}}</string>
+			<string>{{55, 18}, {114, 137}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 1145}, {160, 271}}</string>
+			<string>{{2222, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_punch_SW_3.png</key>
+		<key>lionmage_cast_SE_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{19, 25}, {118, 143}}</string>
+			<string>{{55, 17}, {114, 139}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 3329}, {160, 271}}</string>
+			<string>{{2626, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_0.png</key>
+		<key>lionmage_cast_SE_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{26, 40}, {110, 117}}</string>
+			<string>{{55, 18}, {114, 137}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 3144}, {160, 271}}</string>
+			<string>{{404, 1121}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_1.png</key>
+		<key>lionmage_cast_SE_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{27, 49}, {110, 107}}</string>
+			<string>{{55, 17}, {114, 139}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{324, 2237}, {160, 271}}</string>
+			<string>{{3030, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_2.png</key>
+		<key>lionmage_cast_SW_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{26, 59}, {110, 97}}</string>
+			<string>{{64, 24}, {82, 131}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{324, 1964}, {160, 271}}</string>
+			<string>{{1778, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_3.png</key>
+		<key>lionmage_cast_SW_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{25, 73}, {108, 83}}</string>
+			<string>{{47, 20}, {98, 135}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 1797}, {160, 271}}</string>
+			<string>{{1414, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_4.png</key>
+		<key>lionmage_cast_SW_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{34, 92}, {100, 65}}</string>
+			<string>{{31, 18}, {114, 137}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 1638}, {160, 271}}</string>
+			<string>{{566, 302}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_5.png</key>
+		<key>lionmage_cast_SW_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{43, 118}, {80, 39}}</string>
+			<string>{{31, 17}, {114, 139}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1092, 0}, {160, 271}}</string>
+			<string>{{1818, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NE_6.png</key>
+		<key>lionmage_cast_SW_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{51, 138}, {58, 19}}</string>
+			<string>{{31, 18}, {114, 137}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 1832}, {160, 271}}</string>
+			<string>{{2586, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_0.png</key>
+		<key>lionmage_cast_SW_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 40}, {110, 117}}</string>
+			<string>{{31, 17}, {114, 139}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 2184}, {160, 271}}</string>
+			<string>{{1212, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_1.png</key>
+		<key>lionmage_idle_NE_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 49}, {110, 107}}</string>
+			<string>{{64, 29}, {72, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{324, 2510}, {160, 271}}</string>
+			<string>{{2828, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_2.png</key>
+		<key>lionmage_idle_NE_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{25, 59}, {110, 97}}</string>
+			<string>{{64, 30}, {72, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{930, 273}, {160, 271}}</string>
+			<string>{{2424, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_3.png</key>
+		<key>lionmage_idle_NW_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{27, 73}, {108, 83}}</string>
+			<string>{{64, 29}, {72, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 2325}, {160, 271}}</string>
+			<string>{{566, 848}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_4.png</key>
+		<key>lionmage_idle_NW_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{27, 92}, {100, 65}}</string>
+			<string>{{64, 30}, {72, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 960}, {160, 271}}</string>
+			<string>{{2586, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_5.png</key>
+		<key>lionmage_idle_SE_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{38, 118}, {80, 39}}</string>
+			<string>{{55, 35}, {92, 121}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 2378}, {160, 271}}</string>
+			<string>{{3394, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_NW_6.png</key>
+		<key>lionmage_idle_SE_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{51, 138}, {58, 19}}</string>
+			<string>{{55, 36}, {92, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 1286}, {160, 271}}</string>
+			<string>{{1616, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_0.png</key>
+		<key>lionmage_idle_SW_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{30, 41}, {112, 127}}</string>
+			<string>{{54, 35}, {92, 121}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 3470}, {160, 271}}</string>
+			<string>{{202, 604}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_1.png</key>
+		<key>lionmage_idle_SW_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{30, 50}, {110, 117}}</string>
+			<string>{{54, 36}, {92, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 2105}, {160, 271}}</string>
+			<string>{{2020, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_2.png</key>
+		<key>lionmage_knockback_NE.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{30, 57}, {110, 111}}</string>
+			<string>{{41, 33}, {84, 121}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 1559}, {160, 271}}</string>
+			<string>{{2828, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_3.png</key>
+		<key>lionmage_knockback_NW.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{31, 73}, {104, 95}}</string>
+			<string>{{75, 33}, {84, 121}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 2871}, {160, 271}}</string>
+			<string>{{3030, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_4.png</key>
+		<key>lionmage_knockback_SE.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{36, 100}, {94, 61}}</string>
+			<string>{{51, 36}, {78, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 2070}, {160, 271}}</string>
+			<string>{{1172, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_5.png</key>
+		<key>lionmage_knockback_SW.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{39, 120}, {92, 41}}</string>
+			<string>{{71, 36}, {78, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 1506}, {160, 271}}</string>
+			<string>{{2182, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SE_6.png</key>
+		<key>lionmage_walk_NE_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{51, 143}, {66, 11}}</string>
+			<string>{{50, 29}, {76, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 2889}, {160, 271}}</string>
+			<string>{{1172, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_0.png</key>
+		<key>lionmage_walk_NE_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{19, 41}, {112, 127}}</string>
+			<string>{{50, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 3003}, {160, 271}}</string>
+			<string>{{1212, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_1.png</key>
+		<key>lionmage_walk_NE_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{20, 50}, {110, 117}}</string>
+			<string>{{50, 25}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{648, 2871}, {160, 271}}</string>
+			<string>{{3192, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_2.png</key>
+		<key>lionmage_walk_NE_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{21, 57}, {110, 111}}</string>
+			<string>{{50, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 960}, {160, 271}}</string>
+			<string>{{1010, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_3.png</key>
+		<key>lionmage_walk_NE_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{25, 73}, {104, 95}}</string>
+			<string>{{50, 29}, {76, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 1013}, {160, 271}}</string>
+			<string>{{2788, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_4.png</key>
+		<key>lionmage_walk_NE_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{30, 100}, {94, 61}}</string>
+			<string>{{50, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 1964}, {160, 271}}</string>
+			<string>{{2020, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_5.png</key>
+		<key>lionmage_walk_NE_6.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{30, 120}, {92, 41}}</string>
+			<string>{{50, 25}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 2871}, {160, 271}}</string>
+			<string>{{1576, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_sink_SW_6.png</key>
+		<key>lionmage_walk_NE_7.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{44, 143}, {66, 11}}</string>
+			<string>{{50, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 2598}, {160, 271}}</string>
+			<string>{{202, 1150}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_0.png</key>
+		<key>lionmage_walk_NW_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{27, 34}, {110, 123}}</string>
+			<string>{{75, 29}, {76, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{972, 2343}, {160, 271}}</string>
+			<string>{{3232, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_1.png</key>
+		<key>lionmage_walk_NW_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 33}, {114, 123}}</string>
+			<string>{{75, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1254, 0}, {160, 271}}</string>
+			<string>{{1818, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_2.png</key>
+		<key>lionmage_walk_NW_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{3, 32}, {154, 125}}</string>
+			<string>{{75, 25}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 3144}, {160, 271}}</string>
+			<string>{{1980, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_3.png</key>
+		<key>lionmage_walk_NW_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{4, 31}, {156, 125}}</string>
+			<string>{{75, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 2598}, {160, 271}}</string>
+			<string>{{2990, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_4.png</key>
+		<key>lionmage_walk_NW_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{22, 20}, {132, 137}}</string>
+			<string>{{75, 29}, {76, 125}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 2783}, {160, 271}}</string>
+			<string>{{768, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_5.png</key>
+		<key>lionmage_walk_NW_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{34, 38}, {120, 119}}</string>
+			<string>{{75, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 3276}, {160, 271}}</string>
+			<string>{{0, 998}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NE_6.png</key>
+		<key>lionmage_walk_NW_6.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{32, 34}, {112, 123}}</string>
+			<string>{{75, 25}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 2730}, {160, 271}}</string>
+			<string>{{3232, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_0.png</key>
+		<key>lionmage_walk_NW_7.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 34}, {110, 123}}</string>
+			<string>{{75, 26}, {76, 129}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 3056}, {160, 271}}</string>
+			<string>{{768, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_1.png</key>
+		<key>lionmage_walk_SE_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{22, 33}, {114, 123}}</string>
+			<string>{{55, 37}, {92, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{930, 0}, {160, 271}}</string>
+			<string>{{2384, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_2.png</key>
+		<key>lionmage_walk_SE_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{3, 32}, {154, 125}}</string>
+			<string>{{55, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{810, 2457}, {160, 271}}</string>
+			<string>{{2626, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_3.png</key>
+		<key>lionmage_walk_SE_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{1, 31}, {156, 125}}</string>
+			<string>{{55, 32}, {78, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 2924}, {160, 271}}</string>
+			<string>{{2424, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_4.png</key>
+		<key>lionmage_walk_SE_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{7, 20}, {132, 137}}</string>
+			<string>{{55, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 1418}, {160, 271}}</string>
+			<string>{{3192, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_5.png</key>
+		<key>lionmage_walk_SE_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{7, 38}, {120, 119}}</string>
+			<string>{{55, 37}, {92, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 1233}, {160, 271}}</string>
+			<string>{{808, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_NW_6.png</key>
+		<key>lionmage_walk_SE_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{17, 34}, {112, 123}}</string>
+			<string>{{55, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{890, 546}, {160, 271}}</string>
+			<string>{{970, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_0.png</key>
+		<key>lionmage_walk_SE_6.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{30, 27}, {112, 141}}</string>
+			<string>{{55, 32}, {78, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{324, 3329}, {160, 271}}</string>
+			<string>{{1414, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_1.png</key>
+		<key>lionmage_walk_SE_7.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{22, 22}, {114, 145}}</string>
+			<string>{{55, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1134, 2052}, {160, 271}}</string>
+			<string>{{2222, 0}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_2.png</key>
+		<key>lionmage_walk_SW_0.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{14, 20}, {146, 147}}</string>
+			<string>{{53, 37}, {92, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{648, 1506}, {160, 271}}</string>
+			<string>{{2182, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_3.png</key>
+		<key>lionmage_walk_SW_1.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{3, 20}, {156, 147}}</string>
+			<string>{{58, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{728, 1092}, {160, 271}}</string>
+			<string>{{202, 877}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_4.png</key>
+		<key>lionmage_walk_SW_2.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{11, 9}, {134, 159}}</string>
+			<string>{{67, 32}, {78, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1052, 546}, {160, 271}}</string>
+			<string>{{970, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_5.png</key>
+		<key>lionmage_walk_SW_3.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{36, 39}, {112, 129}}</string>
+			<string>{{58, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{1092, 273}, {160, 271}}</string>
+			<string>{{1010, 819}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SE_6.png</key>
+		<key>lionmage_walk_SW_4.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{36, 28}, {108, 139}}</string>
+			<string>{{53, 37}, {92, 119}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{162, 2510}, {160, 271}}</string>
+			<string>{{0, 1271}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SW_0.png</key>
+		<key>lionmage_walk_SW_5.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{19, 27}, {112, 141}}</string>
+			<string>{{58, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{648, 1779}, {160, 271}}</string>
+			<string>{{1778, 546}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SW_1.png</key>
+		<key>lionmage_walk_SW_6.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{24, 22}, {114, 145}}</string>
+			<string>{{67, 32}, {78, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 1506}, {160, 271}}</string>
+			<string>{{3394, 273}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SW_2.png</key>
+		<key>lionmage_walk_SW_7.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{0, 20}, {146, 147}}</string>
+			<string>{{58, 33}, {88, 123}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{200, 271}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{486, 2325}, {160, 271}}</string>
+			<string>{{606, 1121}, {200, 271}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
 		
-		<key>mudgolem_smash_SW_3.png</key>
+		<key>unit_base.png</key>
 		<dict>
 			<key>aliases</key>
 			<array>
 			
 			</array>
 			<key>spriteColorRect</key>
-			<string>{{1, 20}, {156, 147}}</string>
+			<string>{{3, 46}, {124, 96}}</string>
 			<key>spriteOffset</key>
 			<string>{0, 0}</string>
 			<key>spriteSize</key>
-			<string>{160, 271}</string>
+			<string>{128, 188}</string>
 			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
+			<string>{128, 188}</string>
 			<key>spriteTrimmed</key>
 			<false/>
 			<key>textureRect</key>
-			<string>{{0, 2651}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_SW_4.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{16, 9}, {134, 159}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{324, 1691}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_SW_5.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{13, 39}, {112, 129}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{162, 1691}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_SW_6.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{16, 28}, {108, 139}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 271}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 271}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{810, 1911}, {160, 271}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_dust_0.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{28, 80}, {98, 35}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 139}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 139}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{526, 687}, {160, 139}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_dust_1.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{31, 68}, {94, 55}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 139}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 139}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{648, 1365}, {160, 139}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_dust_2.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{25, 66}, {108, 53}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 139}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 139}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{526, 546}, {160, 139}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_dust_3.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{27, 71}, {112, 55}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 139}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 139}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{566, 1092}, {160, 139}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_dust_4.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{36, 79}, {90, 33}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 139}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 139}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{972, 1656}, {160, 139}}</string>
-			<key>textureRotated</key>
-			<false/>
-		</dict>
-		
-		<key>mudgolem_smash_ground.png</key>
-		<dict>
-			<key>aliases</key>
-			<array>
-			
-			</array>
-			<key>spriteColorRect</key>
-			<string>{{14, 39}, {124, 83}}</string>
-			<key>spriteOffset</key>
-			<string>{0, 0}</string>
-			<key>spriteSize</key>
-			<string>{160, 139}</string>
-			<key>spriteSourceSize</key>
-			<string>{160, 139}</string>
-			<key>spriteTrimmed</key>
-			<false/>
-			<key>textureRect</key>
-			<string>{{890, 819}, {160, 139}}</string>
+			<string>{{404, 886}, {128, 188}}</string>
 			<key>textureRotated</key>
 			<false/>
 		</dict>
@@ -2149,7 +1753,7 @@
 		<key>size</key>
 		<string>{4096, 4096}</string>
 		<key>name</key>
-		<string>mudgolem</string>
+		<string>lionmage</string>
 		<key>premultipliedAlpha</key>
 		<false/>
 		<key>target</key>
@@ -2157,11 +1761,11 @@
 			<key>name</key>
 			<string>default</string>
 			<key>textureFileName</key>
-			<string>mudgolem_default</string>
+			<string>lionmage_default</string>
 			<key>textureFileExtension</key>
 			<string>.png</string>
 			<key>coordinatesFileName</key>
-			<string>mudgolem_default</string>
+			<string>lionmage_default</string>
 			<key>coordinatesFileExtension</key>
 			<string>.plist</string>
 			<key>premultipliedAlpha</key>

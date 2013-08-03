@@ -8,16 +8,11 @@
 
 #import <Foundation/Foundation.h>
 
-@implementation NSMutableArray (WeakReferences)
-+ (id)mutableArrayUsingWeakReferences {
-    return [self mutableArrayUsingWeakReferencesWithCapacity:0];
-}
+@interface NSMutableArray (WeakReferences)
 
-+ (id)mutableArrayUsingWeakReferencesWithCapacity:(NSUInteger)capacity {
-    CFArrayCallBacks callbacks = {0, NULL, NULL, CFCopyDescription, CFEqual};
-    // We create a weak reference array
-    return (id)CFBridgingRelease(CFArrayCreateMutable(0, capacity, &callbacks));
-}
++ (id)mutableArrayUsingWeakReferences;
++ (id)mutableArrayUsingWeakReferencesWithCapacity:(NSUInteger)capacity;
+
 @end
 
 @class Buff;
@@ -29,6 +24,11 @@
 @end
 @protocol BuffTargetDelegate <NSObject>
 @required
+- (void) damage:(int)damage
+           type:(int)type
+       fromBuff:(Buff *)buff
+     fromCaster:(id)caster;
+
 - (void) buffTargetStarted:(Buff *)buff;
 - (void) buffTargetFinished:(Buff *)buff;
 @end
@@ -39,23 +39,30 @@
 @property (nonatomic) BOOL hasBuffBeenRemoved;
 @property (nonatomic) int duration;
 
-- (void) turnEnd;
+- (void) reset;
 - (void) somethingChanged:(id)target;
 - (void) removeMyBuff:(id)target;
 @end
+
 #pragma mark - Stone Gaze
 @interface StoneGazeDebuff : Buff
 @property (nonatomic, strong) NSMutableArray *path;
 
 + (id) stoneGazeDebuffFromCaster:(id)caster atTarget:(id)target withPath:(NSMutableArray *)path for:(int)duration;
 @end
+
 #pragma mark - Freeze
 @interface FreezeDebuff : Buff
 
 + (id) freezeDebuffFromCaster:(id)caster atTarget:(id)target for:(int)duration;
 @end
+
 #pragma mark - Blaze
 @interface BlazeDebuff : Buff
+{
+    @public
+    int dmg;
+}
 @property (nonatomic, strong) NSMutableArray *targets;
-+ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int) duration;
++ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration damage:(int)damage;
 @end

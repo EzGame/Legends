@@ -6,6 +6,7 @@
 //
 //
 #define DRAGONSCALE 0.85
+#define DRAGONSETUPSCALE DRAGONSCALE * SETUPMAPSCALE
 #import "Dragon.h"
 @interface Dragon()
 @property (nonatomic, strong) CCAction *explosion;
@@ -14,6 +15,10 @@
 @end
 
 @implementation Dragon
+const NSString *DRAGON_TWO_DESP = @"Range-Magic";
+const NSString *DRAGON_ONE_DESP = @"Range-Magic";
+const NSString *DRAGON_MOVE_DESP = @"Teleporting";
+
 @synthesize idle = _idle, move = _move, moveEnd = _moveEnd, fireball = _fireball, flamebreath = _flamebreath;
 @synthesize moveButton = _moveButton, fireballButton = _fireballButton, flamebreathButton = _flamebreathButton;
 // Stuff from Unit
@@ -29,39 +34,40 @@
     else if ( direction == SW )
         [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"dragon_idle_SW_0.png"]];
     else
-        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"dragon_idle_SW_0.png"]];
+        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"dragon_idle_SE_0.png"]];
     _direction = direction;
 }
 
 #pragma mark - Alloc n Init
 
-+ (id) dragonWithValues:(NSArray *)values
++ (id) dragonWithObj:(UnitObj *)obj
 {
-    return [[Dragon alloc] initDragonFor:YES withValues:values];
+    return [[Dragon alloc] initDragonFor:YES withObj:obj];
 }
 
-+ (id) dragonForEnemyWithValues:(NSArray *)values
++ (id) dragonForEnemyWithObj:(UnitObj *)obj
 {
-    return [[Dragon alloc] initDragonFor:NO withValues:values];
+    return [[Dragon alloc] initDragonFor:NO withObj:obj];
 }
 
-+ (id) dragonForSetupWithValues:(NSArray *)values
++ (id) dragonForSetupWithObj:(UnitObj *)obj
 {
-    return [[Dragon alloc] initDragonForSetupWithValues:values];
+    return [[Dragon alloc] initDragonForSetupWithObj:obj];
 }
 
-- (id) initDragonFor:(BOOL)side withValues:(NSArray *)values
+- (id) initDragonFor:(BOOL)side withObj:(UnitObj *)obj
 {
-    self = [super initForSide:side withValues:values];
+    self = [super initForSide:side withObj:obj];
     if ( self )
     {
         // Cache the sprite frames and texture
-        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"dragon.plist"];
+        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"dragon_default.plist"];
         
         // Create a sprite batch node
-        self.spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"dragon.png"];
+        self.spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"dragon_default.png"];
         
         _idle = [CCActions actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"dragon_idle" andFrames:2 delay:0.5];
+        _idle.tag = IDLETAG;
         
         _move = [CCActions actionsWithSpriteSheet:self.spriteSheet forName:@"dragon_flight" andFrames:6 delay:0.1 reverse:NO];
         
@@ -71,13 +77,15 @@
         
         _flamebreath = [CCActions actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"dragon_flamebreath" andFrames:15 delay:0.1];
         
-        
+        CCSprite *temp = [CCSprite spriteWithSpriteFrameName:@"unit_base.png"];
         if ( side ) {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"dragon_idle_NE_0.png"];
             self.direction = NE;
+            temp.color = ccWHITE;
         } else {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"dragon_idle_SW_0.png"];
             self.direction = SW;
+            temp.color = ccRED;
         }
         
         [self initMenu];
@@ -85,25 +93,26 @@
         
         self.sprite.scale = DRAGONSCALE;
         
-        [self.spriteSheet addChild:self.sprite];
+        [self.sprite addChild:temp z:-1];
+        [self.spriteSheet addChild:self.sprite z:0];
     }
     return self;
 }
 
-- (id) initDragonForSetupWithValues:(NSArray *)values
+- (id) initDragonForSetupWithObj:(UnitObj *)obj
 {
-    self = [super initForSide:YES withValues:values];
+    self = [super initForSide:YES withObj:obj];
     if ( self )
     {
         // Cache the sprite frames and texture
-        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"dragon.plist"];
+        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"dragon_default.plist"];
         
         // Create a sprite batch node
-        self.spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"dragon.png"];
+        self.spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"dragon_default.png"];
         
         self.sprite = [CCSprite spriteWithSpriteFrameName:@"dragon_idle_SW_0.png"];
         
-        self.sprite.scale = DRAGONSCALE;
+        self.sprite.scale = DRAGONSETUPSCALE;
         
         [self.spriteSheet addChild:self.sprite];
     }
@@ -186,6 +195,7 @@
     }
     
     if ( action == IDLE ) {
+        [self.delegate actionDidFinish:self];
         [self.sprite runAction:[self.idle getActionFor:self.direction]];
         
     } else if ( action == MOVE ) {
@@ -231,7 +241,7 @@
         explosion.position = position;
         explosion.visible = NO;
         
-        float duration = ccpDistance(self.sprite.position, position)/600;
+        float duration = 0.2;//ccpDistance(self.sprite.position, position)/600;
         
         id fireball_formation = [CCFadeIn actionWithDuration:0.15];
         id fireball_move = [CCMoveTo actionWithDuration:duration position:position];
@@ -240,15 +250,16 @@
             explosion.visible = YES;
             fireball.visible = NO;
             [explosion runAction:self.explosion];
-            [self.delegate removeSprite:fireball];
         }];
         id explosion_run = [CCDelayTime actionWithDuration:0.4];
         id explosion_end = [CCCallBlock actionWithBlock:^{
             explosion.visible = NO;
             [self.delegate removeSprite:explosion];
+            [self.delegate removeSprite:fireball];
         }];
         
-        id part1 = [CCCallBlock actionWithBlock:^{ [self.sprite runAction:[self.fireball getActionFor:self.direction]];}];
+        id part1 = [CCCallBlock actionWithBlock:^{
+            [self.sprite runAction:[self.fireball getActionFor:self.direction]];}];
         id part2 = [CCDelayTime actionWithDuration:0.3];
         id part3 = [CCCallBlock actionWithBlock:^{
             fireball.visible = YES;
@@ -344,6 +355,8 @@
            [CCDelayTime actionWithDuration:delay],
            [CCCallBlock actionWithBlock:^{
               [self.sprite setColor:ccRED];
+              [self.delegate displayCombatMessage:[NSString stringWithFormat:@"%d!",damage]
+                                       atPosition:self.sprite.position withColor:ccRED];
               [self.sprite setDisplayFrame:
                [[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:directionFrame]];
           }],
@@ -353,6 +366,23 @@
               self.direction = self.direction;
               if ( health < 1 ) [self action:DEAD at:CGPointZero];
            }], nil]];
+}
+
+- (void) heal:(int)damage after:(float)delay
+{
+    [self.sprite stopAllActions];
+    health = MIN(health+damage, self.attribute->max_health);
+    
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCDelayTime actionWithDuration:delay],
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccGREEN];
+         [self.delegate displayCombatMessage:[NSString stringWithFormat:@"+%d",damage]
+                                  atPosition:self.sprite.position withColor:ccGREEN];
+     }],
+      [CCDelayTime actionWithDuration:0.2],
+      [CCTintTo actionWithDuration:1 red:255 green:255 blue:255], nil]];
 }
 
 - (int) calculate:(int)damage type:(int)dmgType
@@ -407,6 +437,7 @@
 
 - (void) reset
 {
+    [super reset];
     self.coolDown--;
     if ( self.moveButton.isUsed ) self.coolDown += self.moveButton.costOfButton;
     if ( self.fireballButton.isUsed ) self.coolDown += self.fireballButton.costOfButton;
@@ -414,6 +445,11 @@
     self.moveButton.isUsed = NO;
     self.fireballButton.isUsed = NO;
     self.flamebreathButton.isUsed = NO;
+}
+
+- (BOOL) hasActionLeft
+{
+    return !self.moveButton.isUsed || !self.fireballButton.isUsed || !self.flamebreathButton.isUsed;
 }
 
 - (CGPoint *) getFireballArea { return (CGPoint *)dragonFireballArea; }

@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "Item.h"
+#import "ItemView.h"
 
 @interface ForgeViewController : UIViewController <UIScrollViewDelegate, ItemViewDelegate>
 {

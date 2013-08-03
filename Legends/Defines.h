@@ -20,29 +20,33 @@ enum TYPE {
     GORGON      = 2,
     MUDGOLEM    = 3,
     DRAGON      = 4,
+    LIONMAGE    = 5,
+    LASTUNIT    = 5,
     };
 
 enum TILESTATE{
     SETUP       = 1,
-    INVALID     = -1,
     REGULAR     = 0,
+    INVALID     = -1,
 };
 
 // THE FOLLOWING ARE ACTION TYPE DEFINITIONS
 enum ACTION {
-    UNKNOWN       = -1,
-    TURN          = 0,
-    IDLE          = 1,
-    MOVE          = 2,
-    ATTK          = 3,
-    DEFN          = 4,
-    DEAD          = 5,
-    GORGON_SHOOT  = 6,
-    GORGON_FREEZE = 7,
-    MUDGOLEM_EARTHQUAKE = 8,
-    DRAGON_FIREBALL = 9,
-    DRAGON_FLAMEBREATH = 10,
-    TELEPORT_MOVE = 11,
+    UNKNOWN,
+    TURN,
+    /*  Basic actions   */
+    IDLE,
+    MOVE,
+    TELEPORT_MOVE,
+    ATTK,
+    HEAL_ALL,
+    DEFN,
+    DEAD,
+    GORGON_SHOOT,
+    GORGON_FREEZE,
+    MUDGOLEM_EARTHQUAKE,
+    DRAGON_FIREBALL,
+    DRAGON_FLAMEBREATH,
     ENDTURN     = 99999
     };
 
@@ -67,7 +71,15 @@ enum RARITY {
     UNCOMMON    = 200,
     RARE        = 300,
     EPIC        = 400,
+    LAST_RARITY = 400,
     };
+
+// TILESET GIDS
+enum GID {
+    EMPTY = 0,
+    PLAIN_GRASS_TO_MOLTEN_START = 1,
+    PLAIN_GRASS_TO_MOLTEN_END = 6,
+};
 
 // THE FOLLOWING ARE THE ZORDERS OF THE LAYERS
 // Z orders order the order they appear
@@ -80,8 +92,8 @@ enum ZORDER {
     SPRITES_BOT = 10,
     GROUND_EFFECTS = 1,
     MAPS        = 0,
-    GAMELAYER   = 1,
-    HUDLAYER    = 2
+    GAMELAYER   = 10,
+    HUDLAYER    = 200
     };
 
 // Constant unit stats
@@ -89,6 +101,15 @@ enum mainAttribute{
     STRENGTH = 0,
     AGILITY = 1,
     INTELLIGENCE = 2,
+};
+
+// ITEM - GEMS
+enum GEMS {
+    TOPAZ = 1,
+    SAPPHIRE = 2,
+    RUBY = 3,
+    EMERALD = 4,
+    OPAL = 5,
 };
 
 #pragma mark - DEFINES
@@ -115,14 +136,15 @@ enum mainAttribute{
 
 // Various setup information
 #define SETUPMAPLENGTH   11
-#define SETUPMAPWIDTH    6
-#define SETUPMAPSCALE    0.45
-#define SETUPTILELENGTH  128*SETUPMAPSCALE
-#define SETUPTILEWIDTH   96*SETUPMAPSCALE
-#define SETUPHALFLENGTH  64.0*SETUPMAPSCALE
-#define SETUPHALFWIDTH   48.0*SETUPMAPSCALE
-#define SETUPOFFSETX     288
-#define SETUPOFFSETY    -40
+#define SETUPMAPWIDTH    5
+#define SETUPSIDEMAPWIDTH 3
+#define SETUPMAPSCALE    0.9
+#define SETUPTILELENGTH  128*0.5*SETUPMAPSCALE
+#define SETUPTILEWIDTH   96*0.5*SETUPMAPSCALE
+#define SETUPHALFLENGTH  64.0*0.5*SETUPMAPSCALE
+#define SETUPHALFWIDTH   48.0*0.5*SETUPMAPSCALE
+#define SETUPOFFSETX     270
+#define SETUPOFFSETY    -24.4
 
 // Inventory information
 #define SLOTLENGTH 52
@@ -136,6 +158,7 @@ enum mainAttribute{
 #define MAXUNITS    10
 #define HPBARLENGTH 200
 #define HPBARWIDTH  29
+#define IDLETAG     69
 
 // Default Player information
 #define DEFAULTELO 1000
@@ -175,16 +198,26 @@ enum mainAttribute{
 #define INTCOEFFICIENT 10.0
 
 #pragma mark - CONSTANTS
+NSString extern *NORMALFONTBIG;
+NSString extern *NORMALFONTMID;
+NSString extern *NORMALFONTSMALL;
+NSString extern *COMBATFONTBIG;
+NSString extern *COMBATFONTMID;
+NSString extern *COMBATFONTSMALL;
+NSString extern *NOTICEFONT;
+
 // Format {main stat, base hp, base dmg, base str, base agi, base int, max str, max agi, max int, lvl up str, lvl up agi, lvl up int, move speed, rarity}
 int extern const minotaurBase[14];
 int extern const gorgonBase[14];
 int extern const mudGolemBase[14];
 int extern const dragonBase[14];
+int extern const lionMageBase[14];
 // allowable rune upgrades
 int extern const minotaurUpgrades[];
 int extern const gorgonUpgrades[];
 int extern const mudGolemUpgrades[];
 int extern const dragonUpgrades[];
+int extern const lionMageUpgrades[];
 
 #pragma mark - MINOTAUR AREAS
 CGPoint extern const minotaurAttkArea[];
@@ -207,6 +240,14 @@ CGPoint extern const dragonFireballArea[];
 CGPoint extern const dragonFireballEffect[];
 CGPoint extern const dragonFlamebreathArea[];
 CGPoint extern const dragonFlamebreathEffect[];
+
+#pragma mark - LION MAGE AREAS
+CGPoint extern const lionmageHealArea[];
+CGPoint extern const lionmageHealEffect[];
+
+
+#pragma mark - Auto complete data structure
+int extern const unitsByTag[];
 
 #pragma mark - COLOURS
 // THE FOLLOWING ARE COLOR DEFINITIONS

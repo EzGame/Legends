@@ -98,7 +98,6 @@
 {
     [self setScale:1.5];
 	[super unselected];
-    [self activate];
 	[normalImage_ setVisible:YES];
 	[selectedImage_ setVisible:YES];
 	[disabledImage_ setVisible:NO];

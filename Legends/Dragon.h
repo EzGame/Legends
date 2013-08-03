@@ -13,6 +13,10 @@
 #import "cocos2d.h"
 
 @interface Dragon : Unit
+extern const NSString *DRAGON_TWO_DESP;
+extern const NSString *DRAGON_ONE_DESP;
+extern const NSString *DRAGON_MOVE_DESP;
+
 @property (nonatomic, strong) CCActions *idle;
 @property (nonatomic, strong) CCActions *move;
 @property (nonatomic, strong) CCActions *moveEnd;
@@ -23,12 +27,12 @@
 @property (nonatomic, strong) MenuItemSprite *fireballButton;
 @property (nonatomic, strong) MenuItemSprite *flamebreathButton;
 
-+ (id) dragonWithValues:(NSArray *)values;
-+ (id) dragonForEnemyWithValues:(NSArray *)values;
-+ (id) dragonForSetupWithValues:(NSArray *)values;
++ (id) dragonWithObj:(UnitObj *)obj;
++ (id) dragonForEnemyWithObj:(UnitObj *)obj;
++ (id) dragonForSetupWithObj:(UnitObj *)obj;
 
-- (id) initDragonFor:(BOOL)side withValues:(NSArray *)values;
-- (id) initDragonForSetupWithValues:(NSArray *)values;
+- (id) initDragonFor:(BOOL)side withObj:(UnitObj *)obj;
+- (id) initDragonForSetupWithObj:(UnitObj *)obj;
 
 - (CGPoint *) getFireballArea;
 - (CGPoint *) getFireballEffect;

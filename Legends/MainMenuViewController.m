@@ -58,13 +58,19 @@
     [appDelegate switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
 }
 
+#pragma mark - SFS Event handlers
 - (void) onRoomJoin:(SFSEvent *)evt
 {
     NSLog(@">[MYLOG]    Sending our user information");
-    NSArray *userObjs = [NSArray arrayWithObject:
-                         [SFSUserVariable variableWithName:@"ELO"
-                                                     value:
-                          [NSNumber numberWithInt:[[UserSingleton get] ELO]]]];
+    
+    SFSUserVariable *elo =
+    [SFSUserVariable variableWithName:@"ELO"
+                                value:[NSNumber numberWithInt:[[UserSingleton get] ELO]]];
+    SFSUserVariable *value = 
+    [SFSUserVariable variableWithName:@"UnitValue"
+                                value:[NSNumber numberWithInt:[[UserSingleton get] unitValue]]];
+    
+    NSArray *userObjs = [NSArray arrayWithObjects: elo, value, nil];
     [smartFox send:[SetUserVariablesRequest requestWithUserVariables:userObjs]];
 }
 
@@ -76,12 +82,12 @@
 - (void) onUserVariablesUpdate:(SFSEvent *)evt
 {
     // onUserVariablesUpdate doesn't get called
-    NSLog(@">[MYLOG]    ELO/SETUP uploaded, now moving to Match Making View");
+    NSLog(@">[MYLOG]    ELO/UnitValue uploaded, now moving to Match Making View");
     [appDelegate switchToView:@"MatchFindingViewController" uiViewController:[MatchFindingViewController alloc]];
 }
 
-/* Other stuff */
 
+#pragma mark - Other shit
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];

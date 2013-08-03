@@ -12,7 +12,7 @@
 #import "CCActions.h"
 #import "UserSingleton.h"
 #import "Buff.h"
-
+#pragma mark - Attributes
 @interface Attributes : NSObject
 {
     @public
@@ -30,10 +30,10 @@
     float evasion; // from agi
     float magic_resist; // from int
     
-    // Primary stats (base not included)
-    int strength;
-    int agility;
-    int intellegence;
+    // Primary stats
+    int bonus_str;
+    int bonus_agi;
+    int bonus_int;
     int bonus_hp;
     
     // Constants
@@ -42,6 +42,7 @@
     int base_str;
     int base_agi;
     int base_int;
+    
     int max_str;
     int max_agi;
     int max_int;
@@ -56,36 +57,18 @@
     int speed;
     int rarity;
 }
-@property (nonatomic) int experience;
++ (id) attributesForType:(int)type stats:(StatObj *)stats;
 
-+ (id) attributesForType:(int)type stats:(NSDictionary *)stats;
-
-- (void) scrollUpgrade:(NSDictionary *)stats;
+- (void) scrollUpgrade:(StatObj *)stats;
 - (void) lvlUpUpgrade;
 
 - (int) getStr;
 - (int) getAgi;
 - (int) getInt;
+- (int) getDamageForType:(int)type;
 @end
 
-// Shortest Path
-@interface ShortestPathStep : NSObject
-{
-	CGPoint position;
-	int gScore;
-	int hScore;
-	ShortestPathStep *__unsafe_unretained parent;
-}
-
-@property (nonatomic, assign) CGPoint position;
-@property (nonatomic, assign) int gScore;
-@property (nonatomic, assign) int hScore;
-@property (nonatomic, unsafe_unretained) ShortestPathStep *parent;
-
-- (id)initWithPosition:(CGPoint)pos;
-- (int)fScore;
-@end
-
+#pragma mark - Unit
 @class Unit;
 
 @protocol UnitDelegate <NSObject>
@@ -94,7 +77,11 @@
 - (void)killMe:(Unit *)unit at:(CGPoint)position;
 - (void)addSprite:(CCSprite *)sprite z:(int)z;
 - (void)removeSprite:(CCSprite *)sprite;
+- (void)removeByTag:(int)tag;
 - (void)actionDidFinish:(Unit *)unit;
+- (void)displayCombatMessage:(NSString*)message
+                  atPosition:(CGPoint)point
+                   withColor:(ccColor3B)color;
 @optional
 - (void)levelUp:(Unit *)unit;
 @end
@@ -105,7 +92,6 @@
     // Static
     int type;
     int rarity;
-    int value;
     int health;
     int speed;
         
@@ -122,8 +108,9 @@
 
 @property (nonatomic, strong)   CCSprite    *sprite;
 @property (nonatomic, strong)   CCSpriteBatchNode *spriteSheet;
-@property (assign)   id <UnitDelegate> delegate;
+@property (nonatomic, weak)     id <UnitDelegate> delegate;
 @property (nonatomic, strong)   CCMenu *menu;
+@property (nonatomic, strong)   UnitObj *obj;
 
 @property (nonatomic, strong)   NSMutableArray *spOpenSteps;
 @property (nonatomic, strong)   NSMutableArray *spClosedSteps;
@@ -142,10 +129,10 @@
 @property (nonatomic) int direction;
 
 // init
-- (id) initForSide:(BOOL)side withValues:(NSArray *)values;
+- (id) initForSide:(BOOL)side withObj:(UnitObj *)obj;
 
 // upgrades
-- (void) scrollUpgrade:(NSDictionary *) stats experience:(int)xp;
+- (void) scrollUpgrade:(StatObj *)stats experience:(int)xp;
 - (void) runeUpgrade:(int) type;
 
 // skills
@@ -155,15 +142,56 @@
 
 // combat + state
 - (void) take:(int)damage after:(float)delay;
+- (void) heal:(int)damage after:(float)delay;
 - (int) calculate:(int)damage type:(int)dmgType;
 - (void) addBuff:(Buff *)buff caster:(BOOL)amICaster;
 - (void) removeBuff:(Buff *)buff caster:(BOOL)amICaster;
+- (BOOL) hasActionLeft;
 
 // menu
 - (void) toggleMenu:(BOOL)state;
 - (void) reset;
 
-// wow so annoying
+// Special
+- (BOOL) putTargets:(NSArray *)targets;
+@property (nonatomic, weak) NSArray *targets;
+ // wow so annoying
 - (float) getAngle:(CGPoint)p1 :(CGPoint)p2;
+- (int) getValue;
 @end
 
+#pragma mark - A*
+@interface ShortestPathStep : NSObject
+{
+	CGPoint position;
+	int gScore;
+	int hScore;
+	ShortestPathStep *__unsafe_unretained parent;
+}
+
+@property (nonatomic, assign) CGPoint position;
+@property (nonatomic, assign) int gScore;
+@property (nonatomic, assign) int hScore;
+@property (nonatomic, unsafe_unretained) ShortestPathStep *parent;
+
+- (id)initWithPosition:(CGPoint)pos;
+- (int)fScore;
+@end
+
+#pragma mark SetupUnit
+@interface SetupUnit : CCNode
+{
+    CCSprite *reserve;
+    CCSprite *ready;
+}
+@property (nonatomic, strong) CCSprite *sprite;
+@property (nonatomic, strong) UnitObj *obj;
+@property (nonatomic, strong) Attributes *attribute;
+@property (nonatomic) int experience;
+@property (nonatomic) int level;
+@property (nonatomic) int direction;
+
++ (id) setupUnitWithObj:(UnitObj *)obj;
+- (int) getValue;
+
+@end

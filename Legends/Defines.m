@@ -1,13 +1,25 @@
 #import "Defines.h"
 
-const int minotaurBase[14] = {STRENGTH, 20, 10, 1, 1, 1, 10, 10, 1, 1, 1, 1, 3, COMMON};
-const int gorgonBase[14]   = {AGILITY,  20, 7,  1, 1, 1, 10, 10, 1, 0, 2, 1, 3, UNCOMMON};
-const int mudGolemBase[14] = {STRENGTH, 20, 10, 1, 1, 1, 10, 10, 1, 2, 0, 1, 5, UNCOMMON};
-const int dragonBase[14] = {AGILITY,  20, 10, 1, 1, 1, 10, 10, 1, 1, 2, 0, 4, RARE};
+NSString *NORMALFONTBIG = @"font_normal_big.fnt";
+NSString *NORMALFONTMID = @"font_normal_mid.fnt";
+NSString *NORMALFONTSMALL = @"font_normal_small.fnt";
+NSString *COMBATFONTBIG = @"font_normal_big.fnt";
+NSString *COMBATFONTMID = @"font_normal_mid.fnt";
+NSString *COMBATFONTSMALL = @"font_normal_small.fnt";
+NSString *NOTICEFONT = @"";
 
-const int minotaurUpgrades[] = {0, 1, 2, 3, 4, 5};
-const int gorgonUpgrades[] = {0, 1, 2, 3, 4, 5};
-const int mudGolemUpgrades[] = {0, 1, 2, 3, 4 ,5};
+                            // main         hp dmg str agi int  x   x +h +s +a +i ms  rarity
+const int minotaurBase[14] = {STRENGTH,     20, 10, 1,  1,  1, 10, 10, 1, 1, 1, 0, 3, COMMON};
+const int gorgonBase[14]   = {AGILITY,      20, 7,  1,  1,  1, 10, 10, 1, 0, 1, 1, 3, UNCOMMON};
+const int mudGolemBase[14] = {STRENGTH,     20, 10, 1,  1,  1, 10, 10, 1, 2, 0, 1, 5, UNCOMMON};
+const int dragonBase[14] =   {INTELLIGENCE, 20, 10, 1,  1,  1, 10, 10, 1, 0, 1, 2, 4, RARE};
+const int lionMageBase[14] = {INTELLIGENCE, 15, 0,  1,  1,  1, 10, 10, 1, 0, 0, 2, 3, COMMON};
+
+const int minotaurUpgrades[] = {TOPAZ,SAPPHIRE,RUBY,EMERALD,OPAL};
+const int gorgonUpgrades[] = {SAPPHIRE,RUBY,EMERALD,OPAL};
+const int mudGolemUpgrades[] = {TOPAZ,SAPPHIRE,RUBY,OPAL};
+const int dragonUpgrades[] = {TOPAZ,RUBY,EMERALD,OPAL};
+const int lionMageUprages[] = {TOPAZ,SAPPHIRE,EMERALD,OPAL};
 
 const CGPoint minotaurAttkArea[] = { {0,4},
     /*{-1,1},*/ {0,1}, /*{1,1},*/
@@ -15,7 +27,7 @@ const CGPoint minotaurAttkArea[] = { {0,4},
     /*{-1,-1},*/{0,-1},/*{1,-1},*/
 };
 const CGPoint minotaurAttkEffect[] = {
-    {0,2},
+    {0,1},
     {0,0} };
 
 const CGPoint gorgonShootArea[] = { {0,84},
@@ -34,7 +46,7 @@ const CGPoint gorgonShootArea[] = { {0,84},
     /*{-6,-6},  {-5,-6},  {-4,-6},  {-3,-6},  {-2,-6},  {-1,-6},*/{0,-6},/*{1,-6},  {2,-6},  {3,-6},  {4,-6},  {5,-6},  {6,-6},*/
 };
 const CGPoint gorgonShootEffect[] = {
-    {0,2},
+    {0,1},
     {0,0} };
 
 const CGPoint gorgonFreezeArea[] = { {0,40},
@@ -49,7 +61,7 @@ const CGPoint gorgonFreezeArea[] = { {0,40},
     /*{-4,-4},  {-3,-4},  {-2,-4},  {-1,-4},*/{0,-4},/*{1,-4},  {2,-4},  {3,-4},  {4,-4},*/
 };
 const CGPoint gorgonFreezeEffect[] = {
-    {0,2},
+    {0,1},
     {0,0}
 };
 
@@ -59,12 +71,12 @@ const CGPoint mudgolemAttkArea[] = { {0,4},
     /*{-1,-1},*/{0,-1},/*{1,-1},*/
 };
 const CGPoint mudgolemAttkEffect[] = {
-    {0,2},
+    {0,1},
     {0,0}
 };
 
 const CGPoint mudgolemEarthquakeArea[] = {
-    {0,2},
+    {0,1},
     {0,0}
 };
 const CGPoint mudgolemEarthquakeEffect[] = { {0,24},
@@ -110,6 +122,39 @@ const CGPoint dragonFlamebreathEffect[] = {
     {1,1},
     {1,0},  {0,0},
     {1,-1},
+};
+
+const CGPoint lionmageHealArea[] = {
+    {0,1},
+    {0,0}
+};
+
+const CGPoint lionmageHealEffect[] = {
+    {0,0}
+};
+
+const int unitsByTag[] = {
+// Rarity
+/* Epic */          0,0,0,0,0,
+/* Rare */          DRAGON,0,0,0,0,
+/* Uncommon */      MUDGOLEM,GORGON,0,0,0,
+/* Common */        MINOTAUR,LIONMAGE,0,0,0,
+// Units
+/* Minotaur */      MINOTAUR,0,0,0,0,
+/* Gorgon */        GORGON,0,0,0,0,
+/* Mud Golem */     MUDGOLEM,0,0,0,0,
+/* Dragon */        DRAGON,0,0,0,0,
+/* Lion Priest */   LIONMAGE,0,0,0,0,
+// Main attribute + other
+/* Strength */      MINOTAUR,MUDGOLEM,0,0,0,
+/* Agility */       GORGON,0,0,0,0,
+/* Intelligence */  LIONMAGE,DRAGON,0,0,0,
+/* Melee */         MINOTAUR,MUDGOLEM,0,0,0,
+/* Ranged */        GORGON,0,0,0,0,
+/* Magic */         DRAGON,0,0,0,0,
+/* Healer */        LIONMAGE,0,0,0,0,
+/* Disabler */      GORGON,0,0,0,0,
+/* Area of effect */MUDGOLEM,DRAGON,0,0,0,
 };
 
 //! AliceBlue color (240,248,255)

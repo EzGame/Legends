@@ -8,8 +8,10 @@
 
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
+#import "Objects.h"
 #import "Defines.h"
 
+#pragma mark - Item Class
 @class Item;
 
 @protocol ItemDelegate <NSObject>
@@ -23,18 +25,22 @@
 
 - (id) initWithIcon:(NSString *)iconName;
 @end
-
-@interface GemItem : Item
+#pragma mark - Misc Items
+#pragma mark - Consummable Items
+@interface ConsummableItem : Item
+/*
 @property (nonatomic, strong) NSMutableDictionary *stats;
 @property (nonatomic) int type;
 @property (nonatomic) int value;
 
 + (id) gemWithIcon:(NSString *)iconName values:(NSString *)values;
-+ (id) gemWithIcon:(NSString *)iconName stats:(NSMutableDictionary *)stats of:(int)type and:(int)value;
-
++ (id) gemWithIcon:(NSString *)iconName stats:(NSMutableDictionary *)stats of:(int)type and:(int)value;*/
+@property (nonatomic, strong) ScrollObj *obj;
++ (id) consummableItemWithObj:(ScrollObj *)obj;
 @end
 
-@interface UnitItem : Item
+#pragma mark - Unit Items
+@interface UnitItem : Item/*
 {
     int *allowedUpgrades;
 }
@@ -44,22 +50,25 @@
 @property (nonatomic) int type;
 @property (nonatomic) int rarity;
 
-- (BOOL) upgradeWith:(GemItem *)gem;
+- (BOOL) upgradeWith:(ConsummableItem *)gem;
 - (BOOL) canUseGem:(int)gem;
 
 + (id) UnitItemWithIcon:(NSString *)iconName values:(NSString *)values;
-+ (id) UnitItemWithIcon:(NSString *)iconName upgrades:(NSMutableArray *)upgrades type:(int)type;
++ (id) UnitItemWithIcon:(NSString *)iconName upgrades:(NSMutableArray *)upgrades type:(int)type;*/
+@property (nonatomic, strong) UnitObj *obj;
++ (id) unitItemWithObj:(UnitObj *)obj;
 @end
 
-
+#pragma mark - ItemView class
 @class ItemView;
+
 @protocol ItemViewDelegate <NSObject>
-@optional
-- (BOOL) putItem:(ItemView *)item at:(CGPoint)position;
+@required
 - (BOOL) removeItemAt:(CGPoint) position;
-- (CGPoint) findSlotPositionWith:(CGPoint)touchPosition;
 - (void) itemDidGetDoubleTapped:(ItemView *)item;
+- (void) itemDidGetTouchEnded:(ItemView *)item;
 @end
+
 
 @interface ItemView : UIView
 {
@@ -67,11 +76,13 @@
 }
 @property (assign) id <ItemViewDelegate> delegate;
 @property (strong, nonatomic) UIImage *icon;
+@property (strong, nonatomic) UIImage *highlightedIcon;
 @property (strong, nonatomic) UIImageView *view;
-@property (strong, nonatomic) Item *item;
-@property (nonatomic) CGPoint position;
-@property (nonatomic) BOOL canIMove;
+@property (strong, nonatomic) UILabel *level;
 
-- (id) initUnitWithImage:(NSString *)image at:(CGPoint)position with:(NSString *)values;
-- (id) initGemWithImage:(NSString *)image at:(CGPoint)position with:(NSString *)values;
+@property (strong, nonatomic) id objPtr;
+@property (nonatomic) CGPoint position;
+
+- (id) initUnitWithPosition:(CGPoint)position with:(UnitObj *)obj;
+- (id) initConsummableWithPosition:(CGPoint)position with:(ScrollObj *)obj;
 @end

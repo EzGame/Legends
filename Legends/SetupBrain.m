@@ -9,19 +9,18 @@
 #import "SetupBrain.h"
 #import "Gorgon.h"
 #import "Minotaur.h"
-
-@interface SetupBrain()
-{
-    CGPoint savedPos;
-}
-@property (nonatomic, strong) Tile *saved;
-@end
+#import "MudGolem.h"
+#import "Dragon.h"
+#import "LionMage.h"
 
 @implementation SetupBrain
 @synthesize board = _board;
+@synthesize sideBoard = _sideBoard;
+@synthesize unitList = _unitList;
 @synthesize delegate = _delegate;
 // private
-@synthesize saved = _saved;
+@synthesize toIso = _toIso, fromIso = _fromIso;
+static NSArray *unitTags = nil;
 
 - (id) init
 {
@@ -30,11 +29,36 @@
     self = [super init];
     if ( self )
     {
-        // Matrices for conversion from cartesian to isometric and vice versa.
-        toIso = CGAffineTransformMake(-SETUPHALFLENGTH, SETUPHALFWIDTH, SETUPHALFLENGTH, SETUPHALFWIDTH, SETUPOFFSETX, SETUPOFFSETY);
-        fromIso = CGAffineTransformInvert(toIso);
+        unitTags = @[
+            // Rarities
+            @"Epic",
+            @"Rare",
+            @"Uncommon",
+            @"Common",
+            // Types
+            @"Minotaur",
+            @"Gorgon",
+            @"Mud Golem",
+            @"Dragon",
+            @"Lion Priest",
+            // Attribute types
+            @"Strength",
+            @"Agility",
+            @"Intelligence",
+            // Other tags
+            @"Melee",
+            @"Ranged",
+            @"Magic",
+            @"Healer",
+            @"Disabler",
+            @"Area of effect"
+        ];
 
-        _board = [[NSArray alloc] initWithObjects:
+        // Matrices for conversion from cartesian to isometric and vice versa.
+        _toIso = CGAffineTransformMake(-SETUPHALFLENGTH, SETUPHALFWIDTH, SETUPHALFLENGTH, SETUPHALFWIDTH, SETUPOFFSETX, SETUPOFFSETY);
+        _fromIso = CGAffineTransformInvert(_toIso);
+
+        _board = [NSArray arrayWithObjects:
                   [NSMutableArray array],
                   [NSMutableArray array],
                   [NSMutableArray array],
@@ -47,25 +71,37 @@
                   [NSMutableArray array],
                   [NSMutableArray array],nil];
         
+        _sideBoard = [NSArray arrayWithObjects:
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],
+                      [NSMutableArray array],nil];
+        
         // Populating board
         for ( int i = 0 ; i < SETUPMAPLENGTH ; i++ ) {
             for ( int k = 0 ; k < SETUPMAPWIDTH ; k++ ) {
                 int ret = [self isValidTile:ccp(i,k)];
                 if ( !ret ) {
-                    [[self.board objectAtIndex:i] addObject:
-                     [Tile invalidTileWithPosition:ccp(i,k) sprite:nil]];
-                    
-                } else if ( ret == 2 ) {
-                    [[self.board objectAtIndex:i] addObject:
-                     [Tile setupTileWithPosition:ccp(i,k) sprite:nil]];
-                    
+                    [[self.board objectAtIndex:i] addObject:[NSNull null]];
                 } else {
-                    [[self.board objectAtIndex:i] addObject:
-                     [Tile tileWithPosition:ccp(i,k) sprite:nil]];
-                    
+                    [[self.board objectAtIndex:i]
+                     addObject:[SetupTile setupTileWithPosition:ccp(i,k) isReserve:NO]];
                 }
             }
+            for ( int k = SETUPMAPWIDTH ; k < SETUPMAPWIDTH + SETUPSIDEMAPWIDTH; k++ ) {
+                [[self.sideBoard objectAtIndex:i] addObject:
+                 [SetupTile setupTileWithPosition:ccp(i,k) isReserve:YES]];
+            }
         }
+        
+        _unitList = [[UserSingleton get] units];
         [self printBoard];
     }
     
@@ -73,57 +109,34 @@
     return self;
 }
 
-- (id) findUnit:(int)type withValues:(NSArray *)values;
-{
-    if (type == MINOTAUR) {
-        return [[Minotaur alloc] initMinotaurForSetupWithValues:values];
-        
-    } else if ( type == GORGON ) {
-        return [[Gorgon alloc] initGorgonForSetupWithValues:values];
-        
-    } else {
-        NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDUNIT %d", type);
-        return nil;
-        
-    }
-}
-
-- (int) findType:(Unit *)unit {
+- (int) findType:(SetupUnit *)unit {
     if ( [unit isKindOfClass:[Minotaur class]] ) {
         return MINOTAUR;
     } else if ( [unit isKindOfClass:[Gorgon class]] ) {
         return GORGON;
+    } else if ( [unit isKindOfClass:[MudGolem class]] ) {
+        return MUDGOLEM;
+    } else if ( [unit isKindOfClass:[Dragon class]] ) {
+        return DRAGON;
+    } else if ( [unit isKindOfClass:[LionMage class]] ) {
+        return LIONMAGE;
     } else {
         NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN SETUPBRAIN:FINDTYPE");
         return -1;
-    }
-    
+    }    
 }
 
 - (void) restoreSetup
 {
-    // Populating pieces
-    for ( int i = 0; i < [[[UserSingleton get] pieces] count]; i++ )
+    for ( int i = 0; i < [[[UserSingleton get] setup] size]; i++ )
     {
-        // The stored string is in the form of @type[@x,@y]
-        NSString *string = [[[UserSingleton get] pieces] objectAtIndex:i];
-        NSArray *values = [string componentsSeparatedByCharactersInSet:[UserSingleton get].valueSeparator];
-        int type, x = -1, y = -1;
-        if ( [values objectAtIndex:5] != nil )
-        {
-            NSArray *pos = [[values objectAtIndex:5] componentsSeparatedByCharactersInSet:[UserSingleton get].stringSeparator];
-            x = [(NSString *)[pos objectAtIndex:0] integerValue];
-            y = [(NSString *)[pos objectAtIndex:1] integerValue];
-            if ( y == 5 ) continue;
-        }
-        type = [[values objectAtIndex:1] integerValue];
-        Unit *unit = [self findUnit:type withValues:values];
+        UnitObj *obj = [[[UserSingleton get] setup] getElementAt:i];
+        NSLog(@">[MYLOG]    SETUPBRAIN:restoreSetup got:\n%@",obj);
         
-        // Finding tile
-        Tile *tile = [self findTile:ccp(x,y) absPos:false];
+        SetupUnit *unit = [SetupUnit setupUnitWithObj:obj];
+        SetupTile *tile;
+        tile = [self findTile:obj.position absPos:NO];
         tile.unit = unit;
-        tile.isOccupied = true;
-        tile.isOwned = true;
         
         // Upload visually
         [self.delegate loadTile:tile];
@@ -133,10 +146,10 @@
 - (void) setCurrentLayerPos:(CGPoint)position
 {
     currentLayerPos = position;
-    toIso = CGAffineTransformMake(-SETUPHALFLENGTH, SETUPHALFWIDTH,
-                                  SETUPHALFLENGTH, SETUPHALFWIDTH,
-                                  SETUPOFFSETX + position.x, SETUPOFFSETY + position.y);
-    fromIso = CGAffineTransformInvert(toIso);
+    self.toIso = CGAffineTransformMake(-SETUPHALFLENGTH, SETUPHALFWIDTH,
+                                       SETUPHALFLENGTH, SETUPHALFWIDTH,
+                                       SETUPOFFSETX + position.x, SETUPOFFSETY + position.y);
+    self.fromIso = CGAffineTransformInvert(self.toIso);
 }
 
 /* findTile - Find the tile located at an absolute position
@@ -144,26 +157,108 @@
  * (bool)absPos         - if the position passed in was absolute or board position
  * return               - tile located at the absolute position
  */
-- (Tile *) findTile:(CGPoint)position absPos:(bool)absPos
+- (SetupTile *) findTile:(CGPoint)position absPos:(bool)absPos
 {
     int         tileX;
     int         tileY;
-    Tile      * tile;
+    SetupTile  *tile;
     // Convert touch location to a tile location
 
     if (absPos)
-        position = CGPointApplyAffineTransform(position, fromIso);
+        position = CGPointApplyAffineTransform(position, self.fromIso);
 
     tileX = (int)floor(position.x);
     tileY = (int)floor(position.y);
-    if ( ![self isValidTile:ccp(tileX,tileY)] )
-    {
-        CCLOG(@"    The tile [%d,%d] is out of bounds", tileX, tileY);
-        return nil;
+    if ( tileY < SETUPMAPWIDTH ) {
+        if ( ![self isValidTile:ccp(tileX,tileY)] )
+        {
+            NSLog(@">[MYWARN]    The tile [%d,%d] is out of bounds", tileX, tileY);
+            return nil;
+        }
+        tile = [[self.board objectAtIndex:tileX] objectAtIndex:tileY];
     }
-    tile = [[self.board objectAtIndex:tileX] objectAtIndex:tileY];
+    else if ( tileY >= SETUPMAPWIDTH && tileY < SETUPSIDEMAPWIDTH + SETUPMAPWIDTH ) {
+        tile = [[self.sideBoard objectAtIndex:tileX] objectAtIndex:tileY - SETUPMAPWIDTH];
+    }
 
     return tile;
+}
+
+- (void) viewUnitsForTag:(NSString *)tag
+{
+    NSLog(@">[MYLOG]    viewUnitsForTag Finding for tag %@",tag);
+    int index = -1;
+    NSMutableArray *list = [NSMutableArray array];
+    for ( NSString *string in unitTags ) {
+        if ( ![string caseInsensitiveCompare:tag] ) {
+            NSLog(@"%@ is the same as %@",tag,string);
+            index = [unitTags indexOfObject:string];
+            break;
+        }
+    }
+    if ( index != -1 ) {
+        NSLog(@"found index %d",index);
+        [self clearSideBoard];
+        // Find the targets
+        for ( int i = index * LASTUNIT; i < (index+1) * LASTUNIT; i++ ) {
+            if ( unitsByTag[i] != 0 ) {
+                NSLog(@"<><><><> going to add %d",unitsByTag[i]);
+                [list addObject:[NSNumber numberWithInt:unitsByTag[i]]];
+            } else {
+                NSLog(@"><><><>< did not add %d",unitsByTag[i]);
+            }
+        }
+        // go through unit list
+        for ( UnitObj *obj in self.unitList ) {
+            NSLog(@"<><><><> Checking to add %@",obj);
+            if ( [list containsObject:[NSNumber numberWithInt:obj.type]] ) {
+                NSLog(@"<><><><> going to add %@",obj);
+                [self addUnitWithObj:obj];
+            }
+        }
+    } else {
+        return ;
+    }
+    [self printBoard];
+}
+
+- (BOOL) addUnitWithObj:(UnitObj *)obj
+{
+    NSLog(@">[MYLOG]    addUnitWithObj got:\n%@",obj);
+    SetupUnit *unit = [SetupUnit setupUnitWithObj:obj];
+    SetupTile *tile;
+    tile = [self findTile:[self nextEmptySpot] absPos:NO];
+    tile.unit = unit;
+    // Upload visually
+    [self.delegate loadTile:tile];
+    return YES;
+}
+
+- (BOOL) clearSideBoard
+{
+    for ( int k = 0; k < SETUPSIDEMAPWIDTH; k++ ) {
+        for ( int i = 0; i < SETUPMAPLENGTH; i++ ) {
+            SetupTile *tile = [[self.sideBoard objectAtIndex:i] objectAtIndex:k];
+            if ( tile != nil && tile.isOccupied ) {
+                if ( [self.delegate removeTile:tile] ) tile.unit = nil;
+            }
+        }
+    }
+    NSLog(@">[CHECK THIS AT THE END]");
+    return YES;
+}
+
+- (CGPoint) nextEmptySpot
+{
+    for ( int k = 0; k < SETUPSIDEMAPWIDTH; k++ ) {
+        for ( int i = 0; i < SETUPMAPLENGTH; i++ ) {
+            SetupTile *tile = [[self.sideBoard objectAtIndex:i] objectAtIndex:k];
+            if ( [tile isOccupied] ) continue;
+            else return ccp(i,k+SETUPMAPWIDTH);
+        }
+    }
+    NSAssert(NO, @">[FATAL] RAN OUT OF EMPTY SPACE?");
+    return CGPointZero;
 }
 
 /* findBoardPos - Find the board position with an absolute position
@@ -172,21 +267,21 @@
  */
 - (CGPoint) findBrdPos:(CGPoint)position
 {
-    CGPoint ret = CGPointApplyAffineTransform(position, fromIso);
+    CGPoint ret = CGPointApplyAffineTransform(position, self.fromIso);
     ret = ccp(floor(ret.x), floor(ret.y));
     return ret;
 }
 
-/* findBoardPos - Find the position of the absolute position with 
- *                a board position
+/* findBoardPos - Find the position of the absolute position with a board position
  * (CGPoint)position    - input board-position
  * return               - absolute position
  */
 - (CGPoint) findAbsPos:(CGPoint)position
 {
     
-    CGPoint ret = CGPointApplyAffineTransform(position, toIso);
-    ret = ccp(ret.x,ret.y + SETUPHALFWIDTH);
+    CGPoint ret = CGPointApplyAffineTransform(position, self.toIso);
+    ret = ccp(ret.x - currentLayerPos.x,
+              ret.y + HALFWIDTH - currentLayerPos.y);
     return ret;
 }
 
@@ -204,54 +299,63 @@
         return 0;
     // don't fuck with this if
     if ((!(abs(i-10) && k) && i-10 > -2 && k < 2) ||
-        //(!(i && abs(k-5)) && k-5 > -2 && i < 2) ||
         (!(i && k) && i < 2 && k < 2) )
         return 0;
-    if ( k == 5 )
-        return 2;
     return 1;
 }
 
-- (void) swapPieces:(Tile *)tile with:(Tile *)original
+- (BOOL) move:(SetupTile *)tile to:(SetupTile *)target;
 {
-    NSLog(@">[MYLOG]    Entering SetupBrain::swapPieces");
-    // Don't need to do anything if no move is made
-    if ( ![original isEqual:tile] )
-    {
-        tile.unit = original.unit;
-        tile.isOccupied = true;
-        original.unit = nil;
-        original.isOccupied = false;
+    NSLog(@">[MYLOG]    Entering SetupBrain::move");
+    // Check logic
+    if ( target == nil )
+        return NO;
+    
+    if ( [target isEqual:tile] ) {
+        return NO;
     }
     
-    // if its a setup tile, make the facing direction SW
-    tile.unit.sprite.position = ccpSub([self findAbsPos:tile.boardPos], currentLayerPos);
-    CGPoint temp = (tile.boardPos.y == 5)? ccp(-1,-1):ccp(1,1);
-    [tile.unit action:TURN at:ccpAdd(tile.unit.sprite.position, temp)];
-}
-
-- (void) saveState:(Tile *)tile save:(bool)save
-{
-    NSLog(@">[MYLOG]    Entering SetupBrain::saveState:%d",save);
-    if ( save )
-    {
-        self.saved = tile;
-        savedPos = tile.unit.sprite.position;
-    }
-    else
-    {
-        // reverting saved 
-        tile.boardPos = self.saved.boardPos;
-        tile.isOccupied = true;
-        tile.unit.sprite.position = ccpSub([self findAbsPos:self.saved.boardPos], currentLayerPos);
+    if ( target.isReserve && tile.isReserve ) {
+        NSLog(@">[MYLOG]        Reserve to reserve");
+        return NO;
         
-        // if its a setup tile, make the facing direction SW
-        CGPoint temp = (self.saved.boardPos.y == 5)? ccp(-1,-1):ccp(1,1);
-        [tile.unit action:TURN at:ccpAdd(tile.unit.sprite.position, temp)];
+    } else if ( target.isReserve && !tile.isReserve ) {
+        NSLog(@">[MYLOG]        Removed unit %@ from setup",tile.unit);
+        tile.unit.direction = SW;
+        [[[UserSingleton get] units] addObject:tile.unit.obj];
+        if ( ![[[UserSingleton get] units] containsObject:tile.unit.obj] )
+            NSLog(@"<><><><><>WTF");
         
-        // removing the save
-        self.saved = nil;
-        savedPos = CGPointZero;
+        SetupTile *newTarget = [self findTile:[self nextEmptySpot] absPos:NO];
+        newTarget.unit = tile.unit;
+        tile.unit = nil;
+        [self.delegate reorderTile:target];
+        target.unit.sprite.position = [self findAbsPos:target.boardPos];
+        return YES;
+        
+    } else if ( !target.isReserve && tile.isReserve ) {
+        NSLog(@">[MYLOG]        Added unit %@ to setup",tile.unit);
+        tile.unit.direction = NE;
+        [[[UserSingleton get] units] removeObject:tile.unit.obj];
+        if ( [[[UserSingleton get] units] containsObject:tile.unit.obj] )
+            NSLog(@"<><><><><>WTF");
+        
+        target.unit = tile.unit;
+        tile.unit = nil;
+        [self.delegate reorderTile:target];
+        target.unit.sprite.position = [self findAbsPos:target.boardPos];
+        return YES;
+    } else {
+        NSLog(@">[MYLOG]        No change in setup list, %@ %@",tile,target);
+        if ( ![target isEqual:tile] ) {
+            target.unit = tile.unit;
+            tile.unit = nil;
+            [self.delegate reorderTile:target];
+            target.unit.sprite.position = [self findAbsPos:target.boardPos];
+            return YES;
+        } else {
+            return NO;
+        }
     }
 }
 
@@ -259,24 +363,23 @@
 {
     CCLOG(@"MYLOG:  SetupLayer::savePressed Saving configuration");
     // The array to be saved
-    int count;
-    NSMutableArray *array = [[NSMutableArray alloc] init];
+    int count = 0;
+    int value = 0;
+    SFSArray *array = [SFSArray newInstance];
     for (int i = 0; i < SETUPMAPLENGTH; i++) {
         for (int k = 0; k < SETUPMAPWIDTH; k++) {
             // Find the tile
-            NSString *string;
-            Tile *tile = [[self.board objectAtIndex:i] objectAtIndex:k];
-            if ( tile.unit != nil )
+            SetupTile *tile = [[self.board objectAtIndex:i] objectAtIndex:k];
+            if ( ![tile isKindOfClass:[NSNull class]] && tile.unit != nil )
             {
                 count++;
-                // Put the tile information into a string
-                string = [NSString stringWithFormat:@"%d[%d,%d]", [self findType:tile.unit],
-                          (int)tile.boardPos.x, (int)tile.boardPos.y];
-                [array addObject:string];
+                value += [tile.unit getValue];
+                [tile.unit.obj setPosition:ccp(i,k)];
+                [array addClass:tile.unit.obj];
             }
         }
     }
-    return [[UserSingleton get] saveSetup:array unitCount:count];
+    return [[UserSingleton get] saveSetup:array unitCount:count unitValue:value];
 }
 
 - (void) printBoard
@@ -287,13 +390,24 @@
         NSMutableString *current = [NSMutableString string];
         for ( int k = 0; k < SETUPMAPWIDTH ; k++ )
         {
-            Tile *temp;
-            temp = [[self.board objectAtIndex:i] objectAtIndex:k];
-            if ( temp.status == INVALID )
+            id temp = [[self.board objectAtIndex:i] objectAtIndex:k];
+            if ( [temp isKindOfClass:[NSNull class]] )
                 [current appendFormat:@"%@ ", @"X"];
             else
-                if (temp.unit != nil)
-                    [current appendFormat:@"%@ ", temp.unit];
+                if (((SetupTile *)temp).unit != nil)
+                    [current appendFormat:@"%d ", ((SetupTile *)temp).unit.obj.type];
+                else
+                    [current appendFormat:@". "];
+        }
+        [current appendFormat:@" ** "];
+        for ( int k = 0; k < SETUPSIDEMAPWIDTH; k++ )
+        {
+            id temp = [[self.sideBoard objectAtIndex:i] objectAtIndex:k];
+            if ( [temp isKindOfClass:[NSNull class]] )
+                [current appendFormat:@"%@ ", @"X"];
+            else
+                if (((SetupTile *)temp).unit != nil)
+                    [current appendFormat:@"%d ", ((SetupTile *)temp).unit.obj.type];
                 else
                     [current appendFormat:@". "];
         }

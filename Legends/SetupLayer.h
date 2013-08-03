@@ -15,13 +15,13 @@
 #import "SetupBrain.h"
 #import "Tile.h"
 #import "UnitDisplay.h"
+#import "HTCustomAutocompleteTextField.h"
 
-@interface SetupLayer : CCLayer <SetupBrainDelegate>
-{
-    CGPoint previous;
-    
+@interface SetupLayer : CCLayer <SetupBrainDelegate,UITextFieldDelegate>
+{    
     // Camera variables
     BOOL scrolled;
+    CGPoint prevPos;
     
     // Others
     AppDelegate *appDelegate;
@@ -33,10 +33,13 @@
 @property (nonatomic, strong) CCLayer *setupLayer;
 @property (nonatomic, strong) CCLayer *hudLayer;
 
-@property (nonatomic, strong) Tile *selection;
+@property (nonatomic, weak) SetupTile *selection;
+@property (nonatomic)       CGPoint previous;
 
 @property (nonatomic, strong) CCMenu *menu;
-@property (nonatomic, strong) UnitDisplay *display;
+@property (nonatomic, strong) SetupUnitDisplay *display;
+
+@property (nonatomic, strong) HTUnitTagAutocompleteTextField *search;
 
 + (CCScene *) scene;
 @end
