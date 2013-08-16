@@ -40,7 +40,6 @@
     
     if ( self )
     {
-        /*
         isTouchEnabled_ = YES;
         
         _display = [UnitDisplay displayWithPosition:ccp(85,265)];
@@ -52,16 +51,30 @@
         _map.position = ccp(-100,-80);
         [self addChild:_map];
         
-        NSArray *tokens = [@"u/1/0/str:0,agi:0,int:0,hp:100/-1/0,3" componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@"/"]];
-        
-        _unit = [MudGolem mudGolemWithValues:tokens];
-        //_unit = [Dragon dragonWithValues:tokens];
+        int type = LIONMAGE;
+        int experience = (arc4random() % MAXEXPERIENCE);
+        int str = (arc4random() % 100 );
+        int agi = (arc4random() % 100 );
+        int inte = (arc4random() % 100 );
+        int wis = (arc4random() % 100 );
+        int hp = (arc4random() % 100 );
+        NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/NO",
+                            type, experience, str, agi, inte, wis, hp, nil];
+        UnitObj *unit = [UnitObj unitObjWithString:string];
+        _unit = [LionMage lionmageForSide:YES withObj:unit];
         _unit.delegate = self;
         _unit.sprite.position = ccp(100,100);
-        [self addChild:_unit.spriteSheet z:SPRITES_TOP];
-        [self addChild:_unit.menu z:MENUS];
-        [_unit action:IDLE at:CGPointZero];
-        [_unit toggleMenu:YES];*/
+        [self addChild:_unit z:SPRITES_TOP];
+        
+        _target = [LionMage lionmageForSide:YES withObj:unit];
+        _target.delegate = self;
+        _target.sprite.position = ccp(200,200);
+        [self addChild:_target z:SPRITES_TOP];
+        
+        _mud = [MudGolem mudGolemFor:YES withObj:unit];
+        _mud.delegate = self;
+        _mud.sprite.position = ccp(300,300);
+        [self addChild:_mud z:SPRITES_TOP];
     }
     return self;
 }
@@ -73,32 +86,102 @@
     position = [touch locationInView: [touch view]];
     position = [[CCDirector sharedDirector] convertToGL: position];
     position = [self convertToNodeSpace:position];
-    self.unit.sprite.position = position;
+    self.mud.position = position;
     NSLog(@"%@",NSStringFromCGPoint(position));
-    self.unit.direction = (self.unit.direction + 1) % 4;
-    [_unit action:ATTK at:ccp(-10,-10)];
-    //[_unit action:MUDGOLEM_EARTHQUAKE at:_unit.sprite.position];
-    //[_unit action:DRAGON_FIREBALL at:ccpAdd(_unit.sprite.position, ccp(-128,-96))];
-    //[_unit action:MOVE at:position];
-    //[_unit action:DRAGON_FLAMEBREATH at:ccpAdd(_unit.sprite.position,ccp(-32,-24))];
-    //[_unit take:999];
+    self.mud.direction = (self.unit.direction + 1) % 4;
+    
+    UnitDamage *dmgPtr = [UnitDamage unitDamageTarget:_target damage:[DamageObj damageObjWith:100 isCrit:NO]];
+    UnitDamage *dmgPtr2 = [UnitDamage unitDamageTarget:_unit damage:[DamageObj damageObjWith:100 isCrit:NO]];
+    [_mud combatAction:MUDGOLEM_EARTHQUAKE targets:[NSArray arrayWithObjects:dmgPtr, dmgPtr2, nil]];
+    //[self.unit combatAction:HEAL_ALL targets:[NSArray arrayWithObjects:dmgPtr, dmgPtr2, nil]];
+    //[self.unit action:DEAD at:CGPointZero];
 }
 
-- (void)addSprite:(CCSprite *)sprite z:(int)z
+- (BOOL) unitDelegatePressedButton:(int)action
 {
+    NSLog(@">[MYLOG]    Received action %d",action);
+    return YES;
+}
+
+- (void) unitDelegateKillMe:(Unit *)unit at:(CGPoint)position
+{
+    NSLog(@"Unit requested suicide");
+}
+
+- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(int)z
+{
+    NSLog(@"Unit requested add sprite");
     [self addChild:sprite z:z];
 }
 
-- (void)removeSprite:(CCSprite *)sprite
+- (void) unitDelegateRemoveSprite:(CCSprite *)sprite
 {
+    NSLog(@"Unit requested remove sprite");
+    [self removeChild:sprite cleanup:YES];
 }
 
-- (void)killMe:(Unit *)unit at:(CGPoint)position
+- (void) unitDelegateUnit:(Unit *)unit finishedAction:(int)action
 {
+    NSLog(@"Unit %@ finished action %d", unit, action);
 }
 
-- (BOOL) pressedButton:(int)action
+- (void) unitDelegateShakeScreen
 {
-    return YES;
+    NSLog(@"Unit requested screen shake");
+    CCAction *shake = [CCSequence actions:
+                       [CCShake actionWithDuration:1.5 amplitude:ccp(15,15) dampening:YES], nil];
+    shake.tag = 10;
+    [self runAction:shake];
+}
+
+- (void) unitDelegateDisplayCombatMessage:(NSString *)message
+                               atPosition:(CGPoint)point
+                                withColor:(ccColor3B)color
+                                   isCrit:(BOOL)isCrit;
+{
+    NSLog(@">[MYLOG]        Displaying %@, at [%f,%f]",message,point.x,point.y);
+    //used in determining how long the slide/fade lasts
+    float slideDuration = 0.6;
+    
+    //used in determining how far up/down along Y the label changes
+    //positive = UP, negative = DOWN
+    float yChange = 35;
+    
+    //used in determining how far left/right along the X the label changes
+    //positive = RIGHT, negative = LEFT
+    float xChange = 0;
+    
+    //set up the label
+    CCLabelBMFont *lblMessage = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
+    
+    //Change the color
+    lblMessage.color = color;
+    
+    //position the label where you want it...
+    lblMessage.position = ccp(point.x,point.y+25);
+    
+    //add the LABEL to the screen
+    [self addChild:lblMessage z:DISPLAYS];
+    
+    id slideUp = [CCMoveBy actionWithDuration:slideDuration position:ccp(xChange,yChange)];
+    id fadeOut = [CCFadeOut actionWithDuration:2];
+    
+    //run the actions on the LABEL
+    id text = [CCSequence actions:slideUp, fadeOut, nil];
+    [lblMessage runAction:text];
+    
+    //the waiting for the slide/fade to complete
+    id waitForSlide = [CCDelayTime actionWithDuration:2.5];
+    
+    //the actual removal of the label (uses a block so all the code stays here)
+    id removeLabel = [CCCallBlock actionWithBlock:^{
+        [self removeChild:lblMessage cleanup:YES];
+    }];
+    
+    //sequence them together so they happen IN ORDER (not at once)
+    id sequence = [CCSequence actions:waitForSlide, removeLabel, nil];
+    
+    //actually run the sequence
+    [self runAction:sequence];
 }
 @end

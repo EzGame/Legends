@@ -24,11 +24,6 @@ extern const NSString *LIONMAGE_MOVE_DESP;
 @property (nonatomic, strong) MenuItemSprite *moveButton;
 @property (nonatomic, strong) MenuItemSprite *healButton;
 
-+ (id) lionmageWithObj:(UnitObj *)obj;
-+ (id) lionmageForEnemyWithObj:(UnitObj *)obj;
-+ (id) lionmageForSetupWithObj:(UnitObj *)obj;
-
-
++ (id) lionmageForSide:(BOOL)side withObj:(UnitObj *)obj;
 - (id) initLionmageFor:(BOOL)side withObj:(UnitObj *)obj;
-- (id) initLionmageForSetupWithObj:(UnitObj *)obj;
 @end

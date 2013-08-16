@@ -22,7 +22,7 @@
 
 @implementation InventoryViewController
 @synthesize inventoryView = _inventoryView;
-@synthesize displayImageView = _displayImageView;
+@synthesize displayUnitView = _displayUnitView;
 @synthesize okButton = _okButton, home = _home;
 
 - (IBAction)homePressed:(id)sender {
@@ -33,7 +33,7 @@
 {
     if ( [item.objPtr isKindOfClass:[UnitObj class]] ) {
         UnitObj *ptr = item.objPtr;
-        [_displayImageView setDisplayForObj:ptr];
+        [_displayUnitView setDisplayForObj:ptr];
     }
 }
 
@@ -81,7 +81,7 @@
     _unitsPageView.delegate = self;
     [_inventoryView addSubview:_unitsPageView];
     
-    [_displayImageView loadView];
+    //[_displayUnitView loadView];
 }
 
 - (void)didReceiveMemoryWarning

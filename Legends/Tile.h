@@ -13,9 +13,10 @@
 @class Tile;
 @protocol TileDelegate <NSObject>
 @required
-- (void)    transformTileMe:(Tile *)tile
-                      toGid:(int)start
-                      toGid:(int)end;
+- (void)    tileDelegateTransformTileMe:(Tile *)tile
+                                fromGid:(int)start
+                                  toGid:(int)end
+                                  delay:(int)delay;
 @end
 
 @interface Tile : NSObject <BuffTargetDelegate>
@@ -27,7 +28,6 @@
 @property (nonatomic, strong) id<TileDelegate> delegate;
 @property (nonatomic, strong) Unit *unit;
 @property (nonatomic, strong) NSMutableArray *buffs;
-@property (nonatomic, readonly) int status;
 // Tile coordindates
 @property (nonatomic) CGPoint boardPos;
 

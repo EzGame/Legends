@@ -81,7 +81,7 @@
     _map.position = ccp(-105,0);
     _map.scale = 1; // REAL SCALE IS HARDCODED
     _tmxLayer = [_map layerNamed:@"layer"];
-    [_setupLayer addChild:_map z:MAPS];
+    [_setupLayer addChild:_map z:MAP];
 }
 
 - (void) createUI

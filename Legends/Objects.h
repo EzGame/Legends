@@ -1,37 +1,65 @@
-//
+///////////////////////////////////////////
 //  Objects.h
 //  Legends
 //
 //  Created by David Zhang on 2013-07-18.
 //
-//
+///////////////////////////////////////////
+#import "Defines.h"
 
-#import <Foundation/Foundation.h>
-#import <SFS2XAPIIOS/SmartFox2XClient.h>
-// @"1/500/0/0/0/0/-1/0,3",
-// @"1/50/str:10",
-
-
+#pragma mark - Stat Object
 @interface StatObj : NSObject
+
 @property (nonatomic) int strength;
 @property (nonatomic) int agility;
-@property (nonatomic) int intelligence;
+@property (nonatomic) int intellect;
+@property (nonatomic) int wisdom;
 @property (nonatomic) int health;
-+ (id) statsWithStr:(int)str Agi:(int)agi Int:(int)inte Hp:(int)hp;
-- (id) initWithStr:(int)str Agi:(int)agi Int:(int)inte Hp:(int)hp;
+
++ (id) statsWithStr:(int)str
+                agi:(int)agi
+               inte:(int)inte
+                wis:(int)wis
+                 hp:(int)hp;
 @end
 
+
+#pragma mark - Unit Object
 @interface UnitObj : NSObject
+{
+    int levelup_str;
+    int levelup_agi;
+    int levelup_int;
+    int levelup_wis;
+    int levelup_hp;
+}
+
 @property (nonatomic) int type;
+@property (nonatomic) int rarity;
 @property (nonatomic) int experience;
-@property (nonatomic) CGPoint position;
+@property (nonatomic) int level;
+@property (nonatomic) int movespeed;
+
 @property (nonatomic, strong) NSMutableArray *upgrades;
 @property (nonatomic, strong) StatObj *stats;
+@property (nonatomic) CGPoint position;
+@property (nonatomic) BOOL locked;
 
 + (id) unitObjWithString:(NSString *)string;
 
 @end
 
+
+#pragma mark - Damage Object
+@interface DamageObj : NSObject
+@property (nonatomic) int damage;
+@property (nonatomic) BOOL isCrit;
+
++ (id) damageObjWith:(int)damage isCrit:(BOOL)isCrit;
+@end
+
+
+#pragma mark - ScrollObj
 @interface ScrollObj : NSObject
 @property (nonatomic) int type;
 @property (nonatomic) int experience;

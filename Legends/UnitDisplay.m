@@ -155,7 +155,7 @@
         
         NSLog(@">[MYLOG] Setting display for tile %@",tile);
         self.tilePtr = tile;
-        if      ( tile.unit->rarity == VAGRANT )  self.background = _ui_vagrant;
+        /*if      ( tile.unit->rarity == VAGRANT )  self.background = _ui_vagrant;
         else if ( tile.unit->rarity == COMMON )   self.background = _ui_common;
         else if ( tile.unit->rarity == UNCOMMON ) self.background = _ui_uncommon;
         else if ( tile.unit->rarity == RARE )     self.background = _ui_rare;
@@ -166,7 +166,7 @@
         [self.phy_defense setString:[NSString stringWithFormat:@"%d", (int)(tile.unit.attribute->phys_resist *100)]];
         [self.mag_defense setString:[NSString stringWithFormat:@"%d", (int)(tile.unit.attribute->magic_resist*100)]];
         [self.currentHP setString:[NSString stringWithFormat:@"%d", tile.unit->health]];
-        [self.maxHP setString:[NSString stringWithFormat:@"%d", tile.unit.attribute->max_health]];
+        [self.maxHP setString:[NSString stringWithFormat:@"%d", tile.unit.attribute->max_health]];*/
         
         [self setHPBar:tile];
         
@@ -183,7 +183,7 @@
 
 - (void) setHPBar:(Tile *)tile
 {
-    float percentage = (tile.unit->health*1.0/tile.unit.attribute->max_health)*100;
+    /*float percentage = (tile.unit->health*1.0/tile.unit.attribute->max_health)*100;
     int red, green;
     if (1){//[tile isOwned]) {
         red = (percentage <= 25)?255:(percentage >= 75)? 0:255 - 255.0f*(percentage+25)/50;
@@ -193,7 +193,7 @@
     
     ccColor3B newColor = {red, green, 0};
     [self.hpBar setPercentage:percentage];
-    self.hpBar.color = newColor;
+    self.hpBar.color = newColor;*/
 }
 
 @end
@@ -274,6 +274,7 @@
 
 - (void) setDisplayFor:(SetupTile *) tile
 {
+    /*
     if ( tile.unit != nil  )
     {
         if ( [tile.unit isEqual:self.tilePtr.unit] )
@@ -289,7 +290,7 @@
         else if ( tile.unit.attribute->rarity == EPIC )     [self.description setFntFile:@"test_epic.fnt"];
         [self.description setString:
          [NSString stringWithFormat:
-          @"\\STR:%04d \\AGI:%04d \\INT:%04d\n\\DMG:%04d \\PHY:%03d%% \\MAG:%03d%%\n",
+          @"\\STR:%03d \\AGI:%03d \\INT:%03d\n\\DMG:%04d \\PHY:%03d%% \\MAG:%03d%%\n",
           [tile.unit.attribute getStr],
           [tile.unit.attribute getAgi],
           [tile.unit.attribute getInt],
@@ -302,7 +303,7 @@
         NSLog(@">[MYLOG] Not setting display for tile %@",tile);
         self.tilePtr = nil;
         self.visible = NO;
-    }
+    }*/
 }
 
 - (void) setPosition:(CGPoint)position x:(BOOL)x y:(BOOL)y

@@ -18,22 +18,18 @@ extern const NSString *MUDGOLEM_TWO_DESP;
 extern const NSString *MUDGOLEM_ONE_DESP;
 extern const NSString *MUDGOLEM_MOVE_DESP;
 
-@property (nonatomic, strong) CCActions *idle;
-@property (nonatomic, strong) CCActions *move;
-@property (nonatomic, strong) CCActions *moveEnd;
-@property (nonatomic, strong) CCActions *attk;
-@property (nonatomic, strong) CCActions *earthquake;
+@property (nonatomic, strong) CCActions         *idle;
+@property (nonatomic, strong) CCActions         *move;
+@property (nonatomic, strong) CCActions         *moveEnd;
+@property (nonatomic, strong) CCActions         *attk;
+@property (nonatomic, strong) CCActions         *earthquake;
 
-@property (nonatomic, strong) MenuItemSprite *moveButton;
-@property (nonatomic, strong) MenuItemSprite *attkButton;
-@property (nonatomic, strong) MenuItemSprite *earthquakeButton;
+@property (nonatomic, strong) MenuItemSprite    *moveButton;
+@property (nonatomic, strong) MenuItemSprite    *attkButton;
+@property (nonatomic, strong) MenuItemSprite    *earthquakeButton;
 
-+ (id) mudGolemWithObj:(UnitObj *)obj;
-+ (id) mudGolemForEnemyWithObj:(UnitObj *)obj;
-+ (id) mudGolemForSetupWithObj:(UnitObj *)obj;
-
++ (id) mudGolemFor:(BOOL)side withObj:(UnitObj *)obj;
 - (id) initMudGolemFor:(BOOL)side withObj:(UnitObj *)obj;
-- (id) initMudGolemForSetupWithObj:(UnitObj *)obj;
 
 - (CGPoint *) getEarthquakeArea;
 - (CGPoint *) getEarthquakeEffect;

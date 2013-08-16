@@ -38,22 +38,14 @@
 
 @protocol BattleBrainDelegate <NSObject>
 @required
-- (void)    loadTile:(Tile *)tile;
-
-- (void)    failToLoad;
-
-- (void)    transformTileAt:(CGPoint)position
-                    fromGid:(int)start
-                      toGid:(int)end
-                      delay:(float)delay;
-
-- (void)    animateTileAt:(CGPoint)position
-                     with:(CCAction *) action;
-
-- (void)    shakeScreenAfter:(float)delay;
+- (void)    battleBrainDelegateLoadTile:(Tile *)tile;
+- (void)    battleBrainDelegateTransformTileAt:(CGPoint)position
+                                       fromGid:(int)start
+                                         toGid:(int)end
+                                         delay:(int)delay;
 @end
 
-@interface BattleBrain : NSObject<TileDelegate>
+@interface BattleBrain : NSObject <TileDelegate>
 {
     // Positional offset of layer due to scrolling
     CGPoint currentLayerPos;
@@ -105,7 +97,4 @@
 - (void)        resetTurnForSide:(BOOL)side;
 
 - (void)        killtile:(CGPoint)position;
-
-- (void)        actionDidFinish;
-
 @end

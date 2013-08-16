@@ -21,14 +21,8 @@ enum TYPE {
     MUDGOLEM    = 3,
     DRAGON      = 4,
     LIONMAGE    = 5,
-    LASTUNIT    = 5,
+    LAST_UNIT   = 5,
     };
-
-enum TILESTATE{
-    SETUP       = 1,
-    REGULAR     = 0,
-    INVALID     = -1,
-};
 
 // THE FOLLOWING ARE ACTION TYPE DEFINITIONS
 enum ACTION {
@@ -58,13 +52,6 @@ enum DIRECTION {
     NW          = 3
     };
 
-enum DAMAGE_TYPE {
-    MELEE_PHYSICAL = 0,
-    RANGE_PHYSICAL = 1,
-    MELEE_MAGIC = 2,
-    RANGE_MAGIC = 3
-    };
-
 enum RARITY {
     VAGRANT     = 0,
     COMMON      = 100,
@@ -72,7 +59,7 @@ enum RARITY {
     RARE        = 300,
     EPIC        = 400,
     LAST_RARITY = 400,
-    };
+};
 
 // TILESET GIDS
 enum GID {
@@ -85,32 +72,35 @@ enum GID {
 // Z orders order the order they appear
 // Please keep this list sorted
 enum ZORDER {
-    MENUS       = 100,
-    DISPLAYS    = 95,
-    EFFECTS     = 25,
-    SPRITES_TOP = 20,
-    SPRITES_BOT = 10,
-    GROUND_EFFECTS = 1,
-    MAPS        = 0,
-    GAMELAYER   = 10,
-    HUDLAYER    = 200
+    HUDLAYER        = 200,
+    GAMELAYER       = 100,
+    MENUS           = 100,
+    DISPLAYS        = 95,
+    EFFECTS         = 25,
+    SPRITES_TOP     = 20,
+    SPRITES_BOT     = 10,
+    GROUND          = 1,
+    MAP             = 0,
     };
-
-// Constant unit stats
-enum mainAttribute{
-    STRENGTH = 0,
-    AGILITY = 1,
-    INTELLIGENCE = 2,
-};
 
 // ITEM - GEMS
 enum GEMS {
-    TOPAZ = 1,
-    SAPPHIRE = 2,
-    RUBY = 3,
-    EMERALD = 4,
-    OPAL = 5,
+    TOPAZ       = 1, // lightning
+    SAPPHIRE    = 2, // water
+    RUBY        = 3, // fire
+    EMERALD     = 4, // nature
+    OPAL        = 5, // earth
 };
+
+enum SkillType {
+    SkillTypeNormalMelee  = 0,
+    SkillTypeNormalRange  = 1,
+    SkillTypeNormalMagic  = 2,
+    SkillTypeNormalHeal   = 3,
+    SkillTypePureMelee    = 4,
+    SkillTypePureRange    = 5,
+    SkillTypePureMagic    = 6,
+    };
 
 #pragma mark - DEFINES
 #define kTagBattleLayer 10
@@ -176,26 +166,22 @@ enum GEMS {
 #define MAXWAITTIME 300 // seconds
 #define RANGEINCRATE 2
 
-// Attributes constants
-#define MAXLEVEL 50
-#define MAXEXPERIENCE MAXLEVEL*100
-#define MAINATTRIBUTE 0
-#define BASEHP 1
-#define BASEDMG 2
-#define BASESTR 3
-#define BASEAGI 4
-#define BASEINT 5
-#define NOTUSED 6
-#define NOTUSED2 7
-#define LVLUPHP 8
-#define LVLUPSTR 9
-#define LVLUPAGI 10
-#define LVLUPINT 11
-#define MOVESPEED 12
-#define RARITY 13
-#define STRCOEFFICIENT 10.0
-#define AGICOEFFICIENT 10.0
-#define INTCOEFFICIENT 10.0
+/* Attributes constants */
+// Level
+#define GETEXP(X) 25 * X * X
+#define GETLVL(X) sqrt(X)/5
+#define MAXLEVEL        100
+#define MAXEXPERIENCE   250000
+#define STATSPERLVL     10
+// Stats
+#define LVLUP_STR       0
+#define LVLUP_AGI       1
+#define LVLUP_INT       2
+#define LVLUP_WIS       3
+#define LVLUP_HP        4
+#define MOVESPEED       5
+#define UNITRARITY      6
+#define STATS_LASTINDEX 6
 
 #pragma mark - CONSTANTS
 NSString extern *NORMALFONTBIG;
@@ -207,17 +193,18 @@ NSString extern *COMBATFONTSMALL;
 NSString extern *NOTICEFONT;
 
 // Format {main stat, base hp, base dmg, base str, base agi, base int, max str, max agi, max int, lvl up str, lvl up agi, lvl up int, move speed, rarity}
-int extern const minotaurBase[14];
-int extern const gorgonBase[14];
-int extern const mudGolemBase[14];
-int extern const dragonBase[14];
-int extern const lionMageBase[14];
+int extern const minotaur_stats[STATS_LASTINDEX];
+int extern const gorgon_stats[STATS_LASTINDEX];
+int extern const mudgolem_stats[STATS_LASTINDEX];
+int extern const dragon_stats[STATS_LASTINDEX];
+int extern const lionpriest_stats[STATS_LASTINDEX];
+
 // allowable rune upgrades
-int extern const minotaurUpgrades[];
-int extern const gorgonUpgrades[];
-int extern const mudGolemUpgrades[];
-int extern const dragonUpgrades[];
-int extern const lionMageUpgrades[];
+int extern const minotaur_upgrades[];
+int extern const gorgon_upgrades[];
+int extern const mudgolem_upgrades[];
+int extern const dragon_upgrades[];
+int extern const lionpriest_upgrades[];
 
 #pragma mark - MINOTAUR AREAS
 CGPoint extern const minotaurAttkArea[];

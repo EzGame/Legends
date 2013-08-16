@@ -103,7 +103,7 @@
     _map.position = CGPointMake(-45,-45);
     _map.scale = MAPSCALE;
     _tmxLayer = [_map layerNamed:@"layer"];
-    [_gameLayer addChild:_map z:MAPS];
+    [_gameLayer addChild:_map z:MAP];
 }
 
 - (void) createUI
@@ -674,7 +674,7 @@
 }
 
 #pragma mark - Unit Delegates
-- (BOOL) pressedButton:(int)action
+- (BOOL) unitDelegatePressedButton:(int)action
 {
     NSLog(@">[MYLOG]    Received action %d",action);
     isTurnA = NO;
@@ -701,29 +701,24 @@
     return YES;
 }
 
-- (void)killMe:(Unit *)unit at:(CGPoint)position;
+- (void) unitDelegateKillMe:(Unit *)unit at:(CGPoint)position
 {
     [self.gameLayer removeChild:unit.spriteSheet cleanup:YES];
     [self.gameLayer removeChild:unit.menu cleanup:YES];
     [self.brain killtile:position];
 }
 
-- (void) addSprite:(CCSprite *)sprite z:(int)z
+- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(int)z
 {
     [self.gameLayer addChild:sprite z:z];
 }
 
-- (void) removeSprite:(CCSprite *)sprite
+- (void) unitDelegateRemoveSprite:(CCSprite *)sprite
 {
     [self.gameLayer removeChild:sprite cleanup:YES];
 }
 
-- (void) removeByTag:(int)tag
-{
-    [self.gameLayer removeChildByTag:tag cleanup:YES];
-}
-
-- (void) actionDidFinish:(Unit *)unit
+- (void) unitDelegateUnit:(Unit *)unit finishedAction:(int)action
 {
     [self center:unit.sprite.position];
     [self.display setDisplayFor:self.selection];
@@ -731,70 +726,58 @@
         self.turnMenu.visible = YES;
         self.turnMenu.position = unit.sprite.position;
     }
-    [self.brain actionDidFinish];
+    //[self.brain actionDidFinish];
 }
 
-- (void) shakeScreenAfter:(float)delay
+- (void) unitDelegateShakeScreen
 {
     CCAction *shake = [CCSequence actions:
-                       [CCDelayTime actionWithDuration:delay],
                        [CCShake actionWithDuration:0.75 amplitude:ccp(20,20) dampening:YES], nil];
     shake.tag = 10;
     [self.gameLayer runAction:shake];
 }
 
-- (void)    displayCombatMessage:(NSString*)message
-                      atPosition:(CGPoint)point
-                       withColor:(ccColor3B)color
+- (void) unitDelegateDisplayCombatMessage:(NSMutableString *)message
+                               atPosition:(CGPoint)point
+                                withColor:(ccColor3B)color
+                                   isCrit:(BOOL)isCrit
 {
     NSLog(@">[MYLOG]        Displaying %@, at [%f,%f]",message,point.x,point.y);
-    //used in determining how long the slide/fade lasts
-    float slideDuration = 4;
-    
-    //used in determining how far up/down along Y the label changes
-    //positive = UP, negative = DOWN
-    float yChange = 50;
-    
-    //used in determining how far left/right along the X the label changes
-    //positive = RIGHT, negative = LEFT
+    float slideDuration = 0.6; float fadeDuration = 2;
+    float yChange = 35;
     float xChange = 0;
     
     //set up the label
+    if (isCrit) [message appendString:@"!!!"];
     CCLabelBMFont *lblMessage = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
-    
-    //Change the color
     lblMessage.color = color;
+    lblMessage.position = ccp(point.x,point.y+25);
+    [self addChild:lblMessage z:DISPLAYS];
     
-    //position the label where you want it...
-    lblMessage.position = ccp(point.x,point.y+50);
-    
-    //add the LABEL to the screen
-    [self.gameLayer addChild:lblMessage z:DISPLAYS];
-    
-    id slideUp = [CCMoveBy actionWithDuration:slideDuration position:ccp(xChange,yChange)];
-    id fadeOut = [CCFadeOut actionWithDuration:slideDuration];
-    
-    //run the actions on the LABEL
-    id text = [CCSpawn actions:fadeOut, slideUp, nil];
+    id slideUp = [CCMoveBy actionWithDuration:slideDuration
+                                     position:ccp(xChange,yChange)];
+    id fadeOut = [CCFadeOut actionWithDuration:fadeDuration];
+    id text = [CCSequence actions:slideUp, fadeOut, nil];
     [lblMessage runAction:text];
     
-    //the waiting for the slide/fade to complete
-    id waitForSlide = [CCDelayTime actionWithDuration:slideDuration];
-    
-    //the actual removal of the label (uses a block so all the code stays here)
+    id waitForSlide = [CCDelayTime actionWithDuration:slideDuration + fadeDuration];
     id removeLabel = [CCCallBlock actionWithBlock:^{
-        [self.gameLayer removeChild:lblMessage cleanup:YES];
+        [self removeChild:lblMessage cleanup:YES];
     }];
-    
-    //sequence them together so they happen IN ORDER (not at once)
     id sequence = [CCSequence actions:waitForSlide, removeLabel, nil];
     
     //actually run the sequence
     [self runAction:sequence];
 }
 
+- (void) unitDelegateUnit:(Unit *)unit updateLayer:(CGPoint)boardPos
+{
+    int pos = boardPos.x + boardPos.y;
+    [self.gameLayer reorderChild:[unit spriteSheet] z:SPRITES_TOP - pos];
+}
+
 #pragma mark - Brain Delegates
-- (void)loadTile:(Tile *)tile
+- (void) battleBrainDelegateLoadTile:(Tile *)tile
 {
     [[[tile unit] sprite] setPosition:[self.brain findAbsPos:tile.boardPos]];
     [[tile unit] setDelegate:self];
@@ -803,20 +786,10 @@
     if (tile.isOwned) [self.gameLayer addChild:[[tile unit] menu] z:MENUS];
 }
 
-- (void)failToLoad
-{
-    [appDelegate switchToView:@"MainMenuViewController" uiViewController:[MainMenuViewController alloc]];
-}
-
-- (void)unitDidMoveTo:(Tile *)tile
-{
-    [self setSelection:tile];
-}
-
-- (void) transformTileAt:(CGPoint)position fromGid:(int)start toGid:(int)end delay:(float)delay
+- (void) battleBrainDelegateTransformTileAt:(CGPoint)position fromGid:(int)start toGid:(int)end delay:(int)delay
 {
     CGPoint adjustPos = ccp(MAPLENGTH-1-position.x,MAPWIDTH-1-position.y);
-    NSLog(@"%@ %d %d %f,",NSStringFromCGPoint(position),start,end,delay);
+    NSLog(@"%@ %d %d %d,",NSStringFromCGPoint(position),start,end,delay);
     __block int begin = start;
     __block int sign = (end - start)/abs(end - start);
     CCSprite *target = [self.tmxLayer tileAt:adjustPos];

@@ -114,7 +114,7 @@
 }
 
 #pragma mark - Actions + combat
-
+/*
 - (void) action:(int)action at:(CGPoint)position
 {
     [self.sprite stopAllActions];
@@ -339,5 +339,5 @@
 - (NSString *) description
 {
     return [NSString stringWithFormat:@"Gorgon Lv.%d",self.level];
-}
+}*/
 @end

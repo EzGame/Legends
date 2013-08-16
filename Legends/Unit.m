@@ -8,209 +8,91 @@
 
 #import "Unit.h"
 
-#pragma mark - Attributes:
-@implementation Attributes : NSObject
-
-+ (id) attributesForType:(int)type stats:(StatObj *)stats;
-{
-    return [[Attributes alloc] initWithType:type stats:stats];
-}
-
-- (void) scrollUpgrade:(StatObj *)stats;
-{
-    NSLog(@">[MYLOG] Entering scrollUpgrade");
-    bonus_str += stats.strength;
-    bonus_agi += stats.agility;
-    bonus_int += stats.intelligence;
-    bonus_hp += stats.health;
-    
-    [self updateStats];
-}
-
-- (void) lvlUpUpgrade
-{
-    //NSLog(@">[MYLOG] Entering lvlUpUpgrade");
-    base_str += lvlup_str;
-    base_agi += lvlup_agi;
-    base_int += lvlup_int;
-    base_hp += lvlup_hp;
-    
-    [self updateStats];
-}
-
-- (id) initWithType:(int)type stats:(StatObj *)stats;
-{
-    self = [super init];
-    if ( self )
-    {
-        bonus_str += stats.strength;
-        bonus_agi += stats.agility;
-        bonus_int += stats.intelligence;
-        bonus_hp += stats.health;
-
-        if( type == MINOTAUR )
-            [self setup:minotaurBase];
-        else if ( type == GORGON )
-            [self setup:gorgonBase];
-        else if ( type == MUDGOLEM )
-            [self setup:mudGolemBase];
-        else if ( type == DRAGON )
-            [self setup:dragonBase];
-        else if ( type == LIONMAGE )
-            [self setup:lionMageBase];
-    }
-    return self;
-}
-
-- (void) setup:(const int *)array
-{
-    // Main stats
-    main = array[MAINATTRIBUTE];
-    base_hp = array[BASEHP];
-    base_dmg = array[BASEDMG];
-    base_str = array[BASESTR];
-    base_agi = array[BASEAGI];
-    base_int = array[BASEINT];
-    lvlup_hp = array[LVLUPHP];
-    lvlup_str = array[LVLUPSTR];
-    lvlup_agi = array[LVLUPAGI];
-    lvlup_int = array[LVLUPINT];
-    speed = array[MOVESPEED];
-    rarity = array[RARITY];
-    
-    [self updateStats];
-    NSLog(@">[MYLOG] Finished setup of stats>> %@",self);
-}
-
-- (void) updateStats
-{
-    // Check if stats above max DEPREVATED
-    if ( bonus_str + base_str > max_str && NO) bonus_str = max_str - base_str;
-    if ( bonus_agi + base_agi > max_agi && NO) bonus_agi = max_agi - base_agi;
-    if ( bonus_int + base_int > max_int && NO) bonus_int = max_int - base_int;
-    
-    // Combat stats
-    if ( main == STRENGTH )
-        damage = base_dmg + bonus_str + base_str;
-    else if ( main == AGILITY )
-        damage = base_dmg + bonus_agi + base_agi;
-    else
-        damage = base_dmg +bonus_int + base_int;
-    max_health = base_hp + bonus_hp;
-    
-    phys_reduction = (base_str + bonus_str)*1.0/STRCOEFFICIENT;
-    acurracy = (base_agi + bonus_agi)*1.0/AGICOEFFICIENT;
-    spell_pierce = (base_int + bonus_int)*1.0/INTCOEFFICIENT;
-    
-    phys_resist = (base_str + bonus_str)*1.0/STRCOEFFICIENT;
-    evasion = (base_agi + bonus_agi)*1.0/AGICOEFFICIENT;
-    magic_resist = (base_int + bonus_int)*1.0/INTCOEFFICIENT;
-}
-
-- (NSString *)description
-{
-    return [NSString stringWithFormat:@"str:%d,agi:%d,int:%d,hp:%d",bonus_str, bonus_agi, bonus_int, bonus_hp];
-}
-
-- (int) getStr { return bonus_str + base_str; }
-
-- (int) getAgi { return bonus_agi + base_agi; }
-
-- (int) getInt { return bonus_int + base_int; }
-
-- (int) getDamageForType:(int)type { return damage; }
-
-@end
-
 #pragma mark - Unit:
 @implementation Unit
-// Sprite
-@synthesize sprite = _sprite, spriteSheet = _spriteSheet, menu = _menu;
-// A*
-@synthesize spOpenSteps = _spOpenSteps, spClosedSteps = _spClosedSteps, shortestPath = _shortestPath;
-// Upgrades
-@synthesize attribute = _attribute, myBuffs = _myBuffs, buffs = _buffs, runes = _runes, experience = _experience;
-// Flags
-@synthesize isOwned = _isOwned, canUpgrade = _canUpgrade, coolDown = _coolDown, direction = _direction;
-// Others
-@synthesize targets = _targets, obj = _obj;
+@synthesize sprite          = _sprite;
+@synthesize spriteSheet     = _spriteSheet;
+@synthesize menu            = _menu;
+@synthesize death           = _death;
+@synthesize health_bar      = _health_bar;
+
+@synthesize spOpenSteps     = _spOpenSteps;
+@synthesize spClosedSteps   = _spClosedSteps;
+@synthesize shortestPath    = _shortestPath;
+
+@synthesize attribute       = _attribute;
+@synthesize obj             = _obj;
+@synthesize myBuffs         = _myBuffs;
+@synthesize buffs           = _buffs;
+
+@synthesize isOwned         = _isOwned;
+@synthesize coolDown        = _coolDown;
+@synthesize direction       = _direction;
+@synthesize boardPos        = _boardPos;
+@synthesize current_hp      = _current_hp;
+@synthesize maximum_hp      = _maximum_hp;
+
+@synthesize position        = _position;
+
+
 
 #pragma mark - Unit: inits
 - (id) initForSide:(BOOL)side withObj:(UnitObj *)obj
 {
     self = [super init];
     if ( self )
-    {        
-        type = obj.type;
-
-        _obj = obj;
-        _isOwned = side;
-        _canUpgrade = YES;
-        _direction = (side) ? NE : SW;
-        _attribute = [Attributes attributesForType:type stats:obj.stats];
-        [self setExperience:obj.experience];
-
-        isStunned = NO;
-        isEnsnared = NO;
-        isFrozen = NO;
-        isStoned = NO;
-        isFocused = NO;
-
-        rarity = _attribute->rarity;
-        speed = _attribute->speed;
-        health = _attribute->max_health;
-        
-        // Properties
+    {
         _spOpenSteps = nil;
         _spClosedSteps = nil;
         _shortestPath = nil;
-    
+        
+        _attribute = [Attributes attributesWithStats:obj.stats delegate:self];
+        _obj = obj;
         _myBuffs = [NSMutableArray array];
         _buffs = [NSMutableArray array];
+        
+        _isOwned = side;
+        _direction = (side) ? NE : SW;
+        
+        _health_bar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"unit_health_bar.png"]];
+        _health_bar.type = kCCProgressTimerTypeBar;
+        _health_bar.color = (side) ? ccGREEN : ccRED;
+        _health_bar.midpoint = ccp(0.0, 0.5f);
+        _health_bar.barChangeRate = ccp(1,0);
+        _health_bar.percentage = 100;
+        _health_bar.position = ccpAdd(self.position,ccp(0,-10));
+        [self addChild:_health_bar z:1];
     }
     return self;
 }
 
-// upgrades
-- (void) scrollUpgrade:(StatObj *)stats experience:(int)xp
+- (void) initEffects
 {
-    NSLog(@">[MYLOG] Entering scrollUpgrade");
-    self.experience += xp;
-    [self.attribute scrollUpgrade:stats];
+    // These are public effects
+    [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"general_default.plist"];
+
+    // Secondary node
+    CCSpriteBatchNode *spriteSheet2 = [CCSpriteBatchNode batchNodeWithFile:@"general_default.png"];
+        
+    // DEATH
+    NSMutableArray *frames = [NSMutableArray array];
+    
+    for (int i = 0; i < 5; i++) {
+        [frames addObject:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:[NSString stringWithFormat:@"deathorb_%d.png",i]]];
+    }
+    
+    CCAnimation *animation = [[CCAnimation alloc] initWithSpriteFrames:frames delay:0.1];
+    animation.restoreOriginalFrame = NO;
+    _death = [[CCAnimate alloc] initWithAnimation:animation];
+    
+    [self addChild:spriteSheet2];
 }
 
-- (void) runeUpgrade:(int)type
-{
-    NSLog(@">[MYLOG] Entering runeUpgrade");
-    // =/
-}
 
 #pragma mark - Setters n Getters
-- (void) setExperience:(int)experience
+- (void) setPosition:(CGPoint)position
 {
-    NSLog(@">[MYLOG] Entering setExperience");
-    if ( experience >= _experience ) {
-        _experience = MIN (experience, MAXEXPERIENCE);
-        self.level = _experience / (MAXEXPERIENCE / MAXLEVEL);
-        if ( experience == MAXEXPERIENCE )
-            self.canUpgrade = NO;
-    } else {
-        NSLog(@">[WARN]     TRYING TO REDUCE EXP, IGNORED");
-    }
-}
-
-- (void) setLevel:(int)level
-{
-    NSLog(@">[MYLOG] Entering setLevel from %d to %d, is setExperience above me?", _level, level);
-    if ( level >= _level && level <= MAXLEVEL ) {
-        for (int i = level - _level; i > 0; i--) {
-            [self.delegate levelUp:self];
-            [self.attribute lvlUpUpgrade];
-        }
-        _level = level;
-    } else {
-        NSLog(@">[WARN]     LEVELED PASSED MAX, IGNORED");
-    }
+    [super setPosition:position];
 }
 
 - (void) setCoolDown:(int)coolDown
@@ -218,10 +100,77 @@
     _coolDown = MAX(0, coolDown);
 }
 
+- (void) setDirectionWithDifference:(CGPoint)difference
+{
+    if (difference.x >= 0 && difference.y >= 0)
+        self.direction = NE;
+    else if (difference.x >= 0 && difference.y < 0)
+        self.direction = SE;
+    else if (difference.x < 0 && difference.y < 0)
+        self.direction = SW;
+    else
+        self.direction = NW;
+}
+
+- (void) setCurrent_hp:(int)current_hp
+{
+    _current_hp = MIN( current_hp, _maximum_hp );
+    if ( _current_hp < 1 ) [self action:DEAD at:CGPointZero];
+    else {
+        int new_percentage = (_current_hp * 1.0/ _maximum_hp) * 100;
+        [_health_bar runAction:[CCActionTween actionWithDuration:2 key:@"percentage"
+                                     from:self.health_bar.percentage to:new_percentage]];
+    }
+}
+
+- (void) setMaximum_hp:(int)maximum_hp
+{
+    _maximum_hp = maximum_hp;
+    self.current_hp *= self.health_bar.percentage;
+}
+
+
 #pragma mark - Skills
-- (void) action:(int)action at:(CGPoint)position { return; }
-- (void) popStepAndAnimate { return; }
-- (BOOL) canIDo:(int)action {
+- (void) action:(int)action at:(CGPoint)position
+{
+    if ( action == DEAD ) {
+        CCSprite *orb = [CCSprite spriteWithSpriteFrameName:@"deathorb_0.png"];
+        [self.delegate unitDelegateAddSprite:orb z:EFFECTS];
+        orb.position = self.sprite.position;
+        orb.visible = NO;
+        
+        id towhite = [CCTintTo actionWithDuration:0.5 red:0 green:0 blue:0];
+        id fade = [CCFadeOut actionWithDuration:0.5];
+        id form = [CCCallBlock actionWithBlock:^{
+            orb.visible = YES;
+            [orb runAction:self.death];
+        }];
+        id die = [CCSequence actions:towhite, fade, form, nil];
+        ///////
+        id begin = [CCCallBlock actionWithBlock:^{ [self.sprite runAction:die]; }];
+        id delay = [CCDelayTime actionWithDuration:1.85];
+        id orbfade = [CCCallBlock actionWithBlock:^{ [orb runAction:[CCFadeOut actionWithDuration:1]];}];
+        id orbfadedelay = [CCDelayTime actionWithDuration:1];
+        id finish = [CCCallBlock actionWithBlock:^{
+            self.sprite.visible = false;
+            [self.delegate unitDelegateRemoveSprite:orb];
+            [self.delegate unitDelegateKillMe:self at:self.sprite.position];
+        }];
+        
+        [self.sprite runAction:[CCSequence actions:begin, delay, orbfade, orbfadedelay, finish, nil]];
+    } else {
+        NSLog(@"It aint death rofl");
+    }
+}
+
+- (void) combatAction:(int)action targets:(NSArray *)targets
+{ return; }
+
+- (void) popStepAndAnimate
+{ return; }
+
+- (BOOL) canIDo:(int)action
+{
     if ( action == MOVE )
         return !isStoned && !isStunned && !isFrozen && !isEnsnared;
     else if ( action == ATTK )
@@ -233,9 +182,42 @@
 }
 
 #pragma mark - Actions
-- (void) take:(int)damage after:(float)delay { return; }
-- (void) heal:(int)damage after:(float)delay { return; }
-- (int) calculate:(int)damage type:(int)dmgType { return 0; }
+- (void) damageHealth:(DamageObj *)dmg
+{    
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccRED];
+         [self.delegate unitDelegateDisplayCombatMessage:[NSString stringWithFormat:@"%d",dmg.damage]
+                                              atPosition:self.sprite.position
+                                               withColor:ccRED
+                                                  isCrit:dmg.isCrit];
+     }],
+      [CCDelayTime actionWithDuration:0.5],
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccWHITE];
+         self.current_hp -= dmg.damage;
+         self.direction = self.direction;
+     }], nil]];
+}
+
+- (void) healHealth:(DamageObj *)dmg
+{
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccGREEN];
+         self.current_hp += dmg.damage;
+         [self.delegate unitDelegateDisplayCombatMessage:[NSString stringWithFormat:@"+%d",dmg.damage]
+                                              atPosition:self.sprite.position
+                                               withColor:ccGREEN
+                                                  isCrit:dmg.isCrit];
+      }],
+      [CCDelayTime actionWithDuration:0.2],
+      [CCTintTo actionWithDuration:1 red:255 green:255 blue:255],
+    nil]];
+}
+
 - (void) addBuff:(Buff *)buff caster:(BOOL)amICaster
 {
     if ( amICaster ) {
@@ -253,6 +235,7 @@
         [self.buffs removeObject:buff];
     }
 }
+
 
 #pragma mark - Menu
 - (void) toggleMenu:(BOOL)state {
@@ -274,6 +257,7 @@
         
     }
 }
+
 - (void) reset
 {
     NSLog(@">[RESET]    Unit %@", self);
@@ -282,18 +266,14 @@
     }
     return;
 }
+
 - (BOOL) hasActionLeft {
     NSAssert(false,@">[FATAL]  THIS FUNCTION MUST BE SUBCLASSED");
     return NO;
 }
 
-#pragma mark - Other
-- (BOOL) putTargets:(NSArray *)targets
-{
-    self.targets = targets;
-    return YES;
-}
 
+#pragma mark - Other
 - (float) getAngle:(CGPoint)p1 :(CGPoint)p2
 {
     float dx, dy, angle;
@@ -307,19 +287,33 @@
 
 - (int) getValue
 {
-    if ( self.level < 10 ) return 5;
-    else if ( self.level >= 20 && self.level <= 29 ) return 10;
-    else if ( self.level >= 30 && self.level <= 39 ) return 20;
-    else if ( self.level >= 40 ) return 40;
-    else return -1;
+    return floor(self.obj.level/10.0f) * 10;
 }
 
-// delegate stubs
+
+#pragma mark - Attribute Delegates
+- (void) attributesDelegateMaximumHealth:(int)health
+{
+    self.maximum_hp = health;
+}
+
+- (void) attributesDelegateCurrentHealth:(int)health
+{
+    self.current_hp = health;
+}
+
+
+#pragma mark - Buff Delegates
+- (void) damage:(int)damage type:(int)type fromBuff:(Buff *)buff fromCaster:(id)caster
+{
+    DamageObj *obj = [DamageObj damageObjWith:damage isCrit:NO];
+    [self damageHealth:obj];
+}
+
 - (void) buffCasterStarted:(Buff *)buff
 {
     NSLog(@">[MYLOG]    Unit - caster for buff started");
     if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
-        //NSLog(@">[MYWARN] How does a Unit cast stone gaze?");
         isFocused = YES;
         [self addBuff:buff caster:YES];
     } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
@@ -332,18 +326,12 @@
 {
     NSLog(@">[MYLOG]    Unit - caster for buff ended");
     if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
-        //NSLog(@">[MYWARN] How does a Unit cast stone gaze?");
         isFocused = NO;
         [self removeBuff:buff caster:YES];
     } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
         NSLog(@"%@'s blaze ended", self);
         [self removeBuff:buff caster:YES];
     }
-}
-
-- (void) damage:(int)damage type:(int)type fromBuff:(Buff *)buff fromCaster:(id)caster
-{
-    [self take:damage after:0];
 }
 
 - (void) buffTargetStarted:(Buff *)buff
@@ -365,18 +353,44 @@
 }
 @end
 
+
+#pragma mark - UnitDamage
+@implementation UnitDamage
+@synthesize target = _target;
+@synthesize damage = _damage;
+
++ (id) unitDamageTarget:(Unit *)target damage:(DamageObj *)damage;
+{
+    return [[UnitDamage alloc] initDamageTarget:target damage:damage];
+}
+
+
+- (id) initDamageTarget:(Unit *)target damage:(DamageObj *)damage;
+{
+    self = [super init];
+    if ( self ) {
+        _target = target;
+        _damage = damage;
+    }
+    return self;
+}
+@end
+
+
 #pragma mark - A*
 @implementation ShortestPathStep
 
 @synthesize position;
+@synthesize boardPos;
 @synthesize gScore;
 @synthesize hScore;
 @synthesize parent;
 
-- (id)initWithPosition:(CGPoint)pos
+- (id)initWithPosition:(CGPoint)pos boardPos:(CGPoint)bpos;
 {
 	if ((self = [super init])) {
 		position = pos;
+        boardPos = bpos;
 		gScore = 0;
 		hScore = 0;
 		parent = nil;
@@ -386,7 +400,7 @@
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"%@  pos=[%.0f;%.0f]  g=%d  h=%d  f=%d", [super description], self.position.x, self.position.y, self.gScore, self.hScore, [self fScore]];
+	return [NSString stringWithFormat:@"%@  pos=%@%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(position), NSStringFromCGPoint(boardPos), self.gScore, self.hScore, [self fScore]];
 }
 
 - (BOOL)isEqual:(ShortestPathStep *)other
@@ -401,6 +415,7 @@
 
 @end
 
+
 #pragma mark - SETUP
 @interface SetupUnit ()
 @end
@@ -409,7 +424,7 @@
 @synthesize sprite = _sprite;
 @synthesize obj = _obj;
 @synthesize attribute = _attribute;
-@synthesize experience = _experience, level = _level, direction = _direction;
+@synthesize direction = _direction;
 @synthesize position = _position;
 
 - (void) setPosition:(CGPoint)position
@@ -425,26 +440,6 @@
     else if ( direction == SW )
         [self.sprite setTexture:[reserve texture]];
     _direction = direction;
-}
-
-- (void) setExperience:(int)experience
-{
-    NSLog(@">[MYLOG] Entering setExperience");
-    if ( experience >= _experience ) {
-        _experience = MIN (experience, MAXEXPERIENCE);
-        self.level = _experience / (MAXEXPERIENCE / MAXLEVEL);
-    }
-}
-
-- (void) setLevel:(int)level
-{
-    NSLog(@">[MYLOG] Entering setLevel from %d to %d, is setExperience above me?", _level, level);
-    if ( level >= _level && level <= MAXLEVEL ) {
-        for (int i = level - _level; i > 0; i--) {
-            [self.attribute lvlUpUpgrade];
-        }
-        _level = level;
-    }
 }
 
 + (id) setupUnitWithObj:(UnitObj *)obj
@@ -471,10 +466,9 @@
             _direction = NE;
             _sprite = [CCSprite spriteWithTexture:[ready texture]];
         }
-        _attribute = [Attributes attributesForType:obj.type stats:obj.stats];
+        _attribute = [Attributes attributesWithStats:obj.stats delegate:self];
         
         _sprite.scale = SETUPMAPSCALE;
-        [self setExperience:obj.experience];
         [self addChild:_sprite];
     }
     return self;
@@ -500,15 +494,11 @@
 
 - (int) getValue
 {
-    if ( self.level < 10 ) return 5;
-    else if ( self.level >= 20 && self.level <= 29 ) return 10;
-    else if ( self.level >= 30 && self.level <= 39 ) return 20;
-    else if ( self.level >= 40 ) return 40;
-    else return -1;
+    return floor(self.obj.level/10.0f) * 10;
 }
 
 - (NSString *) description
 {
-    return [NSString stringWithFormat:@"%d Lv.%d",self.obj.type,self.level];
+    return [NSString stringWithFormat:@"%d Lv.%d",self.obj.type,self.obj.level];
 }
 @end

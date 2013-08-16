@@ -108,8 +108,8 @@
 
 - (void) login:(NSString *)username pass:(NSString *)password
 {
-    [self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
-    //[self switchToScene:[BattleLayer scene]];
+    //[self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
+    [self switchToScene:[BattleLayer scene]];
     //[self switchToScene:[SetupLayer scene]];
     _username = username;
     _password = password;

@@ -198,7 +198,7 @@
 {
     [super reset];
     for ( id delegate in self.targets ) {
-        [delegate damage:dmg type:MELEE_MAGIC fromBuff:self fromCaster:self.caster];
+        [delegate damage:dmg type:SkillTypePureMagic fromBuff:self fromCaster:self.caster];
     }
 }
 @end

@@ -27,12 +27,8 @@ extern const NSString *DRAGON_MOVE_DESP;
 @property (nonatomic, strong) MenuItemSprite *fireballButton;
 @property (nonatomic, strong) MenuItemSprite *flamebreathButton;
 
-+ (id) dragonWithObj:(UnitObj *)obj;
-+ (id) dragonForEnemyWithObj:(UnitObj *)obj;
-+ (id) dragonForSetupWithObj:(UnitObj *)obj;
-
++ (id) dragonFor:(BOOL)side withObj:(UnitObj *)obj;
 - (id) initDragonFor:(BOOL)side withObj:(UnitObj *)obj;
-- (id) initDragonForSetupWithObj:(UnitObj *)obj;
 
 - (CGPoint *) getFireballArea;
 - (CGPoint *) getFireballEffect;

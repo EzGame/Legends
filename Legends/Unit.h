@@ -1,3 +1,4 @@
+//////////////////////////////////////////////
 //
 //  Unit.h
 //  Legend
@@ -5,96 +6,49 @@
 //  Created by David Zhang on 2013-04-23.
 //
 //
+//////////////////////////////////////////////
 
-#import <UIKit/UIKit.h>
-#import "cocos2d.h"
+
+#pragma mark - Imports
+/* Global and Singletons */
 #import "Defines.h"
-#import "CCActions.h"
 #import "UserSingleton.h"
+/* Cocos2d Objects */
+#import "cocos2d.h"
+#import "CCActions.h"
+/* Data Objects */
 #import "Buff.h"
-#pragma mark - Attributes
-@interface Attributes : NSObject
-{
-    @public
-    int main;
+#import "Objects.h"
+#import "Attributes.h"
 
-    // Combat stats
-    int damage; // from main stat
-    int max_health; // standalone
-    
-    float phys_reduction; // from str
-    float acurracy; // from agi
-    float spell_pierce; // from int
-    
-    float phys_resist; // from str
-    float evasion; // from agi
-    float magic_resist; // from int
-    
-    // Primary stats
-    int bonus_str;
-    int bonus_agi;
-    int bonus_int;
-    int bonus_hp;
-    
-    // Constants
-    int base_hp;
-    int base_dmg;
-    int base_str;
-    int base_agi;
-    int base_int;
-    
-    int max_str;
-    int max_agi;
-    int max_int;
-    
-    // Other shit
-    int lvlup_hp;
-    int lvlup_str;
-    int lvlup_agi;
-    int lvlup_int;
-    
-    // fucking temp fix
-    int speed;
-    int rarity;
-}
-+ (id) attributesForType:(int)type stats:(StatObj *)stats;
+#pragma mark - Classes
+@class Unit;
+@class UnitDamage;
+@class ShortestPathStep;
+@class SetupUnit;
 
-- (void) scrollUpgrade:(StatObj *)stats;
-- (void) lvlUpUpgrade;
+#pragma mark - Unit Delegates
+@protocol UnitDelegate <NSObject>
+@required
+- (BOOL) unitDelegatePressedButton:(int)action;
+- (void) unitDelegateUnit:(Unit *)unit finishedAction:(int)action;
+- (void) unitDelegateDisplayCombatMessage:(NSMutableString *)message
+                               atPosition:(CGPoint)point
+                                withColor:(ccColor3B)color
+                                   isCrit:(BOOL)isCrit;
 
-- (int) getStr;
-- (int) getAgi;
-- (int) getInt;
-- (int) getDamageForType:(int)type;
+- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(int)z;
+- (void) unitDelegateRemoveSprite:(CCSprite *)sprite;
+- (void) unitDelegateShakeScreen;
+- (void) unitDelegateKillMe:(Unit *)unit at:(CGPoint)position;
+- (void) unitDelegateUnit:(Unit *)unit updateLayer:(CGPoint)boardPos;
 @end
 
 #pragma mark - Unit
-@class Unit;
-
-@protocol UnitDelegate <NSObject>
-@required
-- (BOOL)pressedButton:(int)action;
-- (void)killMe:(Unit *)unit at:(CGPoint)position;
-- (void)addSprite:(CCSprite *)sprite z:(int)z;
-- (void)removeSprite:(CCSprite *)sprite;
-- (void)removeByTag:(int)tag;
-- (void)actionDidFinish:(Unit *)unit;
-- (void)displayCombatMessage:(NSString*)message
-                  atPosition:(CGPoint)point
-                   withColor:(ccColor3B)color;
-@optional
-- (void)levelUp:(Unit *)unit;
-@end
-
-@interface Unit : NSObject <BuffCasterDelegate,BuffTargetDelegate>
+@interface Unit : CCNode
+<BuffCasterDelegate,BuffTargetDelegate,AttributesDelegate>
 {
     @public
-    // Static
-    int type;
-    int rarity;
-    int health;
-    int speed;
-        
     // negative states
     BOOL isStunned;
     BOOL isEnsnared;
@@ -106,44 +60,44 @@
     BOOL isDefending;
 }
 
-@property (nonatomic, strong)   CCSprite    *sprite;
-@property (nonatomic, strong)   CCSpriteBatchNode *spriteSheet;
-@property (nonatomic, weak)     id <UnitDelegate> delegate;
-@property (nonatomic, strong)   CCMenu *menu;
-@property (nonatomic, strong)   UnitObj *obj;
+@property (nonatomic, assign)   id <UnitDelegate>   delegate;
 
-@property (nonatomic, strong)   NSMutableArray *spOpenSteps;
-@property (nonatomic, strong)   NSMutableArray *spClosedSteps;
-@property (nonatomic, strong)   NSMutableArray *shortestPath;
+@property (nonatomic, strong)   CCSprite            *sprite;
+@property (nonatomic, strong)   CCSpriteBatchNode   *spriteSheet;
+@property (nonatomic, strong)   CCMenu              *menu;
+@property (nonatomic, strong)   CCAction            *death;
+@property (nonatomic, strong)   CCProgressTimer     *health_bar;
 
-@property (nonatomic, strong)   Attributes *attribute;
-@property (nonatomic, strong)   NSMutableArray *myBuffs;
-@property (nonatomic, strong)   NSMutableArray *buffs;
-@property (nonatomic, strong)   NSMutableArray *runes;
+@property (nonatomic, strong)   NSMutableArray      *spOpenSteps;
+@property (nonatomic, strong)   NSMutableArray      *spClosedSteps;
+@property (nonatomic, strong)   NSMutableArray      *shortestPath;
 
-@property (nonatomic) BOOL isOwned;
-@property (nonatomic) BOOL canUpgrade;
-@property (nonatomic) int experience;
-@property (nonatomic) int level;
-@property (nonatomic) int coolDown;
-@property (nonatomic) int direction;
+@property (nonatomic, strong)   Attributes          *attribute;
+@property (nonatomic, strong)   UnitObj             *obj;
+@property (nonatomic, strong)   NSMutableArray      *myBuffs;
+@property (nonatomic, strong)   NSMutableArray      *buffs;
+
+@property (nonatomic)           BOOL                isOwned;
+@property (nonatomic)           int                 coolDown;
+@property (nonatomic)           int                 direction;
+@property (nonatomic)           CGPoint             boardPos;
+@property (nonatomic)           int                 current_hp;
+@property (nonatomic)           int                 maximum_hp;
 
 // init
 - (id) initForSide:(BOOL)side withObj:(UnitObj *)obj;
-
-// upgrades
-- (void) scrollUpgrade:(StatObj *)stats experience:(int)xp;
-- (void) runeUpgrade:(int) type;
+- (void) initEffects;
 
 // skills
 - (void) action:(int)action at:(CGPoint)position;
+- (void) combatAction:(int)action targets:(NSArray *)targets;
 - (void) popStepAndAnimate;
 - (BOOL) canIDo:(int)action;
 
 // combat + state
-- (void) take:(int)damage after:(float)delay;
-- (void) heal:(int)damage after:(float)delay;
-- (int) calculate:(int)damage type:(int)dmgType;
+- (void) damageHealth:(DamageObj *)dmg;
+- (void) healHealth:(DamageObj *)dmg;
+- (void) receiveBuff:(Buff *)buff;
 - (void) addBuff:(Buff *)buff caster:(BOOL)amICaster;
 - (void) removeBuff:(Buff *)buff caster:(BOOL)amICaster;
 - (BOOL) hasActionLeft;
@@ -152,15 +106,23 @@
 - (void) toggleMenu:(BOOL)state;
 - (void) reset;
 
-// Special
-- (BOOL) putTargets:(NSArray *)targets;
-@property (nonatomic, weak) NSArray *targets;
  // wow so annoying
 - (float) getAngle:(CGPoint)p1 :(CGPoint)p2;
 - (int) getValue;
+- (void) setDirectionWithDifference:(CGPoint)difference;
 @end
 
-#pragma mark - A*
+
+#pragma mark - UnitDamage
+@interface UnitDamage : NSObject
+@property (nonatomic, weak)     Unit        *target;
+@property (nonatomic, strong)   DamageObj   *damage;
+
++ (id) unitDamageTarget:(Unit *)target damage:(DamageObj *)damage;
+@end
+
+
+#pragma mark - ShortestPathStep
 @interface ShortestPathStep : NSObject
 {
 	CGPoint position;
@@ -170,13 +132,16 @@
 }
 
 @property (nonatomic, assign) CGPoint position;
+@property (nonatomic, assign) CGPoint boardPos;
 @property (nonatomic, assign) int gScore;
 @property (nonatomic, assign) int hScore;
 @property (nonatomic, unsafe_unretained) ShortestPathStep *parent;
 
-- (id)initWithPosition:(CGPoint)pos;
+- (id)initWithPosition:(CGPoint)pos boardPos:(CGPoint)bpos;
 - (int)fScore;
+
 @end
+
 
 #pragma mark SetupUnit
 @interface SetupUnit : CCNode
@@ -187,8 +152,6 @@
 @property (nonatomic, strong) CCSprite *sprite;
 @property (nonatomic, strong) UnitObj *obj;
 @property (nonatomic, strong) Attributes *attribute;
-@property (nonatomic) int experience;
-@property (nonatomic) int level;
 @property (nonatomic) int direction;
 
 + (id) setupUnitWithObj:(UnitObj *)obj;

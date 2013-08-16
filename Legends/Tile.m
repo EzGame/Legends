@@ -9,20 +9,20 @@
 #import "Tile.h"
 
 @implementation Tile
-@synthesize unit = _unit, status = _status, buffs = _buffs;
+@synthesize unit = _unit, buffs = _buffs;
 @synthesize boardPos = _boardPos, isOwned = _isOwned, isOccupied = _isOccupied;
 
 + (id)tileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
 {
-    return [[Tile alloc] initWithPosition:boardPos status:REGULAR sprite:sprite];
+    return [[Tile alloc] initWithPosition:boardPos sprite:sprite];
 }
 
 + (id)invalidTileWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite;
 {
-    return [[Tile alloc] initWithPosition:boardPos status:INVALID sprite:sprite];
+    return [[Tile alloc] initWithPosition:boardPos sprite:sprite];
 }
 
-- (id)initWithPosition:(CGPoint)boardPos status:(int)status sprite:(CCSprite *)sprite
+- (id)initWithPosition:(CGPoint)boardPos sprite:(CCSprite *)sprite
 {
     self = [super init];
     if (self)
@@ -54,6 +54,7 @@
     } else {
         _isOccupied = YES;
         _isOwned = unit.isOwned;
+        unit.boardPos = _boardPos;
     }
 
     _unit = unit;
@@ -77,7 +78,8 @@
 
 - (void) damage:(int)damage type:(int)type fromBuff:(Buff *)buff fromCaster:(id)caster
 {
-    [self.unit take:damage after:0];
+    DamageObj *obj = [DamageObj damageObjWith:damage isCrit:NO];
+    [self.unit damageHealth:obj];
 }
 
 - (void) buffTargetFinished:(Buff *)buff
@@ -85,9 +87,12 @@
     NSLog(@">[MYLOG] Entering Tile %@:buffFinished",self);
     if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
         [self.buffs removeObject:buff];
-    } else if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
+    } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
         isABlaze = NO;
-        [self.delegate transformTileMe:self toGid:PLAIN_GRASS_TO_MOLTEN_END toGid:PLAIN_GRASS_TO_MOLTEN_START];
+        [self.delegate tileDelegateTransformTileMe:self
+                                           fromGid:PLAIN_GRASS_TO_MOLTEN_END
+                                             toGid:PLAIN_GRASS_TO_MOLTEN_START
+                                             delay:0.6];
         [self.buffs removeObject:buff];
     }
 }
@@ -108,7 +113,10 @@
 
     } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
         isABlaze = YES;
-        [self.delegate transformTileMe:self toGid:PLAIN_GRASS_TO_MOLTEN_START toGid:PLAIN_GRASS_TO_MOLTEN_END];
+        [self.delegate tileDelegateTransformTileMe:self
+                                           fromGid:PLAIN_GRASS_TO_MOLTEN_START
+                                             toGid:PLAIN_GRASS_TO_MOLTEN_END
+                                             delay:0.6];
         [self.buffs addObject:buff];
     }
 }

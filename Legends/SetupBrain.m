@@ -200,7 +200,7 @@ static NSArray *unitTags = nil;
         NSLog(@"found index %d",index);
         [self clearSideBoard];
         // Find the targets
-        for ( int i = index * LASTUNIT; i < (index+1) * LASTUNIT; i++ ) {
+        for ( int i = index * LAST_UNIT; i < (index+1) * LAST_UNIT; i++ ) {
             if ( unitsByTag[i] != 0 ) {
                 NSLog(@"<><><><> going to add %d",unitsByTag[i]);
                 [list addObject:[NSNumber numberWithInt:unitsByTag[i]]];

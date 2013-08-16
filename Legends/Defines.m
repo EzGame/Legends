@@ -8,18 +8,21 @@ NSString *COMBATFONTMID = @"font_normal_mid.fnt";
 NSString *COMBATFONTSMALL = @"font_normal_small.fnt";
 NSString *NOTICEFONT = @"";
 
-                            // main         hp dmg str agi int  x   x +h +s +a +i ms  rarity
-const int minotaurBase[14] = {STRENGTH,     20, 10, 1,  1,  1, 10, 10, 1, 1, 1, 0, 3, COMMON};
-const int gorgonBase[14]   = {AGILITY,      20, 7,  1,  1,  1, 10, 10, 1, 0, 1, 1, 3, UNCOMMON};
-const int mudGolemBase[14] = {STRENGTH,     20, 10, 1,  1,  1, 10, 10, 1, 2, 0, 1, 5, UNCOMMON};
-const int dragonBase[14] =   {INTELLIGENCE, 20, 10, 1,  1,  1, 10, 10, 1, 0, 1, 2, 4, RARE};
-const int lionMageBase[14] = {INTELLIGENCE, 15, 0,  1,  1,  1, 10, 10, 1, 0, 0, 2, 3, COMMON};
+/*  UNIT BASE INFO */
+const int test_stats[STATS_LASTINDEX] =
+{LVLUP_STR, LVLUP_AGI, LVLUP_INT, LVLUP_WIS, LVLUP_HP, UNITRARITY};
 
-const int minotaurUpgrades[] = {TOPAZ,SAPPHIRE,RUBY,EMERALD,OPAL};
-const int gorgonUpgrades[] = {SAPPHIRE,RUBY,EMERALD,OPAL};
-const int mudGolemUpgrades[] = {TOPAZ,SAPPHIRE,RUBY,OPAL};
-const int dragonUpgrades[] = {TOPAZ,RUBY,EMERALD,OPAL};
-const int lionMageUprages[] = {TOPAZ,SAPPHIRE,EMERALD,OPAL};
+const int minotaur_stats[STATS_LASTINDEX]    = {1, 0, 0, 0, 1, COMMON};
+const int lionpriest_stats[STATS_LASTINDEX]  = {0, 0, 0, 1, 1, COMMON};
+const int mudgolem_stats[STATS_LASTINDEX]    = {1, 0, 1, 0, 1, UNCOMMON};
+const int gorgon_stats[STATS_LASTINDEX]      = {0, 2, 1, 0, 1, RARE};
+const int dragon_stats[STATS_LASTINDEX]      = {1, 0, 1, 1, 1, RARE};
+
+const int minotaur_upgrades[]    = {TOPAZ, SAPPHIRE, RUBY, EMERALD, OPAL};
+const int gorgon_upgrades[]      = {       SAPPHIRE, RUBY, EMERALD, OPAL};
+const int mudgolem_upgrades[]    = {TOPAZ, SAPPHIRE, RUBY,          OPAL};
+const int dragon_upgrades[]      = {TOPAZ,           RUBY, EMERALD, OPAL};
+const int lionpriest_upgrades[]  = {TOPAZ, SAPPHIRE,       EMERALD, OPAL};
 
 const CGPoint minotaurAttkArea[] = { {0,4},
     /*{-1,1},*/ {0,1}, /*{1,1},*/
@@ -65,11 +68,15 @@ const CGPoint gorgonFreezeEffect[] = {
     {0,0}
 };
 
+/////////////////////////////////////////////////////////////////////////
+// Mud Golem                                                           //
+/////////////////////////////////////////////////////////////////////////
 const CGPoint mudgolemAttkArea[] = { {0,4},
     /*{-1,1},*/ {0,1}, /*{1,1},*/
-      {-1,0}, /*{0,0},*/ {1,0},
+    {-1,0}, /*{0,0},*/ {1,0},
     /*{-1,-1},*/{0,-1},/*{1,-1},*/
 };
+
 const CGPoint mudgolemAttkEffect[] = {
     {0,1},
     {0,0}
@@ -89,6 +96,9 @@ const CGPoint mudgolemEarthquakeEffect[] = { {0,24},
     /*{-3,-3},  {-2,-3},  {-1,-3},*/{0,-3},/*{1,-3},  {2,-3},  {3,-3},*/
 };
 
+/////////////////////////////////////////////////////////////////////////
+// Dragon                                                              //
+/////////////////////////////////////////////////////////////////////////
 const CGPoint dragonFireballArea[] = { {0,16},
     /*{-4,4},   {-3,4},   {-2,4},   {-1,4},*/ {0,4}, /*{1,4},   {2,4},   {3,4},   {4,4},*/
     /*{-4,3},   {-3,3},   {-2,3},   {-1,3},*/ {0,3}, /*{1,3},   {2,3},   {3,3},   {4,3},*/
@@ -100,6 +110,7 @@ const CGPoint dragonFireballArea[] = { {0,16},
     /*{-4,-3},  {-3,-3},  {-2,-3},  {-1,-3},*/{0,-3},/*{1,-3},  {2,-3},  {3,-3},  {4,-3},*/
     /*{-4,-4},  {-3,-4},  {-2,-4},  {-1,-4},*/{0,-4},/*{1,-4},  {2,-4},  {3,-4},  {4,-4},*/
 };
+
 const CGPoint dragonFireballEffect[] = { {0,2}, {0,0} };
 
 const CGPoint dragonFlamebreathArea[] = { {0,4},

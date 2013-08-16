@@ -117,7 +117,7 @@
 }
 
 #pragma mark - Action + combat
-
+/*
 - (void) action:(int)action at:(CGPoint)position
 {
     // Stop all previous actions
@@ -357,4 +357,5 @@
 {
     return [NSString stringWithFormat:@"Minotaur Lv.%d",self.level];
 }
+ */
 @end

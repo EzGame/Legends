@@ -18,7 +18,7 @@ typedef NS_ENUM(NSInteger, TabbedViewType) {
 #import "Defines.h"
 #import "ItemView.h"
 #import "UserSingleton.h"
-#import "DisplayImageView.h"
+#import "DisplayUnitView.h"
 
 #pragma mark - UITabbedViewClass
 @class UITabbedView;
@@ -53,7 +53,7 @@ typedef NS_ENUM(NSInteger, TabbedViewType) {
     NSMutableArray *items;
 }
 
-@property (weak, nonatomic) IBOutlet DisplayImageView *displayImageView;
+@property (weak, nonatomic) IBOutlet DisplayUnitView *displayUnitView;
 @property (weak, nonatomic) IBOutlet UIButton *okButton;
 @property (weak, nonatomic) IBOutlet UIButton *home;
 @property (weak, nonatomic) IBOutlet UIView *inventoryView;
