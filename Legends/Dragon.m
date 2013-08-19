@@ -36,7 +36,12 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
 - (void) setPosition:(CGPoint)position
 {
     [super setPosition:position];
-    self.sprite.position = position;
+    self.sprite.position = [self convertToNodeSpace:position];
+}
+
+- (CGPoint) position
+{
+    return [super position];
 }
 
 - (void) setDirection:(int)direction
@@ -81,13 +86,10 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
         
         _flamebreath = [CCActions actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"dragon_flamebreath" andFrames:15 delay:0.1];
         
-        CCSprite *temp = [CCSprite spriteWithSpriteFrameName:@"unit_base.png"];
         if ( side ) {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"dragon_idle_NE_0.png"];
-            temp.color = ccWHITE;
         } else {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"dragon_idle_SW_0.png"];
-            temp.color = ccRED;
         }
         
         [self initMenu];
@@ -95,8 +97,8 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
         
         self.sprite.scale = DRAGONSCALE;
         
-        [self.sprite addChild:temp z:-1];
         [self.spriteSheet addChild:self.sprite z:0];
+        [self addChild:self.spriteSheet];
     }
     return self;
 }
@@ -153,7 +155,7 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
 - (void) action:(int)action at:(CGPoint)position
 {
     [self.sprite stopAllActions];
-    CGPoint difference = ccpSub(position, self.sprite.position);
+    CGPoint difference = ccpSub(position, self.position);
     if ( action != IDLE && action != DEAD && action != MUDGOLEM_EARTHQUAKE) {
         [self setDirectionWithDifference:difference];
     }
@@ -174,7 +176,7 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
         id fly1 = [CCSpawn actions:flyup, fade1, nil];
         /////////
         id flydown = [CCCallBlock actionWithBlock:^{
-            self.sprite.position = position;
+            self.position = position;
             [self.sprite runAction:[self.moveEnd getActionFor:self.direction]];
         }];
         id fadein = [CCFadeIn actionWithDuration:0.4];
@@ -226,7 +228,7 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
     } else if ( action == DEAD ) {
         CCSprite *orb = [CCSprite spriteWithSpriteFrameName:@"deathorb_0.png"];
         [self.delegate unitDelegateAddSprite:orb z:EFFECTS];
-        orb.position = self.sprite.position;
+        orb.position = self.position;
         orb.visible = NO;
         
         id fade = [CCFadeOut actionWithDuration:0.4];
@@ -242,7 +244,7 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
         id finish = [CCCallBlock actionWithBlock:^{
             self.sprite.visible = false;
             [self.delegate unitDelegateRemoveSprite:orb];
-            [self.delegate unitDelegateKillMe:self at:self.sprite.position];
+            [self.delegate unitDelegateKillMe:self at:self.position];
         }];
         
         [self.sprite runAction:[CCSequence actions:spritefade, delay, orbfade, finish, nil]];
@@ -262,17 +264,17 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
         /* single target */
         UnitDamage *dmgTarget = [targets objectAtIndex:0];
         CGPoint targetPos = dmgTarget.target.sprite.position;
-        CGPoint difference = ccpSub(targetPos, self.sprite.position);
+        CGPoint difference = ccpSub(targetPos, self.position);
         [self setDirectionWithDifference:difference];
         
         
         /* projectile */
         CCSprite *fireball = [CCSprite spriteWithSpriteFrameName:@"fireball_0.png"];
         [self.delegate unitDelegateAddSprite:fireball z:EFFECTS];
-        fireball.position = ccpAdd(self.sprite.position,ccp(0,40));
+        fireball.position = ccpAdd(self.position,ccp(0,40));
         fireball.visible = NO;
         fireball.scale = 0.75;
-        fireball.rotation = [self getAngle:self.sprite.position :targetPos];
+        fireball.rotation = [self getAngle:self.position :targetPos];
 
         CCSprite *explosion = [CCSprite spriteWithSpriteFrameName:@"explosion_0.png"];
         [self.delegate unitDelegateAddSprite:explosion z:EFFECTS];
@@ -281,7 +283,7 @@ const NSString *DRAGON_MOVE_DESP = @"Teleporting";
         
         
         /* projectile animation */
-        float duration = ccpDistance(self.sprite.position, targetPos)/400;
+        float duration = ccpDistance(self.position, targetPos)/400;
         id fireball_formation = [CCFadeIn actionWithDuration:0.1];
         id fireball_move = [CCMoveTo actionWithDuration:duration position:targetPos];
         id fireball_start = [CCSpawn actions:fireball_formation, fireball_move, nil];

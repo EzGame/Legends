@@ -58,22 +58,22 @@
         int inte = (arc4random() % 100 );
         int wis = (arc4random() % 100 );
         int hp = (arc4random() % 100 );
-        NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/NO",
+        NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
                             type, experience, str, agi, inte, wis, hp, nil];
         UnitObj *unit = [UnitObj unitObjWithString:string];
         _unit = [LionMage lionmageForSide:YES withObj:unit];
         _unit.delegate = self;
-        _unit.sprite.position = ccp(100,100);
+        _unit.position = ccp(100,100);
         [self addChild:_unit z:SPRITES_TOP];
-        
+
         _target = [LionMage lionmageForSide:YES withObj:unit];
         _target.delegate = self;
-        _target.sprite.position = ccp(200,200);
+        _target.position = ccp(200,200);
         [self addChild:_target z:SPRITES_TOP];
-        
+
         _mud = [MudGolem mudGolemFor:YES withObj:unit];
         _mud.delegate = self;
-        _mud.sprite.position = ccp(300,300);
+        _mud.position = ccp(300,300);
         [self addChild:_mud z:SPRITES_TOP];
     }
     return self;
@@ -129,7 +129,7 @@
 {
     NSLog(@"Unit requested screen shake");
     CCAction *shake = [CCSequence actions:
-                       [CCShake actionWithDuration:1.5 amplitude:ccp(15,15) dampening:YES], nil];
+                       [CCShake actionWithDuration:0.75 amplitude:ccp(10,10) dampening:YES], nil];
     shake.tag = 10;
     [self runAction:shake];
 }

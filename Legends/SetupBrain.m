@@ -29,6 +29,8 @@ static NSArray *unitTags = nil;
     self = [super init];
     if ( self )
     {
+        maximumFood = [[UserSingleton get] playerLevel];
+        
         unitTags = @[
             // Rarities
             @"Epic",
@@ -128,9 +130,9 @@ static NSArray *unitTags = nil;
 
 - (void) restoreSetup
 {
-    for ( int i = 0; i < [[[UserSingleton get] setup] size]; i++ )
+    for ( int i = 0; i < [[[UserSingleton get] mySetup] size]; i++ )
     {
-        UnitObj *obj = [[[UserSingleton get] setup] getElementAt:i];
+        UnitObj *obj = [[[UserSingleton get] mySetup] getElementAt:i];
         NSLog(@">[MYLOG]    SETUPBRAIN:restoreSetup got:\n%@",obj);
         
         SetupUnit *unit = [SetupUnit setupUnitWithObj:obj];
@@ -139,7 +141,7 @@ static NSArray *unitTags = nil;
         tile.unit = unit;
         
         // Upload visually
-        [self.delegate loadTile:tile];
+        [self.delegate setupbrainDelegateLoadTile:tile];
     }
 }
 
@@ -226,11 +228,10 @@ static NSArray *unitTags = nil;
 {
     NSLog(@">[MYLOG]    addUnitWithObj got:\n%@",obj);
     SetupUnit *unit = [SetupUnit setupUnitWithObj:obj];
-    SetupTile *tile;
-    tile = [self findTile:[self nextEmptySpot] absPos:NO];
+    SetupTile *tile = [self nextEmptySpot];
     tile.unit = unit;
     // Upload visually
-    [self.delegate loadTile:tile];
+    [self.delegate setupbrainDelegateLoadTile:tile];
     return YES;
 }
 
@@ -240,7 +241,8 @@ static NSArray *unitTags = nil;
         for ( int i = 0; i < SETUPMAPLENGTH; i++ ) {
             SetupTile *tile = [[self.sideBoard objectAtIndex:i] objectAtIndex:k];
             if ( tile != nil && tile.isOccupied ) {
-                if ( [self.delegate removeTile:tile] ) tile.unit = nil;
+                if ( [self.delegate setupbrainDelegateRemoveTile:tile] )
+                    tile.unit = nil;
             }
         }
     }
@@ -248,17 +250,17 @@ static NSArray *unitTags = nil;
     return YES;
 }
 
-- (CGPoint) nextEmptySpot
+- (SetupTile *) nextEmptySpot
 {
     for ( int k = 0; k < SETUPSIDEMAPWIDTH; k++ ) {
         for ( int i = 0; i < SETUPMAPLENGTH; i++ ) {
             SetupTile *tile = [[self.sideBoard objectAtIndex:i] objectAtIndex:k];
             if ( [tile isOccupied] ) continue;
-            else return ccp(i,k+SETUPMAPWIDTH);
+            else return tile;
         }
     }
     NSAssert(NO, @">[FATAL] RAN OUT OF EMPTY SPACE?");
-    return CGPointZero;
+    return nil;
 }
 
 /* findBoardPos - Find the board position with an absolute position
@@ -308,12 +310,9 @@ static NSArray *unitTags = nil;
 {
     NSLog(@">[MYLOG]    Entering SetupBrain::move");
     // Check logic
-    if ( target == nil )
-        return NO;
+    if ( target == nil ) return NO;
+    if ( [target isEqual:tile] ) return NO;
     
-    if ( [target isEqual:tile] ) {
-        return NO;
-    }
     
     if ( target.isReserve && tile.isReserve ) {
         NSLog(@">[MYLOG]        Reserve to reserve");
@@ -321,20 +320,32 @@ static NSArray *unitTags = nil;
         
     } else if ( target.isReserve && !tile.isReserve ) {
         NSLog(@">[MYLOG]        Removed unit %@ from setup",tile.unit);
+        // Change value
+        totalValue -= tile.unit.obj.level;
+        totalFood -= tile.unit.obj.rarity;
+        [self.delegate setupbrainDelegateUpdateNumbers:totalValue :totalFood];
+
         tile.unit.direction = SW;
         [[[UserSingleton get] units] addObject:tile.unit.obj];
         if ( ![[[UserSingleton get] units] containsObject:tile.unit.obj] )
             NSLog(@"<><><><><>WTF");
         
-        SetupTile *newTarget = [self findTile:[self nextEmptySpot] absPos:NO];
+        SetupTile *newTarget = [self nextEmptySpot];
         newTarget.unit = tile.unit;
         tile.unit = nil;
-        [self.delegate reorderTile:target];
-        target.unit.sprite.position = [self findAbsPos:target.boardPos];
+        [self.delegate setupbrainDelegateReorderTile:newTarget];
+        newTarget.unit.sprite.position = [self findAbsPos:newTarget.boardPos];
         return YES;
         
     } else if ( !target.isReserve && tile.isReserve ) {
         NSLog(@">[MYLOG]        Added unit %@ to setup",tile.unit);
+        if ( totalFood + tile.unit.obj.rarity > maximumFood ) return NO;
+        else {
+            totalFood += tile.unit.obj.rarity;
+            totalValue += tile.unit.obj.level;
+            [self.delegate setupbrainDelegateUpdateNumbers:totalValue :totalFood];
+        }
+        
         tile.unit.direction = NE;
         [[[UserSingleton get] units] removeObject:tile.unit.obj];
         if ( [[[UserSingleton get] units] containsObject:tile.unit.obj] )
@@ -342,7 +353,7 @@ static NSArray *unitTags = nil;
         
         target.unit = tile.unit;
         tile.unit = nil;
-        [self.delegate reorderTile:target];
+        [self.delegate setupbrainDelegateReorderTile:target];
         target.unit.sprite.position = [self findAbsPos:target.boardPos];
         return YES;
     } else {
@@ -350,7 +361,7 @@ static NSArray *unitTags = nil;
         if ( ![target isEqual:tile] ) {
             target.unit = tile.unit;
             tile.unit = nil;
-            [self.delegate reorderTile:target];
+            [self.delegate setupbrainDelegateReorderTile:target];
             target.unit.sprite.position = [self findAbsPos:target.boardPos];
             return YES;
         } else {
@@ -363,8 +374,6 @@ static NSArray *unitTags = nil;
 {
     CCLOG(@"MYLOG:  SetupLayer::savePressed Saving configuration");
     // The array to be saved
-    int count = 0;
-    int value = 0;
     SFSArray *array = [SFSArray newInstance];
     for (int i = 0; i < SETUPMAPLENGTH; i++) {
         for (int k = 0; k < SETUPMAPWIDTH; k++) {
@@ -372,14 +381,14 @@ static NSArray *unitTags = nil;
             SetupTile *tile = [[self.board objectAtIndex:i] objectAtIndex:k];
             if ( ![tile isKindOfClass:[NSNull class]] && tile.unit != nil )
             {
-                count++;
-                value += [tile.unit getValue];
                 [tile.unit.obj setPosition:ccp(i,k)];
                 [array addClass:tile.unit.obj];
             }
         }
     }
-    return [[UserSingleton get] saveSetup:array unitCount:count unitValue:value];
+    return [[UserSingleton get] saveSetup:array
+                                 unitFood:totalFood
+                                unitValue:totalValue];
 }
 
 - (void) printBoard

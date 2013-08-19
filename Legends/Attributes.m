@@ -76,12 +76,12 @@
     self = [super init];
     if ( self )
     {
-        _delegate = delegate;
         [self setStrength:stats.strength];
         [self setAgility:stats.agility];
         [self setIntellect:stats.intellect];
         [self setWisdom:stats.wisdom];
         [self setMax_health:stats.health];
+        [self setDelegate:delegate];
         _original = stats;
     }
     return self;

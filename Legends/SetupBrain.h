@@ -18,24 +18,29 @@
 
 @protocol SetupBrainDelegate <NSObject>
 @required
-- (void)loadTile:(SetupTile *)tile;
-- (BOOL)removeTile:(SetupTile *)tile;
-- (void)reorderTile:(SetupTile *)tile;
+- (void)setupbrainDelegateUpdateNumbers:(int)totalValue :(int)totalFood;
+- (void)setupbrainDelegateLoadTile:(SetupTile *)tile;
+- (void)setupbrainDelegateReorderTile:(SetupTile *)tile;
+- (BOOL)setupbrainDelegateRemoveTile:(SetupTile *)tile;
 @end
 
 @interface SetupBrain : NSObject
 {
     // Positional offset of layer due to scrolling
     CGPoint currentLayerPos;
+    // Limiting 
+    int totalValue;
+    int totalFood;
+    int maximumFood;
 }
 
+@property (assign) id <SetupBrainDelegate> delegate;
 // Array of SetupTile Objects
 @property (nonatomic, strong) NSArray *board;
 // Array of SetupTile Objects
 @property (nonatomic, strong) NSArray *sideBoard;
 // Array of UnitObj
 @property (nonatomic, weak) NSMutableArray *unitList;
-@property (assign) id <SetupBrainDelegate> delegate;
 
 @property (nonatomic) CGAffineTransform toIso;
 @property (nonatomic) CGAffineTransform fromIso;

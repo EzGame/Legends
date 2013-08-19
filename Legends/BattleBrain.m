@@ -95,10 +95,10 @@
 {
     // Populating pieces
     NSLog(@"start");
-    for ( int i = 0; i < [[[UserSingleton get] setup] size]; i++ )
+    for ( int i = 0; i < [[[UserSingleton get] mySetup] size]; i++ )
     {
         // The stored string is in the form of @type[@x,@y]
-        UnitObj *obj = [[[UserSingleton get] setup] getElementAt:i];
+        UnitObj *obj = [[[UserSingleton get] mySetup] getElementAt:i];
         NSLog(@">[MYLOG]    SETUPBRAIN:restoreSetup got:\n%@",obj);
         
         Unit *unit = [self makeUnit:obj.type withObj:obj owned:YES];
@@ -111,10 +111,10 @@
     }
     
     // Populating opponent pieces
-    for ( int i = 0; i < [[[UserSingleton get] opSetup] size]; i++ )
+    for ( int i = 0; i < [[[UserSingleton get] oppSetup] size]; i++ )
     {
         // The stored string is in the form of @type[@x,@y]
-        UnitObj *obj = [[[UserSingleton get] setup] getElementAt:i];
+        UnitObj *obj = [[[UserSingleton get] oppSetup] getElementAt:i];
         NSLog(@">[MYLOG]    SETUPBRAIN:restoreSetup got:\n%@",obj);
         
         Unit *unit = [self makeUnit:obj.type withObj:obj owned:NO];
@@ -130,7 +130,7 @@
 #pragma mark - UNIT/ACTION SPECIFIC HANDLERS
 - (id) makeUnit:(int)type withObj:(UnitObj *)obj owned:(BOOL)side;
 {
-    NSLog(@">[MYLOG]    findTypeCheck:%@",obj);
+    NSLog(@">[MYLOG]    makeUnit:%@",obj);
     if (type == MINOTAUR) {
         return [[Minotaur alloc] initMinotaurFor:side withObj:obj];
         

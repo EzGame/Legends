@@ -34,26 +34,12 @@
 
 @synthesize position        = _position;
 
-
-
 #pragma mark - Unit: inits
 - (id) initForSide:(BOOL)side withObj:(UnitObj *)obj
 {
     self = [super init];
     if ( self )
     {
-        _spOpenSteps = nil;
-        _spClosedSteps = nil;
-        _shortestPath = nil;
-        
-        _attribute = [Attributes attributesWithStats:obj.stats delegate:self];
-        _obj = obj;
-        _myBuffs = [NSMutableArray array];
-        _buffs = [NSMutableArray array];
-        
-        _isOwned = side;
-        _direction = (side) ? NE : SW;
-        
         _health_bar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"unit_health_bar.png"]];
         _health_bar.type = kCCProgressTimerTypeBar;
         _health_bar.color = (side) ? ccGREEN : ccRED;
@@ -62,6 +48,18 @@
         _health_bar.percentage = 100;
         _health_bar.position = ccpAdd(self.position,ccp(0,-10));
         [self addChild:_health_bar z:1];
+        
+        _spOpenSteps = nil;
+        _spClosedSteps = nil;
+        _shortestPath = nil;
+        
+        _attribute = [Attributes attributesWithStats:obj.stats delegate:self];
+        _obj = obj;
+        _myBuffs = [NSMutableArray array];
+        _buffs = [NSMutableArray array];
+
+        _isOwned = side;
+        _direction = (side) ? NE : SW;
     }
     return self;
 }
@@ -93,6 +91,12 @@
 - (void) setPosition:(CGPoint)position
 {
     [super setPosition:position];
+    self.health_bar.position = [self convertToNodeSpace:ccpAdd(position, ccp(0,-20))];
+}
+
+- (CGPoint) position
+{
+    return [self convertToWorldSpace:_position];
 }
 
 - (void) setCoolDown:(int)coolDown
@@ -115,18 +119,24 @@
 - (void) setCurrent_hp:(int)current_hp
 {
     _current_hp = MIN( current_hp, _maximum_hp );
-    if ( _current_hp < 1 ) [self action:DEAD at:CGPointZero];
-    else {
-        int new_percentage = (_current_hp * 1.0/ _maximum_hp) * 100;
-        [_health_bar runAction:[CCActionTween actionWithDuration:2 key:@"percentage"
-                                     from:self.health_bar.percentage to:new_percentage]];
-    }
+    int new_percentage = (_current_hp * 1.0/ _maximum_hp) * 100;
+    [_health_bar runAction:[CCSequence actions:
+                            [CCActionTween actionWithDuration:2
+                                                          key:@"percentage"
+                                                         from:self.health_bar.percentage
+                                                           to:new_percentage],
+                            [CCDelayTime actionWithDuration:2],
+                            [CCCallBlock actionWithBlock:^{
+                                if ( _current_hp < 1 ) [self action:DEAD at:CGPointZero];
+                            }], nil] ];
 }
 
 - (void) setMaximum_hp:(int)maximum_hp
 {
     _maximum_hp = maximum_hp;
-    self.current_hp *= self.health_bar.percentage;
+    if ( !self.current_hp )
+        self.current_hp = maximum_hp;
+    self.current_hp = self.current_hp * self.health_bar.percentage / 100;
 }
 
 
@@ -154,7 +164,7 @@
         id finish = [CCCallBlock actionWithBlock:^{
             self.sprite.visible = false;
             [self.delegate unitDelegateRemoveSprite:orb];
-            [self.delegate unitDelegateKillMe:self at:self.sprite.position];
+            [self.delegate unitDelegateKillMe:self at:self.position];
         }];
         
         [self.sprite runAction:[CCSequence actions:begin, delay, orbfade, orbfadedelay, finish, nil]];
@@ -189,7 +199,7 @@
       [CCCallBlock actionWithBlock:^{
          [self.sprite setColor:ccRED];
          [self.delegate unitDelegateDisplayCombatMessage:[NSString stringWithFormat:@"%d",dmg.damage]
-                                              atPosition:self.sprite.position
+                                              atPosition:self.position
                                                withColor:ccRED
                                                   isCrit:dmg.isCrit];
      }],
@@ -209,7 +219,7 @@
          [self.sprite setColor:ccGREEN];
          self.current_hp += dmg.damage;
          [self.delegate unitDelegateDisplayCombatMessage:[NSString stringWithFormat:@"+%d",dmg.damage]
-                                              atPosition:self.sprite.position
+                                              atPosition:self.position
                                                withColor:ccGREEN
                                                   isCrit:dmg.isCrit];
       }],
@@ -243,7 +253,7 @@
     
     if ( state && [self canIDo:UNKNOWN] && self.coolDown == 0 && [self hasActionLeft] ) {
         NSLog(@">[MYLOG]    Opening menu");
-        self.menu.position = self.sprite.position;
+        self.menu.position = self.position;
         if ( self.menu.visible == NO ) {
             id visible = [CCCallBlock actionWithBlock:^{self.menu.visible = YES;}];
             [self.menu runAction:[CCSequence actions: visible, [CCFadeIn actionWithDuration:0.5], nil]];
@@ -426,6 +436,13 @@
 @synthesize attribute = _attribute;
 @synthesize direction = _direction;
 @synthesize position = _position;
+- (void) attributesDelegateCurrentHealth:(int)health
+{
+}
+
+- (void) attributesDelegateMaximumHealth:(int)health
+{
+}
 
 - (void) setPosition:(CGPoint)position
 {

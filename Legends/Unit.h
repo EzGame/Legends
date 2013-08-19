@@ -145,6 +145,7 @@
 
 #pragma mark SetupUnit
 @interface SetupUnit : CCNode
+<AttributesDelegate>
 {
     CCSprite *reserve;
     CCSprite *ready;

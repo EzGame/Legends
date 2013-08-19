@@ -54,11 +54,11 @@ enum DIRECTION {
 
 enum RARITY {
     VAGRANT     = 0,
-    COMMON      = 100,
-    UNCOMMON    = 200,
-    RARE        = 300,
-    EPIC        = 400,
-    LAST_RARITY = 400,
+    COMMON      = 1,
+    UNCOMMON    = 2,
+    RARE        = 4,
+    EPIC        = 8,
+    LAST_RARITY = 8,
 };
 
 // TILESET GIDS
@@ -73,7 +73,7 @@ enum GID {
 // Please keep this list sorted
 enum ZORDER {
     HUDLAYER        = 200,
-    GAMELAYER       = 100,
+    GAMELAYER       = 1,
     MENUS           = 100,
     DISPLAYS        = 95,
     EFFECTS         = 25,
@@ -181,7 +181,7 @@ enum SkillType {
 #define LVLUP_HP        4
 #define MOVESPEED       5
 #define UNITRARITY      6
-#define STATS_LASTINDEX 6
+#define STATS_LASTINDEX 7
 
 #pragma mark - CONSTANTS
 NSString extern *NORMALFONTBIG;

@@ -34,7 +34,12 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 - (void) setPosition:(CGPoint)position
 {
     [super setPosition:position];
-    self.sprite.position = position;
+    self.sprite.position = [self convertToNodeSpace:position];
+}
+
+- (CGPoint) position
+{
+    return [super position];
 }
 
 - (void) setDirection:(int)direction
@@ -77,16 +82,12 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
         _attk = [CCActions actionsWithSpriteSheet:self.spriteSheet forName:@"mudgolem_punch" andFrames:4 delay:0.12 reverse:NO];
         _earthquake = [CCActions actionsWithSpriteSheet:self.spriteSheet forName:@"mudgolem_smash" andFrames:7 delay:0.1 reverse:NO];
         
-        CCSprite *temp = [CCSprite spriteWithSpriteFrameName:@"unit_base.png"];
         if ( side ) {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"mudgolem_idle_NE_0.png"];
-            temp.color = ccWHITE;
         } else {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"mudgolem_idle_SW_0.png"];
-            temp.color = ccRED;
         }
         self.sprite.scale = MUDGOLEMSCALE;
-        [self.sprite addChild:temp z:-1];
         [self.spriteSheet addChild:self.sprite z:0];
         
         /* Other inits */
@@ -131,9 +132,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 
 - (void) initEffects
 {
-    NSLog(@"1");
     [super initEffects];
-    NSLog(@"2");
 }
 
 
@@ -141,7 +140,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 - (void) action:(int)action at:(CGPoint)position
 {
     [self.sprite stopAllActions];
-    CGPoint difference = ccpSub(position, self.sprite.position);
+    CGPoint difference = ccpSub(position, self.position);
     if ( action != IDLE && action != DEAD && action != MUDGOLEM_EARTHQUAKE) {
         [self setDirectionWithDifference:difference];
     }
@@ -162,7 +161,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
         id sink = [CCSpawn actions:move1, fade1, nil];
         /////////
         id move2 = [CCCallBlock actionWithBlock:^{
-            self.sprite.position = position;
+            self.position = position;
             [self.sprite runAction:[self.moveEnd getActionFor:self.direction]];
         }];
         id fadein = [CCFadeIn actionWithDuration:0.2];
@@ -193,7 +192,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
         /* single target */
         UnitDamage *dmgTarget = [targets objectAtIndex:0];
         CGPoint difference = ccpSub(dmgTarget.target.sprite.position,
-                                    self.sprite.position);
+                                    self.position);
         // Find the facing direction
         [self setDirectionWithDifference:difference];
         
@@ -224,7 +223,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
         
         CCSprite *crack = [CCSprite spriteWithSpriteFrameName:@"earthquake_crack.png"];
         [self.delegate unitDelegateAddSprite:crack z:GROUND];
-        crack.position = self.sprite.position;
+        crack.position = self.position;
         crack.visible = NO;
         
         // 1

@@ -108,7 +108,7 @@
         
         // locked
         _locked = [[tokens objectAtIndex:9] boolValue];
-        NSLog(@"locked? %c",_locked);
+        NSLog(@"locked? %d %d %@",_locked, NO, [tokens objectAtIndex:9]);
         
         if      ( _type == MINOTAUR )   [self setup:minotaur_stats];
         else if ( _type == GORGON )     [self setup:gorgon_stats];
@@ -127,6 +127,8 @@
     levelup_wis = array[LVLUP_WIS];
     levelup_hp = array[LVLUP_HP];
     _rarity = array[UNITRARITY];
+    for ( int i=0; i<=UNITRARITY; ++i )
+        NSLog(@"%i", array[i]);
 }
 
 - (void) levelup

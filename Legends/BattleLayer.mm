@@ -779,11 +779,11 @@
 #pragma mark - Brain Delegates
 - (void) battleBrainDelegateLoadTile:(Tile *)tile
 {
-    [[[tile unit] sprite] setPosition:[self.brain findAbsPos:tile.boardPos]];
+    [tile.unit setPosition:[self.brain findAbsPos:tile.boardPos]];
     [[tile unit] setDelegate:self];
-    [self.gameLayer addChild:[[tile unit] spriteSheet] z:SPRITES_TOP];
+    [self.gameLayer addChild:tile.unit z:SPRITES_TOP];
     [self reorderTile:tile];
-    if (tile.isOwned) [self.gameLayer addChild:[[tile unit] menu] z:MENUS];
+    if (tile.isOwned) [self.gameLayer addChild:tile.unit.menu z:MENUS];
 }
 
 - (void) battleBrainDelegateTransformTileAt:(CGPoint)position fromGid:(int)start toGid:(int)end delay:(int)delay

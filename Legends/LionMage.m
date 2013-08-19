@@ -29,7 +29,12 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
 - (void) setPosition:(CGPoint)position
 {
     [super setPosition:position];
-    self.sprite.position = position;
+    self.sprite.position = [self convertToNodeSpace:position];
+}
+
+- (CGPoint) position
+{
+    return [super position];
 }
 
 - (void) setDirection:(int)direction
@@ -70,13 +75,10 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
         
         _heal = [CCActions actionsWithSpriteSheet:self.spriteSheet forName:@"lionmage_cast" andFrames:6 delay:0.1 reverse:NO];
         
-        CCSprite *base = [CCSprite spriteWithSpriteFrameName:@"unit_base.png"];
         if ( side ) {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"lionmage_idle_NE_0.png"];
-            base.color = ccWHITE;
         } else {
             self.sprite = [CCSprite spriteWithSpriteFrameName:@"lionmage_idle_SW_0.png"];
-            base.color = ccRED;
         }
         
         [self initMenu];
@@ -84,7 +86,6 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
         
         self.sprite.scale = LIONMAGESCALE;
         
-        [self.sprite addChild:base z:-1];
         [self.spriteSheet addChild:self.sprite];
         [self addChild:self.spriteSheet];
     }
@@ -133,7 +134,7 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
 - (void) action:(int)action at:(CGPoint)position
 {
     [self.sprite stopAllActions];
-    CGPoint difference = ccpSub(position, self.sprite.position);
+    CGPoint difference = ccpSub(position, self.position);
     if ( action != IDLE && action != DEAD ) {
         [self setDirectionWithDifference:difference];
     }
@@ -149,7 +150,7 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
     } else if ( action == DEAD ) {
         CCSprite *orb = [CCSprite spriteWithSpriteFrameName:@"deathorb_0.png"];
         [self.delegate unitDelegateAddSprite:orb z:EFFECTS];
-        orb.position = self.sprite.position;
+        orb.position = self.position;
         orb.visible = NO;
         
         id fade = [CCFadeOut actionWithDuration:0.4];
@@ -165,7 +166,7 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
         id finish = [CCCallBlock actionWithBlock:^{
             self.sprite.visible = false;
             [self.delegate unitDelegateRemoveSprite:orb];
-            [self.delegate unitDelegateKillMe:self at:self.sprite.position];
+            [self.delegate unitDelegateKillMe:self at:self.position];
         }];
         
         [self.sprite runAction:[CCSequence actions:spritefade, delay, orbfade, finish, nil]];
@@ -236,7 +237,7 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
     ShortestPathStep *s = [self.shortestPath objectAtIndex:0];
     NSLog(@"%@! %@",self,s);
     CGPoint difference = ccpSub([s position], [[self sprite] position]);
-    float duration = ccpLength(ccpSub([s position],self.sprite.position))/60;
+    float duration = ccpLength(ccpSub([s position],self.position))/60;
     
     // Find the facing direction
     if (difference.x >= 0 && difference.y >= 0) {

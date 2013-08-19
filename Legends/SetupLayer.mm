@@ -136,6 +136,7 @@
             // Selected 
             self.selection = tile;
             self.previous = [self.brain findAbsPos:tile.boardPos];
+            [self reorderChild:self.selection.unit z:SPRITES_TOP];
             [self.display setDisplayFor:nil];
         }
     }
@@ -178,7 +179,7 @@
                 // "Lift" the current unit
                 self.selection.unit.position = ccpSub(position,self.setupLayer.position);
                 
-                // Highlight the tile below the touch location
+                // Highlight the tile below the touc h location
                 [self highlightTileAt:position prev:prevPos final:NO];                
             }
             prevPos = position;
@@ -212,6 +213,7 @@
         [self highlightTileAt:position prev:position final:YES];
 
         if ( tile.unit != nil ) self.selection = tile;
+        NSLog(@" %@", self.selection);
         // set Display
         [self.display setDisplayFor:self.selection];
         CGPoint trueScreenPos = ccpAdd(self.setupLayer.position, self.selection.unit.position);
@@ -258,28 +260,42 @@
     if ( [self.brain saveSetup] )
     {
         //[appDelegate switchToView:@"MainMenuViewController" uiViewController:[MainMenuViewController alloc]];
-        [appDelegate switchToScene:[BattleLayer scene]];
         [_search removeFromSuperview];
+        [appDelegate switchToScene:[BattleLayer scene]];
     }
 }
 
-// Brain delegate
-- (void)loadTile:(SetupTile *)tile
+#pragma mark - Setupbrain delegates
+- (void) setupbrainDelegateUpdateNumbers:(int)totalValue :(int)totalFood
+{
+    int tag = 69;
+    CCLabelBMFont *stuff = (CCLabelBMFont *)[self getChildByTag:tag];
+    if ( stuff == nil ) {
+        stuff = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
+        stuff.tag = 69;
+        stuff.position = ccp( 75, 50 );
+        [self addChild:stuff z:DISPLAYS];
+    }
+    stuff.string = [NSString stringWithFormat:@"Total Value: %d\nTotal Food: %d",
+                    totalValue, totalFood];
+}
+
+- (void) setupbrainDelegateLoadTile:(SetupTile *)tile
 {
     NSLog(@">[MYLOG]    Adding %@",tile);
     tile.unit.position = [self.brain findAbsPos:tile.boardPos];
     [self.setupLayer addChild:tile.unit z:SPRITES_TOP];
-    [self reorderTile:tile];
+    [self setupbrainDelegateReorderTile:tile];
 }
 
-- (BOOL)removeTile:(SetupTile *)tile
+- (BOOL) setupbrainDelegateRemoveTile:(SetupTile *)tile
 {
     NSLog(@">[MYLOG]    Removing %@", tile);
     [self.setupLayer removeChild:tile.unit cleanup:YES];
     return YES;
 }
 
-- (void) reorderTile:(SetupTile *)tile
+- (void) setupbrainDelegateReorderTile:(SetupTile *)tile
 {
     int pos = tile.boardPos.x + tile.boardPos.y;
     [self.setupLayer reorderChild:tile.unit z:SPRITES_TOP - pos];

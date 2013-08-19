@@ -46,6 +46,7 @@ static UserSingleton* _sharedUserSingleton = nil;
         
         // Preferences + settings
         _isFirstLaunch = NO;
+        _playerLevel = 60;
         
         // Setup properties;
         _unitCount = 0;
@@ -57,10 +58,10 @@ static UserSingleton* _sharedUserSingleton = nil;
         
         // Game properties
         _amIPlayerOne = YES;
-        _setup = nil;
-        _opSetup = nil;
+        _mySetup = nil;
+        _oppSetup = nil;
         _me = nil;
-        _currentOpp = nil;
+        _opp = nil;
         
         for ( int i = 0; i < 30; i++ )
             [self createUnit];
@@ -71,18 +72,17 @@ static UserSingleton* _sharedUserSingleton = nil;
 
 - (BOOL) saveOpp:(SFSUser *)user setup:(SFSArray *)array
 {
-    self.currentOpp = user;
-    self.opSetup = array;
+    self.opp = user;
+    self.oppSetup = array;
     
     return YES;
 }
 
-- (BOOL) saveSetup:(SFSArray *)array unitCount:(int)count unitValue:(int)value
+- (BOOL) saveSetup:(SFSArray *)array unitFood:(int)count unitValue:(int)value
 {
     self.unitCount = count;
     self.unitValue = value;
-    self.setup = array;
-    
+    self.mySetup = array;
     return YES;
 }
 
@@ -133,7 +133,7 @@ static UserSingleton* _sharedUserSingleton = nil;
     int inte = (arc4random() % 100 );
     int wis = (arc4random() % 100 );
     int hp = (arc4random() % 100 );
-    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/NO",
+    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
                         type, experience, str, agi, inte, wis, hp, nil];
     UnitObj *unit = [UnitObj unitObjWithString:string];
     [self.units addObject:unit];
@@ -148,13 +148,9 @@ static UserSingleton* _sharedUserSingleton = nil;
     int inte = 100;
     int wis = 100;
     int hp = 100;
-    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/NO",
+    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
                         type, experience, str, agi, inte, wis, hp, nil];
     UnitObj *unit = [UnitObj unitObjWithString:string];
     [self.units addObject:unit];
-}
-
-- (void) createScroll
-{
 }
 @end

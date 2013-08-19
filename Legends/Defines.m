@@ -12,11 +12,11 @@ NSString *NOTICEFONT = @"";
 const int test_stats[STATS_LASTINDEX] =
 {LVLUP_STR, LVLUP_AGI, LVLUP_INT, LVLUP_WIS, LVLUP_HP, UNITRARITY};
 
-const int minotaur_stats[STATS_LASTINDEX]    = {1, 0, 0, 0, 1, COMMON};
-const int lionpriest_stats[STATS_LASTINDEX]  = {0, 0, 0, 1, 1, COMMON};
-const int mudgolem_stats[STATS_LASTINDEX]    = {1, 0, 1, 0, 1, UNCOMMON};
-const int gorgon_stats[STATS_LASTINDEX]      = {0, 2, 1, 0, 1, RARE};
-const int dragon_stats[STATS_LASTINDEX]      = {1, 0, 1, 1, 1, RARE};
+const int minotaur_stats[STATS_LASTINDEX]    = {1, 0, 0, 0, 1, 3, COMMON};
+const int lionpriest_stats[STATS_LASTINDEX]  = {0, 0, 0, 1, 1, 3, COMMON};
+const int mudgolem_stats[STATS_LASTINDEX]    = {1, 0, 1, 0, 1, 4, UNCOMMON};
+const int gorgon_stats[STATS_LASTINDEX]      = {0, 2, 1, 0, 1, 3, RARE};
+const int dragon_stats[STATS_LASTINDEX]      = {1, 0, 1, 1, 1, 4, RARE};
 
 const int minotaur_upgrades[]    = {TOPAZ, SAPPHIRE, RUBY, EMERALD, OPAL};
 const int gorgon_upgrades[]      = {       SAPPHIRE, RUBY, EMERALD, OPAL};
