@@ -124,33 +124,43 @@ static UserSingleton* _sharedUserSingleton = nil;
     return ret;
 }
 
-- (void) createUnit
-{
-    int type = (arc4random() % (LAST_UNIT)) + 1;
-    int experience = (arc4random() % MAXEXPERIENCE);
-    int str = (arc4random() % 100 );
-    int agi = (arc4random() % 100 );
-    int inte = (arc4random() % 100 );
-    int wis = (arc4random() % 100 );
-    int hp = (arc4random() % 100 );
-    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
-                        type, experience, str, agi, inte, wis, hp, nil];
-    UnitObj *unit = [UnitObj unitObjWithString:string];
-    [self.units addObject:unit];
-}
-
-- (void) createMaxUnit
-{
-    int type = (arc4random() % LAST_UNIT - 1) + 1;
-    int experience = MAXEXPERIENCE;
-    int str = 100;
-    int agi = 100;
-    int inte = 100;
-    int wis = 100;
-    int hp = 100;
-    NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
-                        type, experience, str, agi, inte, wis, hp, nil];
-    UnitObj *unit = [UnitObj unitObjWithString:string];
-    [self.units addObject:unit];
-}
+//- (void) createUnit
+//{
+//    int type = (arc4random() % (LAST_UNIT)) + 1;
+//    int experience = (arc4random() % MAXEXPERIENCE);
+//    int str = (arc4random() % 100 );
+//    int agi = (arc4random() % 100 );
+//    int inte = (arc4random() % 100 );
+//    int wis = (arc4random() % 100 );
+//    int hp = (arc4random() % 100 );
+//    int primary = (arc4random() % 11 );
+//    int secondary = (arc4random() % 11 );
+//    int tertiary = (arc4random() % 11 );
+//    NSString *string = [NSString stringWithFormat:
+//                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
+//                        type, experience, str, agi, inte, wis, hp,
+//                        primary, secondary, tertiary];
+//    UnitObj *unit = [UnitObj unitObjWithString:string];
+//    [self.units addObject:unit];
+//}
+//
+//- (void) createMaxUnit
+//{
+//    int type = (arc4random() % LAST_UNIT - 1) + 1;
+//    int experience = MAXEXPERIENCE;
+//    int str = 100;
+//    int agi = 100;
+//    int inte = 100;
+//    int wis = 100;
+//    int hp = 100;
+//    int primary = 10;
+//    int secondary = 10;
+//    int tertiary = 10;
+//    NSString *string = [NSString stringWithFormat:
+//                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
+//                        type, experience, str, agi, inte, wis, hp,
+//                        primary, secondary, tertiary];
+//    UnitObj *unit = [UnitObj unitObjWithString:string];
+//    [self.units addObject:unit];
+//}
 @end

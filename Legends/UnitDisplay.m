@@ -272,8 +272,8 @@
     self.description.position = ccpAdd(self.position, ccp(0,18));
 }
 
-- (void) setDisplayFor:(SetupTile *) tile
-{
+//- (void) setDisplayFor:(SetupTile *) tile
+//{
     /*
     if ( tile.unit != nil  )
     {
@@ -304,24 +304,24 @@
         self.tilePtr = nil;
         self.visible = NO;
     }*/
-}
+//}
 
 - (void) setPosition:(CGPoint)position x:(BOOL)x y:(BOOL)y
 {
-    if ( self.tilePtr != nil ) {
-        CGPoint offset = CGPointMake((x)?0:-225,(y)?50:-60);
-        [self setPosition:ccpAdd(position,offset)];
-        self.visible = YES;
-        self.description.visible = NO;
-        self.nameLabel.visible = NO;
-        id start = [CCSpawn actionOne:[CCActionTween actionWithDuration:0.3 key:@"scaleX" from:0 to:1] two:[CCFadeIn actionWithDuration:0.15]];
-        id display = [CCCallBlock actionWithBlock:^{
-            self.description.visible = YES;
-            self.nameLabel.visible = YES;
-            [self.description runAction:[CCFadeIn actionWithDuration:0.2]];
-            [self.nameLabel runAction:[CCFadeIn actionWithDuration:0.2]];}];
-        [self.background runAction:[CCSequence actionOne:start two:display]];
-    }
+//    if ( self.tilePtr != nil ) {
+//        CGPoint offset = CGPointMake((x)?0:-225,(y)?50:-60);
+//        [self setPosition:ccpAdd(position,offset)];
+//        self.visible = YES;
+//        self.description.visible = NO;
+//        self.nameLabel.visible = NO;
+//        id start = [CCSpawn actionOne:[CCActionTween actionWithDuration:0.3 key:@"scaleX" from:0 to:1] two:[CCFadeIn actionWithDuration:0.15]];
+//        id display = [CCCallBlock actionWithBlock:^{
+//            self.description.visible = YES;
+//            self.nameLabel.visible = YES;
+//            [self.description runAction:[CCFadeIn actionWithDuration:0.2]];
+//            [self.nameLabel runAction:[CCFadeIn actionWithDuration:0.2]];}];
+//        [self.background runAction:[CCSequence actionOne:start two:display]];
+//    }
 }
 
 - (void) formatString:(NSString *)input

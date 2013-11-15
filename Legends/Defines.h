@@ -14,63 +14,88 @@
 
 #pragma mark - ENUMERATIONS
 // THE FOLLOWING ARE UNIT TYPE DEFINITIONS
-enum TYPE {
-    NONE        = 0,
-    MINOTAUR    = 1,
-    GORGON      = 2,
-    MUDGOLEM    = 3,
-    DRAGON      = 4,
-    LIONMAGE    = 5,
-    LAST_UNIT   = 5,
-    };
 
-// THE FOLLOWING ARE ACTION TYPE DEFINITIONS
-enum ACTION {
-    UNKNOWN,
-    TURN,
-    /*  Basic actions   */
-    IDLE,
-    MOVE,
-    TELEPORT_MOVE,
-    ATTK,
-    HEAL_ALL,
-    DEFN,
-    DEAD,
-    GORGON_SHOOT,
-    GORGON_FREEZE,
-    MUDGOLEM_EARTHQUAKE,
-    DRAGON_FIREBALL,
-    DRAGON_FLAMEBREATH,
-    ENDTURN     = 99999
-    };
 
 // THE FOLLOWING ARE DIRECTION DEFINITIONS
-enum DIRECTION {
-    NE          = 0,
-    SE          = 1,
-    SW          = 2,
-    NW          = 3
-    };
 
-enum RARITY {
-    VAGRANT     = 0,
-    COMMON      = 1,
-    UNCOMMON    = 2,
-    RARE        = 4,
-    EPIC        = 8,
-    LAST_RARITY = 8,
-};
 
 // TILESET GIDS
 enum GID {
     EMPTY = 0,
     PLAIN_GRASS_TO_MOLTEN_START = 1,
     PLAIN_GRASS_TO_MOLTEN_END = 6,
-};
+}typedef GID;
 
 // THE FOLLOWING ARE THE ZORDERS OF THE LAYERS
 // Z orders order the order they appear
 // Please keep this list sorted
+
+
+// ITEM - GEMS
+enum GEMS {
+    TOPAZ       = 1, // lightning
+    SAPPHIRE    = 2, // water
+    RUBY        = 3, // fire
+    EMERALD     = 4, // nature
+    OPAL        = 5, // earth
+}typedef GEMS;
+
+
+/*   typedef enums   */
+typedef enum {
+    SkillDamageTypeNormalMelee,
+    SkillDamageTypeNormalRange,
+    SkillDamageTypeNormalMagic,
+    SkillDamageTypeNormalHeal,
+    SkillDamageTypePureMelee,
+    SkillDamageTypePureRange,
+    SkillDamageTypePureMagic,
+}SkillDamageType;
+
+typedef enum {
+    SkillTypePrimary,
+    SkillTypeSecondary,
+    SkillTypeTertiary,
+}SkillType;
+
+typedef enum {
+    /*  Secondary Actions  */
+    ActionUnknown,
+    ActionIdle,
+    ActionMove,
+    ActionTeleport,
+    /*  Primary Actions  */
+    ActionMelee,
+    ActionRange,
+    ActionMagic,
+    ActionHeal,
+    ActionMeleeAOE,
+    ActionRangeAOE,
+    ActionMagicAOE,
+    ActionHealAOE,
+    ActionParalyze,
+    ActionEnsnare,
+    ActionDie,
+    /*  Other  */
+    ActionEndTurn,
+}Action;
+
+typedef enum {
+    /*  Basic Events  */
+    EventUnknown,
+    EventSelect,
+    EventReset,
+    /*  Action Events  */
+    EventMove,
+    EventTeleport,
+    EventPhysicalAttack,
+    EventSpellCast
+}Event;
+
+typedef enum {
+    BuffTypeOne,
+}BuffType;
+
 enum ZORDER {
     HUDLAYER        = 200,
     GAMELAYER       = 1,
@@ -81,37 +106,12 @@ enum ZORDER {
     SPRITES_BOT     = 10,
     GROUND          = 1,
     MAP             = 0,
-    };
-
-// ITEM - GEMS
-enum GEMS {
-    TOPAZ       = 1, // lightning
-    SAPPHIRE    = 2, // water
-    RUBY        = 3, // fire
-    EMERALD     = 4, // nature
-    OPAL        = 5, // earth
-};
-
-enum SkillType {
-    SkillTypeNormalMelee  = 0,
-    SkillTypeNormalRange  = 1,
-    SkillTypeNormalMagic  = 2,
-    SkillTypeNormalHeal   = 3,
-    SkillTypePureMelee    = 4,
-    SkillTypePureRange    = 5,
-    SkillTypePureMagic    = 6,
-    };
+}typedef ZORDER;
 
 #pragma mark - DEFINES
 #define kTagBattleLayer 10
 #define kTagSetupLayer 11
 #define kTagForgeLayer 12
-
-// Set this to 0 whenever working with non test sprite
-#define TEST 1
-
-// Turn on/off debug flags in log
-#define DEBUG 1
 
 // Various map information
 #define MAPLENGTH   11
@@ -166,22 +166,7 @@ enum SkillType {
 #define MAXWAITTIME 300 // seconds
 #define RANGEINCRATE 2
 
-/* Attributes constants */
-// Level
-#define GETEXP(X) 25 * X * X
-#define GETLVL(X) sqrt(X)/5
-#define MAXLEVEL        100
-#define MAXEXPERIENCE   250000
-#define STATSPERLVL     10
-// Stats
-#define LVLUP_STR       0
-#define LVLUP_AGI       1
-#define LVLUP_INT       2
-#define LVLUP_WIS       3
-#define LVLUP_HP        4
-#define MOVESPEED       5
-#define UNITRARITY      6
-#define STATS_LASTINDEX 7
+
 
 #pragma mark - CONSTANTS
 NSString extern *NORMALFONTBIG;
@@ -192,23 +177,11 @@ NSString extern *COMBATFONTMID;
 NSString extern *COMBATFONTSMALL;
 NSString extern *NOTICEFONT;
 
-// Format {main stat, base hp, base dmg, base str, base agi, base int, max str, max agi, max int, lvl up str, lvl up agi, lvl up int, move speed, rarity}
-int extern const minotaur_stats[STATS_LASTINDEX];
-int extern const gorgon_stats[STATS_LASTINDEX];
-int extern const mudgolem_stats[STATS_LASTINDEX];
-int extern const dragon_stats[STATS_LASTINDEX];
-int extern const lionpriest_stats[STATS_LASTINDEX];
-
 // allowable rune upgrades
-int extern const minotaur_upgrades[];
 int extern const gorgon_upgrades[];
 int extern const mudgolem_upgrades[];
 int extern const dragon_upgrades[];
 int extern const lionpriest_upgrades[];
-
-#pragma mark - MINOTAUR AREAS
-CGPoint extern const minotaurAttkArea[];
-CGPoint extern const minotaurAttkEffect[];
 
 #pragma mark - GORGON AREAS
 CGPoint extern const gorgonShootArea[];

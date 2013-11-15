@@ -8,13 +8,221 @@
 
 #import "Unit.h"
 
-#pragma mark - Unit:
+#pragma mark - Unit
+@implementation Unit
+#pragma mark - Setters n Getters
+- (void) setDirection:(Direction)direction
+{
+    NSString *name = [GeneralUtils stringFromType:self.object.type];
+    NSString *face = [GeneralUtils stringFromDirection:direction];
+    NSString *frame = [NSString stringWithFormat:@"%@_idle_%@_0.png",name,face];
+    
+    [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frame]];
+    [self.sprite.texture setAntiAliasTexParameters];
+    _direction = direction;
+}
+
+- (void) setCurrentCD:(int)currentCD
+{
+    _currentCD = MAX(0, currentCD);
+}
+
+- (void) setCurrentHP:(int)currentHP
+{
+    _currentHP = MIN(_maximumHP, MAX(0, currentHP));
+    int newPercentage = 100 * ( (float)_currentHP / (float)_maximumHP );
+
+    [_healthBar runAction:
+     [CCSequence actions:
+      [CCActionTween actionWithDuration:0.25
+                                    key:@"percentage"
+                                   from:_healthBar.percentage
+                                     to:newPercentage],
+//      [CCDelayTime actionWithDuration:0.25],
+      [CCCallBlock actionWithBlock:^{
+//         if ( _currentHP < 1 ) [self secondaryAction:ActionDie at:CGPointZero];
+     }], nil] ];
+}
+
+#pragma mark - Init n shit
+- (id) initUnit:(UnitObject *)obj isOwned:(BOOL)owned;
+{
+    self = [super init];
+    if ( self ) {
+        // Save pointer to object
+        _object = obj;
+        
+        // Initialize other objects
+        _attributes = [Attributes attributesWithObject:obj.stats];
+        
+        // Find sprite strings
+        NSString *plist = [NSString stringWithFormat:@"%@.plist",
+                           [GeneralUtils stringFromType:obj.type]];
+        NSString *png = [NSString stringWithFormat:@"%@.png",
+                         [GeneralUtils stringFromType:obj.type]];
+        NSString *name = [NSString stringWithFormat:@"%@_idle_%@_0.png",
+                          [GeneralUtils stringFromType:obj.type],
+                          [GeneralUtils stringFromDirection:( owned ) ? NE : SW]];
+        
+        // Cache the sprite frames and texture
+        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:plist];
+        
+        // Create a batchnode and a sprite
+        _spriteSheet = [CCSpriteBatchNode batchNodeWithFile:png];
+        [self addChild:self.spriteSheet];
+        _sprite = [CCSprite spriteWithSpriteFrameName:name];
+        [self.spriteSheet addChild:self.sprite];
+
+        // Health bar
+        _healthBar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"unit_healthBar.png"]];
+        _healthBar.type = kCCProgressTimerTypeBar;
+        _healthBar.color = (owned) ? ccGREEN : ccRED;
+        _healthBar.midpoint = ccp(0.0, 0.5f);
+        _healthBar.barChangeRate = ccp(1,0);
+        _healthBar.percentage = 100;
+        _healthBar.anchorPoint = ccp(0.5,1.0);
+        _healthBar.position = ccpAdd(self.position,ccp(0,-50));
+        [self addChild:_healthBar z:1];
+        
+        // A*
+        _spOpenSteps = nil;
+        _spClosedSteps = nil;
+        _shortestPath = nil;
+        
+        // Initialize States
+        _isOwned = owned;
+        _direction = (owned) ? NE : SW;
+        _moveSpeed = obj.moveSpeed;
+    }
+    return self;
+}
+
+#pragma mark - Actions
+- (void) action:(Action)action targets:(NSMutableArray *)targets{}
+- (void) action:(Action)action location:(CGPoint)position{}
+
+#pragma mark - Sender combat
+- (void) damage:(NSMutableArray *)units for:(int)amount{}
+- (void) heal:(NSMutableArray *)units for:(int)amount{}
+
+#pragma mark - Receiver combat
+- (void) take:(int)amount from:(Unit *)unit
+{
+    // Find damaged frame name
+    NSString *name = [GeneralUtils stringFromType:self.object.type];
+    NSString *face = [GeneralUtils stringFromDirection:self.direction];
+    NSString *frame = [NSString stringWithFormat:@"%@_hurt_%@.png",name,face];
+    [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frame]];
+    
+    // Create scrolling text
+    NSString *message = [NSString stringWithFormat:@"%d", amount];
+    CCLabelBMFont *scrollingText = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
+    scrollingText.color = ccRED;
+    scrollingText.anchorPoint = ccp(0.5, 0.5);
+    scrollingText.position = ccp(0, 25);
+    scrollingText.visible = NO;
+    [self addChild:scrollingText];
+    
+    // Create scrolling text animations
+    id startAnim = [CCCallBlock actionWithBlock:^{scrollingText.visible = YES;}];
+    id slideUp = [CCMoveBy actionWithDuration:0.5 position:ccp(0,35)];
+    id fadeOut = [CCFadeOut actionWithDuration:0.2];
+    id cleanUp = [CCCallBlock actionWithBlock:^{[self removeChild:scrollingText cleanup:YES];}];
+    
+    // Run animation sequence
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccRED];
+         self.currentHP -= amount;
+     }],
+      [CCDelayTime actionWithDuration:1],
+      [CCTintTo actionWithDuration:0.5 red:255 green:255 blue:255],
+      [CCCallBlock actionWithBlock:^{
+         self.direction = self.direction;
+         [scrollingText runAction:[CCSequence actions:
+                                   startAnim, slideUp, fadeOut, cleanUp, nil]];
+     }], nil]];
+}
+
+- (void) gain:(int)amount from:(Unit *)unit
+{
+    // Create scrolling text
+    NSString *message = [NSString stringWithFormat:@"+%d", amount];
+    CCLabelBMFont *scrollingText = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
+    scrollingText.color = ccGREEN;
+    scrollingText.anchorPoint = ccp(0.5, 0.5);
+    scrollingText.position = ccp(0, 25);
+    scrollingText.visible = NO;
+    [self addChild:scrollingText];
+    
+    // Create scrolling text animationss
+    id startAnim = [CCCallBlock actionWithBlock:^{scrollingText.visible = YES;}];
+    id slideUp = [CCMoveBy actionWithDuration:0.5 position:ccp(0,35)];
+    id fadeOut = [CCFadeOut actionWithDuration:0.2];
+    id cleanUp = [CCCallBlock actionWithBlock:^{[self removeChild:scrollingText cleanup:YES];}];
+    
+    // Run animation sequence
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCCallBlock actionWithBlock:^{
+         [self.sprite setColor:ccLIGHTGREEN];
+         self.currentHP += amount;
+     }],
+      [CCDelayTime actionWithDuration:1],
+      [CCTintTo actionWithDuration:0.5 red:255 green:255 blue:255],
+      [CCCallBlock actionWithBlock:^{
+         self.direction = self.direction;
+         [scrollingText runAction:[CCSequence actions:
+                                   startAnim, slideUp, fadeOut, cleanUp, nil]];
+     }], nil]];
+}
+
+- (void) reset {}
+@end
+
+
+#pragma mark - A*
+@implementation ShortestPathStep
+- (id)initWithPosition:(CGPoint)pos boardPos:(CGPoint)bpos;
+{
+	if ((self = [super init])) {
+		_position = pos;
+        _boardPos = bpos;
+		_gScore = 0;
+		_hScore = 0;
+		_parent = nil;
+	}
+	return self;
+}
+
+- (NSString *)description
+{
+	return [NSString stringWithFormat:@"%@  pos=%@%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(self.position), NSStringFromCGPoint(self.boardPos), self.gScore, self.hScore, [self fScore]];
+}
+
+- (BOOL)isEqual:(ShortestPathStep *)other
+{
+	return CGPointEqualToPoint(self.position, other.position);
+}
+
+- (int)fScore
+{
+	return self.gScore + self.hScore;
+}
+@end
+
+/* NOTE change direction after skill place selection before confirmation selection:
+    this lets us provide the layer a proper direction depended confirmation hitbox
+ */
+
+/*#pragma mark - Unit:
 @implementation Unit
 @synthesize sprite          = _sprite;
 @synthesize spriteSheet     = _spriteSheet;
 @synthesize menu            = _menu;
 @synthesize death           = _death;
-@synthesize health_bar      = _health_bar;
+@synthesize healthBar      = _healthBar;
 
 @synthesize spOpenSteps     = _spOpenSteps;
 @synthesize spClosedSteps   = _spClosedSteps;
@@ -31,38 +239,11 @@
 @synthesize boardPos        = _boardPos;
 @synthesize current_hp      = _current_hp;
 @synthesize maximum_hp      = _maximum_hp;
-
 @synthesize position        = _position;
 
-#pragma mark - Unit: inits
-- (id) initForSide:(BOOL)side withObj:(UnitObj *)obj
-{
-    self = [super init];
-    if ( self )
-    {
-        _health_bar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"unit_health_bar.png"]];
-        _health_bar.type = kCCProgressTimerTypeBar;
-        _health_bar.color = (side) ? ccGREEN : ccRED;
-        _health_bar.midpoint = ccp(0.0, 0.5f);
-        _health_bar.barChangeRate = ccp(1,0);
-        _health_bar.percentage = 100;
-        _health_bar.position = ccpAdd(self.position,ccp(0,-10));
-        [self addChild:_health_bar z:1];
-        
-        _spOpenSteps = nil;
-        _spClosedSteps = nil;
-        _shortestPath = nil;
-        
-        _attribute = [Attributes attributesWithStats:obj.stats delegate:self];
-        _obj = obj;
-        _myBuffs = [NSMutableArray array];
-        _buffs = [NSMutableArray array];
 
-        _isOwned = side;
-        _direction = (side) ? NE : SW;
-    }
-    return self;
-}
+#pragma mark - Unit: inits
+
 
 - (void) initEffects
 {
@@ -91,7 +272,7 @@
 - (void) setPosition:(CGPoint)position
 {
     [super setPosition:position];
-    self.health_bar.position = [self convertToNodeSpace:ccpAdd(position, ccp(0,-20))];
+    self.healthBar.position = [self convertToNodeSpace:ccpAdd(position, ccp(0,-20))];
 }
 
 - (CGPoint) position
@@ -120,15 +301,16 @@
 {
     _current_hp = MIN( current_hp, _maximum_hp );
     int new_percentage = (_current_hp * 1.0/ _maximum_hp) * 100;
-    [_health_bar runAction:[CCSequence actions:
-                            [CCActionTween actionWithDuration:2
-                                                          key:@"percentage"
-                                                         from:self.health_bar.percentage
-                                                           to:new_percentage],
-                            [CCDelayTime actionWithDuration:2],
-                            [CCCallBlock actionWithBlock:^{
-                                if ( _current_hp < 1 ) [self action:DEAD at:CGPointZero];
-                            }], nil] ];
+    [_healthBar runAction:
+     [CCSequence actions:
+      [CCActionTween actionWithDuration:2
+                                    key:@"percentage"
+                                   from:self.healthBar.percentage
+                                     to:new_percentage],
+      [CCDelayTime actionWithDuration:2],
+      [CCCallBlock actionWithBlock:^{
+         if ( _current_hp < 1 ) [self secondaryAction:ActionDie at:CGPointZero];
+     }], nil] ];
 }
 
 - (void) setMaximum_hp:(int)maximum_hp
@@ -136,14 +318,14 @@
     _maximum_hp = maximum_hp;
     if ( !self.current_hp )
         self.current_hp = maximum_hp;
-    self.current_hp = self.current_hp * self.health_bar.percentage / 100;
+    self.current_hp = self.current_hp * self.healthBar.percentage / 100;
 }
 
 
 #pragma mark - Skills
-- (void) action:(int)action at:(CGPoint)position
+- (void) secondaryAction:(Action)action at:(CGPoint)position
 {
-    if ( action == DEAD ) {
+    if ( action == ActionDie ) {
         CCSprite *orb = [CCSprite spriteWithSpriteFrameName:@"deathorb_0.png"];
         [self.delegate unitDelegateAddSprite:orb z:EFFECTS];
         orb.position = self.sprite.position;
@@ -173,22 +355,19 @@
     }
 }
 
-- (void) combatAction:(int)action targets:(NSArray *)targets
+- (void) primaryAction:(Action)action targets:(NSArray *)targets
 { return; }
 
 - (void) popStepAndAnimate
 { return; }
 
-- (BOOL) canIDo:(int)action
+- (BOOL) canIDo:(Action)action
 {
-    if ( action == MOVE )
-        return !isStoned && !isStunned && !isFrozen && !isEnsnared;
-    else if ( action == ATTK )
-        return !isStoned && !isStunned && !isFrozen;
-    else if ( action == DEFN )
-        return !isStoned && !isStunned && !isFrozen;
-    else // menu asking, always the least needy option
-        return !isStoned && !isStunned && !isFrozen;
+    for (Buff *buff in self.buffs) {
+        if ( ![buff buffEffectOnEvent:EventReset forUnit:self] )
+            return NO;
+    }
+    return YES;
 }
 
 #pragma mark - Actions
@@ -251,7 +430,7 @@
 - (void) toggleMenu:(BOOL)state {
     if ( state == self.menu.visible ) return;
     
-    if ( state && [self canIDo:UNKNOWN] && self.coolDown == 0 && [self hasActionLeft] ) {
+    if ( state && [self canIDo:ActionUnknown] && self.coolDown == 0 && [self hasActionLeft] ) {
         NSLog(@">[MYLOG]    Opening menu");
         self.menu.position = self.position;
         if ( self.menu.visible == NO ) {
@@ -271,8 +450,8 @@
 - (void) reset
 {
     NSLog(@">[RESET]    Unit %@", self);
-    for (Buff *buff in self.myBuffs) {
-        [buff reset];
+    for (Buff *buff in self.buffs) {
+        [buff buffEffectOnEvent:EventReset forUnit:self];
     }
     return;
 }
@@ -284,17 +463,6 @@
 
 
 #pragma mark - Other
-- (float) getAngle:(CGPoint)p1 :(CGPoint)p2
-{
-    float dx, dy, angle;
-    
-    dx = p2.x - p1.x;
-    dy = p2.y - p1.y;
-    angle = atan(dy / dx) * 180 / M_PI;
-    NSLog(@">>>>>>>>>>>>ANGLE IS %f",-angle);
-    return ( -angle < 0 )? -angle+180 : -angle;
-}
-
 - (int) getValue
 {
     return floor(self.obj.level/10.0f) * 10;
@@ -312,62 +480,44 @@
     self.current_hp = health;
 }
 
-
-#pragma mark - Buff Delegates
-- (void) damage:(int)damage type:(int)type fromBuff:(Buff *)buff fromCaster:(id)caster
+- (DamageObj *) attributesDelegateRequestObjWithSkillType:(int)skillType
 {
-    DamageObj *obj = [DamageObj damageObjWith:damage isCrit:NO];
-    [self damageHealth:obj];
+    return nil;
 }
 
+
+#pragma mark - Buff Delegates
 - (void) buffCasterStarted:(Buff *)buff
 {
-    NSLog(@">[MYLOG]    Unit - caster for buff started");
-    if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
-        isFocused = YES;
-        [self addBuff:buff caster:YES];
-    } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
-        NSLog(@"%@ just casted blaze", self);
-        [self addBuff:buff caster:YES];
-    }
+    NSLog(@">[MYLOG]    Unit - caster for %@ started",buff);
+    [self.myBuffs addObject:buff];
 }
 
 - (void) buffCasterFinished:(Buff *)buff
 {
-    NSLog(@">[MYLOG]    Unit - caster for buff ended");
-    if ( [buff isKindOfClass:[StoneGazeDebuff class]] ) {
-        isFocused = NO;
-        [self removeBuff:buff caster:YES];
-    } else if ( [buff isKindOfClass:[BlazeDebuff class]] ) {
-        NSLog(@"%@'s blaze ended", self);
-        [self removeBuff:buff caster:YES];
-    }
+    NSLog(@">[MYLOG]    Unit - caster for %@ ended",buff);
+    [self.myBuffs removeObject:buff];
 }
 
 - (void) buffTargetStarted:(Buff *)buff
 {
-    NSLog(@">[MYLOG]    Unit - Target for buff started");
-    if ( [buff isKindOfClass:[StoneGazeDebuff class]]) {
-        isStoned = YES;
-        [self addBuff:buff caster:NO];
-    }
+    NSLog(@">[MYLOG]    Unit - target for %@ target",buff);
+    [self.myBuffs addObject:buff];
 }
 
 - (void) buffTargetFinished:(Buff *)buff
 {
-    NSLog(@">[MYLOG]    Unit - Target for buff ended");
-    if ( [buff isKindOfClass:[StoneGazeDebuff class]]) {
-        isStoned = NO;
-        [self removeBuff:buff caster:NO];
-    }
+    NSLog(@">[MYLOG]    Unit - caster for %@ started",buff);
+    [self.myBuffs removeObject:buff];
 }
 @end
 
 
 #pragma mark - UnitDamage
 @implementation UnitDamage
-@synthesize target = _target;
-@synthesize damage = _damage;
+@synthesize target      = _target;
+@synthesize damage      = _damage;
+@synthesize targetPos   = _targetPos;
 
 + (id) unitDamageTarget:(Unit *)target damage:(DamageObj *)damage;
 {
@@ -381,49 +531,15 @@
     if ( self ) {
         _target = target;
         _damage = damage;
+        if ( _target != nil )
+            _targetPos = _target.sprite.position;
     }
     return self;
 }
 @end
 
 
-#pragma mark - A*
-@implementation ShortestPathStep
 
-@synthesize position;
-@synthesize boardPos;
-@synthesize gScore;
-@synthesize hScore;
-@synthesize parent;
-
-- (id)initWithPosition:(CGPoint)pos boardPos:(CGPoint)bpos;
-{
-	if ((self = [super init])) {
-		position = pos;
-        boardPos = bpos;
-		gScore = 0;
-		hScore = 0;
-		parent = nil;
-	}
-	return self;
-}
-
-- (NSString *)description
-{
-	return [NSString stringWithFormat:@"%@  pos=%@%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(position), NSStringFromCGPoint(boardPos), self.gScore, self.hScore, [self fScore]];
-}
-
-- (BOOL)isEqual:(ShortestPathStep *)other
-{
-	return CGPointEqualToPoint(self.position, other.position);
-}
-
-- (int)fScore
-{
-	return self.gScore + self.hScore;
-}
-
-@end
 
 
 #pragma mark - SETUP
@@ -442,6 +558,11 @@
 
 - (void) attributesDelegateMaximumHealth:(int)health
 {
+}
+
+- (DamageObj *) attributesDelegateRequestObjWithSkillType:(int)skillType
+{
+    return nil;
 }
 
 - (void) setPosition:(CGPoint)position
@@ -493,9 +614,7 @@
 
 - (NSString *) stringForType:(int)type
 {
-    if ( type == MINOTAUR ) {
-        return @"gorgon";
-    } else if ( type == GORGON ) {
+    if ( type == GORGON ) {
         return @"gorgon";
     } else if ( type == MUDGOLEM ) {
         return @"mudgolem";
@@ -518,4 +637,4 @@
 {
     return [NSString stringWithFormat:@"%d Lv.%d",self.obj.type,self.obj.level];
 }
-@end
+@end*/

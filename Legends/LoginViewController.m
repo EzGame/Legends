@@ -9,6 +9,7 @@
 #import "LoginViewController.h"
 #import "MainMenuViewController.h"
 #import "TestLayer.h"
+#import "BattleLayer.h"
 
 @interface LoginViewController ()
 @property (strong, nonatomic) IBOutlet UIView *loginView;
@@ -43,7 +44,8 @@
 {
     [self.loginView endEditing:YES];
     [self.labelStatus setText:@"Logging in"];
-    [appDelegate login:self.username.text pass:self.password.text];
+    //[appDelegate login:self.username.text pass:self.password.text];
+    [appDelegate switchToScene:[BattleLayer scene]];
 }
 
 - (IBAction)createTouched:(id)sender

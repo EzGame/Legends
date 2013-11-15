@@ -43,7 +43,7 @@
 	[director_ setView:glView];
 	[director_ setDelegate:self];
 	[director_ setProjection:kCCDirectorProjection2D];
-	if( ! [director_ enableRetinaDisplay:YES] )
+	if( ! [director_ enableRetinaDisplay:NO] )
 		CCLOG(@"Retina Display Not supported");
     [CCTexture2D setDefaultAlphaPixelFormat:kCCTexture2DPixelFormat_RGBA8888];  // Default is RGBA8888
     [CCTexture2D PVRImagesHavePremultipliedAlpha:YES];
@@ -109,8 +109,8 @@
 - (void) login:(NSString *)username pass:(NSString *)password
 {
     //[self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
-    //[self switchToScene:[BattleLayer scene]];
-    [self switchToScene:[SetupLayer scene]];
+    [self switchToScene:[BattleLayer scene]];
+    //[self switchToScene:[SetupLayer scene]];
     _username = username;
     _password = password;
     //[self.smartFox send:[LoginRequest requestWithUserName:username password:@"" zoneName:nil params:nil]];

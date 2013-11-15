@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "Defines.h"
 
 @interface NSMutableArray (WeakReferences)
 
@@ -15,54 +16,53 @@
 
 @end
 
-@class Buff;
+
+#pragma mark - Buff
+@class Buff; @class Unit; @class Tile;
 @protocol BuffCasterDelegate <NSObject>
-@required
-- (void) buffCasterStarted:(Buff *)buff;
-- (void) buffCasterFinished:(Buff *)buff;
-@optional
+    @required
+    - (void) buffCasterStarted:(Buff *)buff;
+    - (void) buffCasterFinished:(Buff *)buff;
 @end
 @protocol BuffTargetDelegate <NSObject>
-@required
-- (void) damage:(int)damage
-           type:(int)type
-       fromBuff:(Buff *)buff
-     fromCaster:(id)caster;
-
-- (void) buffTargetStarted:(Buff *)buff;
-- (void) buffTargetFinished:(Buff *)buff;
+    @required
+    - (void) buffTargetStarted:(Buff *)buff;
+    - (void) buffTargetFinished:(Buff *)buff;
 @end
 
 @interface Buff : NSObject
-@property (nonatomic, weak) id<BuffCasterDelegate> caster;
-@property (nonatomic, weak) id<BuffTargetDelegate> target;
-@property (nonatomic) BOOL hasBuffBeenRemoved;
-@property (nonatomic) int duration;
+@property (nonatomic, weak) id<BuffTargetDelegate>  target;
+@property (nonatomic)       int                     duration;
 
-- (void) reset;
-- (void) somethingChanged:(id)target;
-- (void) removeMyBuff:(id)target;
+- (BOOL) buffEffectOnEvent:(Event)event forUnit:(Unit *)unit;
+- (BOOL) buffEffectOnEvent:(Event)event forTile:(Tile *)tile;
+- (void) start;
+- (void) stop;
 @end
 
-#pragma mark - Stone Gaze
-@interface StoneGazeDebuff : Buff
-@property (nonatomic, strong) NSMutableArray *path;
-
-+ (id) stoneGazeDebuffFromCaster:(id)caster atTarget:(id)target withPath:(NSMutableArray *)path for:(int)duration;
-@end
 
 #pragma mark - Freeze
-@interface FreezeDebuff : Buff
-
-+ (id) freezeDebuffFromCaster:(id)caster atTarget:(id)target for:(int)duration;
+@interface FreezeBuff : Buff
++ (id) freezeBuffAtTarget:(id)target for:(int)duration;
 @end
 
+
 #pragma mark - Blaze
-@interface BlazeDebuff : Buff
-{
-    @public
-    int dmg;
-}
-@property (nonatomic, strong) NSMutableArray *targets;
-+ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration damage:(int)damage;
+@interface BlazeBuff : Buff
+@property (nonatomic) int damage;
++ (id) blazeBuffAtTarget:(id)target for:(int)duration damage:(int)damage;
+@end
+
+
+#pragma mark - Paralyze buff
+@interface ParalyzeBuff : Buff
+@property (nonatomic, weak) id<BuffCasterDelegate>  caster;
++ (id) paralyzeBuffFromCaster:(id)caster atTarget:(id)target;
+@end
+
+
+#pragma mark - Shield Buff
+@interface ShieldBuff : Buff
+@property (nonatomic, weak) id<BuffCasterDelegate>  caster;
++ (id) shieldBuffFromCaster:(id)caster atTarget:(id)target;
 @end

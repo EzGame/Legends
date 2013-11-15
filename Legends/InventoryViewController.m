@@ -11,8 +11,6 @@
 
 #import "InventoryViewController.h"
 #import "MainMenuViewController.h"
-#import "ForgeViewController.h"
-#import "ForgeLayer.h"
 
 @interface InventoryViewController ()
 @property (nonatomic, strong) UITabbedView *unitsPageView;
@@ -31,10 +29,10 @@
 
 - (void) itemDidGetSelected:(ItemView *)item
 {
-    if ( [item.objPtr isKindOfClass:[UnitObj class]] ) {
-        UnitObj *ptr = item.objPtr;
-        [_displayUnitView setDisplayForObj:ptr];
-    }
+//    if ( [item.objPtr isKindOfClass:[UnitObject class]] ) {
+//        UnitObj *ptr = item.objPtr;
+//        [_displayUnitView setDisplayForObj:ptr];
+//    }
 }
 
 /* Other Stuff */

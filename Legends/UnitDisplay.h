@@ -51,7 +51,7 @@
 /***************************************************************/
 @interface SetupUnitDisplay : CCNode
 @property (nonatomic) CGPoint position;
-@property (nonatomic, weak) SetupTile *tilePtr;
+//@property (nonatomic, weak) SetupTile *tilePtr;
 @property (nonatomic, strong) CCSprite *background;
 @property (nonatomic, strong) CCLabelBMFont *nameLabel;
 @property (nonatomic, strong) CCLabelBMFont *description;
@@ -65,7 +65,7 @@
 - (id) initWithPosition:(CGPoint)position;
 + (id) displayWithPosition:(CGPoint)position;
 
-- (void) setDisplayFor:(SetupTile *)tile;
+//- (void) setDisplayFor:(SetupTile *)tile;
 - (void) setPosition:(CGPoint)position x:(BOOL)x y:(BOOL)y;
 @end
 

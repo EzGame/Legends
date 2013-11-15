@@ -6,10 +6,12 @@
 //
 ///////////////////////////////////////////
 #import "Defines.h"
+#define MAX_SKILL_RANK 10
+@class StatObj; @class UnitObj; @class DamageObj;
+
 
 #pragma mark - Stat Object
 @interface StatObj : NSObject
-
 @property (nonatomic) int strength;
 @property (nonatomic) int agility;
 @property (nonatomic) int intellect;
@@ -24,7 +26,7 @@
 @end
 
 
-#pragma mark - Unit Object
+/*#pragma mark - Unit Object
 @interface UnitObj : NSObject
 {
     int levelup_str;
@@ -32,30 +34,37 @@
     int levelup_int;
     int levelup_wis;
     int levelup_hp;
+    int max_level;
 }
 
-@property (nonatomic) int type;
-@property (nonatomic) int rarity;
-@property (nonatomic) int experience;
-@property (nonatomic) int level;
-@property (nonatomic) int movespeed;
+@property (nonatomic, strong)   StatObj         *stats;
+@property (nonatomic, strong)   NSMutableArray  *skills;
 
-@property (nonatomic, strong) NSMutableArray *upgrades;
-@property (nonatomic, strong) StatObj *stats;
-@property (nonatomic) CGPoint position;
-@property (nonatomic) BOOL locked;
+@property (nonatomic)           int             type;
+@property (nonatomic)           int             rarity;
+@property (nonatomic)           int             experience;
+@property (nonatomic)           int             level;
+@property (nonatomic)           int             movespeed;
+
+@property (nonatomic)           CGPoint         position;
+@property (nonatomic)           BOOL            locked;
 
 + (id) unitObjWithString:(NSString *)string;
 
-@end
+- (NSString *) userFunctionSkillUp:(int)skillType;
+@end*/
 
 
 #pragma mark - Damage Object
 @interface DamageObj : NSObject
 @property (nonatomic) int damage;
+@property (nonatomic) int skillType;
+@property (nonatomic) int skillDamageType;
 @property (nonatomic) BOOL isCrit;
+@property (nonatomic) BOOL isStun;
+@property (nonatomic, copy) int (^calculateDamageBlock)(int damage);
 
-+ (id) damageObjWith:(int)damage isCrit:(BOOL)isCrit;
++ (id) damageObjWith:(int)damage;
 @end
 
 

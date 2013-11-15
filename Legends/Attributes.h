@@ -11,15 +11,44 @@
 #import "Defines.h"
 #import "UserSingleton.h"
 /* Data Objects */
-#import "Objects.h"
+#import "StatObject.h"
 
+@interface Attributes : NSObject
+{
+    @private
+    float physical_power;
+    float physical_resistance;
+    
+    float range_power;
+    float range_resistance;
+    
+    float magic_power;
+    float magic_resistance;
+    
+    float heal_power;
+    float heal_multiplier;
+}
 
-#pragma mark - Attributes
+@property (nonatomic, weak, readonly) StatObject* stats;
+
+@property (nonatomic)                         int strength;
+@property (nonatomic)                         int agility;
+@property (nonatomic)                         int intellect;
+@property (nonatomic)                         int spirit;
+@property (nonatomic)                         int health;
+
++ (id) attributesWithObject:(StatObject *)stats;
+
+//- (float) getDamageMultiplierWithType:(int)type;
+
+@end
+/*#pragma mark - Attributes
 @class Attributes;
 
 @protocol AttributesDelegate <NSObject>
 - (void) attributesDelegateMaximumHealth:(int)health;
 - (void) attributesDelegateCurrentHealth:(int)health;
+- (DamageObj *) attributesDelegateRequestObjWithSkillType:(int)skillType;
 @end
 
 @interface Attributes : NSObject
@@ -51,8 +80,9 @@
 + (id) attributesWithStats:(StatObj *)stats delegate:(id)delegate;
 
 - (DamageObj *) damageCalculationForSkillType:(int)skillType
-                           multiplier:(float)multiplier
-                               target:(Attributes *)target;
-@end
+                              skillDamageType:(int)skillDamageType
+                                   multiplier:(float)multiplier
+                                       target:(Attributes *)target;
+@end*/
 
 

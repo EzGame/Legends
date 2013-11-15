@@ -51,8 +51,8 @@
         _map.position = ccp(-100,-80);
         [self addChild:_map];
         
-        int type = LIONMAGE;
-        int experience = (arc4random() % MAXEXPERIENCE);
+        int type = UnitTypePriest;
+        int experience = 1000000;
         int str = (arc4random() % 100 );
         int agi = (arc4random() % 100 );
         int inte = (arc4random() % 100 );
@@ -60,21 +60,33 @@
         int hp = (arc4random() % 100 );
         NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
                             type, experience, str, agi, inte, wis, hp, nil];
-        UnitObj *unit = [UnitObj unitObjWithString:string];
-        _unit = [LionMage lionmageForSide:YES withObj:unit];
-        _unit.delegate = self;
-        _unit.position = ccp(100,100);
-        [self addChild:_unit z:SPRITES_TOP];
-
-        _target = [LionMage lionmageForSide:YES withObj:unit];
-        _target.delegate = self;
-        _target.position = ccp(200,200);
-        [self addChild:_target z:SPRITES_TOP];
-
-        _mud = [MudGolem mudGolemFor:YES withObj:unit];
-        _mud.delegate = self;
-        _mud.position = ccp(300,300);
-        [self addChild:_mud z:SPRITES_TOP];
+        UnitObject *obj = [[UnitObject alloc] initWithString:string];
+        _unit = [Priest priest:obj isOwned:YES];
+        _unit.position = ccp(100, 100);
+        
+        _target = [Priest priest:obj isOwned:YES];
+        _target.position = ccp(200, 200);
+        
+        [self addChild:_unit];
+        [self addChild:_target];
+        
+//        if ( 0 ){
+//            UnitObj *unit = [UnitObj unitObjWithString:string];
+//            _unit = [LionMage lionmageForSide:YES withObj:unit];
+//            _unit.delegate = self;
+//            _unit.position = ccp(100,100);
+//            [self addChild:_unit z:SPRITES_TOP];
+//
+//            _target = [LionMage lionmageForSide:YES withObj:unit];
+//            _target.delegate = self;
+//            _target.position = ccp(200,200);
+//            [self addChild:_target z:SPRITES_TOP];
+//
+//            _mud = [MudGolem mudGolemFor:YES withObj:unit];
+//            _mud.delegate = self;
+//            _mud.position = ccp(300,300);
+//            [self addChild:_mud z:SPRITES_TOP];
+//        }
     }
     return self;
 }
@@ -86,18 +98,15 @@
     position = [touch locationInView: [touch view]];
     position = [[CCDirector sharedDirector] convertToGL: position];
     position = [self convertToNodeSpace:position];
-    self.mud.position = position;
     NSLog(@"%@",NSStringFromCGPoint(position));
-    self.mud.direction = (self.unit.direction + 1) % 4;
-    
-    UnitDamage *dmgPtr = [UnitDamage unitDamageTarget:_target damage:[DamageObj damageObjWith:100 isCrit:NO]];
-    UnitDamage *dmgPtr2 = [UnitDamage unitDamageTarget:_unit damage:[DamageObj damageObjWith:100 isCrit:NO]];
-    [_mud combatAction:MUDGOLEM_EARTHQUAKE targets:[NSArray arrayWithObjects:dmgPtr, dmgPtr2, nil]];
-    //[self.unit combatAction:HEAL_ALL targets:[NSArray arrayWithObjects:dmgPtr, dmgPtr2, nil]];
-    //[self.unit action:DEAD at:CGPointZero];
+    if ( 1 ) {
+        self.unit.position = position;
+        self.unit.direction = (self.unit.direction + 1) % 4;
+        [self.unit action:0 targets:[NSMutableArray arrayWithObjects:self.unit, self.target, nil]];
+    }
 }
 
-- (BOOL) unitDelegatePressedButton:(int)action
+- (BOOL) unitDelegatePressedButton:(Action)action
 {
     NSLog(@">[MYLOG]    Received action %d",action);
     return YES;
@@ -108,7 +117,7 @@
     NSLog(@"Unit requested suicide");
 }
 
-- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(int)z
+- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(ZORDER)z
 {
     NSLog(@"Unit requested add sprite");
     [self addChild:sprite z:z];
@@ -120,7 +129,7 @@
     [self removeChild:sprite cleanup:YES];
 }
 
-- (void) unitDelegateUnit:(Unit *)unit finishedAction:(int)action
+- (void) unitDelegateUnit:(Unit *)unit finishedAction:(Action)action
 {
     NSLog(@"Unit %@ finished action %d", unit, action);
 }

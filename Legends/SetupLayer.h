@@ -33,7 +33,7 @@
 @property (nonatomic, strong) CCLayer *setupLayer;
 @property (nonatomic, strong) CCLayer *hudLayer;
 
-@property (nonatomic, weak) SetupTile *selection;
+//@property (nonatomic, weak) SetupTile *selection;
 @property (nonatomic)       CGPoint previous;
 
 @property (nonatomic, strong) CCMenu *menu;

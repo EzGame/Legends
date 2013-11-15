@@ -9,29 +9,8 @@ NSString *COMBATFONTSMALL = @"font_normal_small.fnt";
 NSString *NOTICEFONT = @"";
 
 /*  UNIT BASE INFO */
-const int test_stats[STATS_LASTINDEX] =
-{LVLUP_STR, LVLUP_AGI, LVLUP_INT, LVLUP_WIS, LVLUP_HP, UNITRARITY};
 
-const int minotaur_stats[STATS_LASTINDEX]    = {1, 0, 0, 0, 1, 3, COMMON};
-const int lionpriest_stats[STATS_LASTINDEX]  = {0, 0, 0, 1, 1, 3, COMMON};
-const int mudgolem_stats[STATS_LASTINDEX]    = {1, 0, 1, 0, 1, 4, UNCOMMON};
-const int gorgon_stats[STATS_LASTINDEX]      = {0, 2, 1, 0, 1, 3, RARE};
-const int dragon_stats[STATS_LASTINDEX]      = {1, 0, 1, 1, 1, 4, RARE};
 
-const int minotaur_upgrades[]    = {TOPAZ, SAPPHIRE, RUBY, EMERALD, OPAL};
-const int gorgon_upgrades[]      = {       SAPPHIRE, RUBY, EMERALD, OPAL};
-const int mudgolem_upgrades[]    = {TOPAZ, SAPPHIRE, RUBY,          OPAL};
-const int dragon_upgrades[]      = {TOPAZ,           RUBY, EMERALD, OPAL};
-const int lionpriest_upgrades[]  = {TOPAZ, SAPPHIRE,       EMERALD, OPAL};
-
-const CGPoint minotaurAttkArea[] = { {0,4},
-    /*{-1,1},*/ {0,1}, /*{1,1},*/
-      {-1,0}, /*{0,0},*/ {1,0},
-    /*{-1,-1},*/{0,-1},/*{1,-1},*/
-};
-const CGPoint minotaurAttkEffect[] = {
-    {0,1},
-    {0,0} };
 
 const CGPoint gorgonShootArea[] = { {0,84},
     /*{-6,6},   {-5,6},   {-4,6},   {-3,6},   {-2,6},   {-1,6},*/ {0,6}, /*{1,6},   {2,6},   {3,6},   {4,6},   {5,6},   {6,6},*/
@@ -118,55 +97,54 @@ const CGPoint dragonFlamebreathArea[] = { {0,4},
       {-1,0}, /*{0,0},*/ {1,0},
     /*{-1,-1},*/{0,-1},/*{1,-1},*/
 };
-const CGPoint dragonFlamebreathEffect[] = {
-    /**/{NE,4}/**/,
-    {1,1}, {0,1}, {-1,1},
-    {0,0},
-    /**/{SE,4}/**/,
-    {-1,1},
-    {0,0}, {-1,0},
-    {-1,-1},
-    /**/{SW,4}/**/,
-            {0,0},
-    {1,-1}, {0,-1}, {-1,-1},
-    /**/{NW,4}/**/,
-    {1,1},
-    {1,0},  {0,0},
-    {1,-1},
-};
+//const CGPoint dragonFlamebreathEffect[] = {
+//    /**/{NE,4}/**/,
+//    {1,1}, {0,1}, {-1,1},
+//    {0,0},
+//    /**/{SE,4}/**/,
+//    {-1,1},
+//    {0,0}, {-1,0},
+//    {-1,-1},
+//    /**/{SW,4}/**/,
+//            {0,0},
+//    {1,-1}, {0,-1}, {-1,-1},
+//    /**/{NW,4}/**/,
+//    {1,1},
+//    {1,0},  {0,0},
+//    {1,-1},
+//};
+//
+//const CGPoint lionmageHealArea[] = {
+//    {0,1},
+//    {0,0}
+//};
+//
+//const CGPoint lionmageHealEffect[] = {
+//    {0,0}
+//};
 
-const CGPoint lionmageHealArea[] = {
-    {0,1},
-    {0,0}
-};
-
-const CGPoint lionmageHealEffect[] = {
-    {0,0}
-};
-
-const int unitsByTag[] = {
-// Rarity
-/* Epic */          0,0,0,0,0,
-/* Rare */          DRAGON,0,0,0,0,
-/* Uncommon */      MUDGOLEM,GORGON,0,0,0,
-/* Common */        MINOTAUR,LIONMAGE,0,0,0,
-// Units
-/* Minotaur */      MINOTAUR,0,0,0,0,
-/* Gorgon */        GORGON,0,0,0,0,
-/* Mud Golem */     MUDGOLEM,0,0,0,0,
-/* Dragon */        DRAGON,0,0,0,0,
-/* Lion Priest */   LIONMAGE,0,0,0,0,
-// Main attribute + other
-/* Strength */      MINOTAUR,MUDGOLEM,0,0,0,
-/* Agility */       GORGON,0,0,0,0,
-/* Intelligence */  LIONMAGE,DRAGON,0,0,0,
-/* Melee */         MINOTAUR,MUDGOLEM,0,0,0,
-/* Ranged */        GORGON,0,0,0,0,
-/* Magic */         DRAGON,0,0,0,0,
-/* Healer */        LIONMAGE,0,0,0,0,
-/* Disabler */      GORGON,0,0,0,0,
-/* Area of effect */MUDGOLEM,DRAGON,0,0,0,
-};
+//const int unitsByTag[] = {
+//// Rarity
+///* Epic */          0,0,0,0,0,
+///* Rare */          DRAGON,0,0,0,0,
+///* Uncommon */      MUDGOLEM,GORGON,0,0,0,
+///* Common */        LIONMAGE,0,0,0,0,
+//// Units
+///* Gorgon */        GORGON,0,0,0,0,
+///* Mud Golem */     MUDGOLEM,0,0,0,0,
+///* Dragon */        DRAGON,0,0,0,0,
+///* Lion Priest */   LIONMAGE,0,0,0,0,
+//// Main attribute + other
+///* Strength */      MUDGOLEM,0,0,0,0,
+///* Agility */       GORGON,0,0,0,0,
+///* Intelligence */  LIONMAGE,DRAGON,0,0,0,
+///* Melee */         MUDGOLEM,0,0,0,0,
+///* Ranged */        GORGON,0,0,0,0,
+///* Magic */         DRAGON,0,0,0,0,
+///* Healer */        LIONMAGE,0,0,0,0,
+///* Disabler */      GORGON,0,0,0,0,
+///* Area of effect */MUDGOLEM,DRAGON,0,0,0,
+//};
 
 //! AliceBlue color (240,248,255)
 const ccColor3B ccALICEBLUE={240,248,255};

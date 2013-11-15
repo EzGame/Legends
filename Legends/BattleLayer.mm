@@ -19,25 +19,17 @@
 
 @interface BattleLayer()
 @property (nonatomic, strong) BattleBrain *brain;
-@property (nonatomic, strong) CCLabelBMFont *debug;
-@property (nonatomic, strong) NSArray *highlightPtr;
-@property (nonatomic, strong) TileVector *vector;
 @end
 
 @implementation BattleLayer
-@synthesize map = _map;
-@synthesize tmxLayer = _tmxLayer, gameLayer = _gameLayer, hudLayer = _hudLayer;
-@synthesize selection = _selection, display = _display, menu = _menu;
-// private
-@synthesize brain = _brain, debug = _debug;
 
 #pragma mark - Setters n Getters
-- (void) setSelection:(Tile *)selection
-{
-    if ( _selection != nil && selection == nil )
-        [_selection.unit.sprite stopActionByTag:IDLETAG];
-    _selection = selection;
-}
+//- (void) setSelection:(Tile *)selection
+//{
+//    if ( _selection != nil && selection == nil )
+//        [_selection.unit.sprite stopActionByTag:IDLETAG];
+//    _selection = selection;
+//}
 
 #pragma mark - Init n Class
 +(CCScene *) scene
@@ -65,102 +57,64 @@
         isTouchEnabled_ = YES;
         appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
         smartFox = appDelegate.smartFox;
+        winSize = [[CCDirector sharedDirector] winSize];
         
-        // Game Layer
         _gameLayer = [CCLayer node];
         [self addChild:_gameLayer z:GAMELAYER];
         
-        // Hud Layer
         _hudLayer = [CCLayer node];
         [self addChild:_hudLayer z:HUDLAYER];
         
-        [self createMap];
-        [self createUI];
-        [self createMenu];
+        [self initMap];
+        [self initTemp];
         
-        // Setup Brain
         _brain = [[BattleBrain alloc] initWithMap:_tmxLayer];
-        [_brain setDelegate:self];
-        [_brain restoreSetup];
+        
+//        // Game Layer
+//        _gameLayer = [CCLayer node];
+//        [self addChild:_gameLayer z:GAMELAYER];
+//        
 
-        if ( [[UserSingleton get] amIPlayerOne] ) {
-            [self reset:YES];
-            CCLOG(@"MYLOG:  I AM PLAYER 1");
-            
-        } else {
-            [self reset:NO];
-            CCLOG(@"MYLOG:  I AM PLAYER 2");
-            
-        }
+//        
+//        [self createMap];
+//        [self createUI];
+//        [self createMenu];
+//        
+//        // Setup Brain
+//        _brain = [[BattleBrain alloc] initWithMap:_tmxLayer];
+//        [_brain setDelegate:self];
+//        [_brain restoreSetup];
+//
+//        if ( [[UserSingleton get] amIPlayerOne] ) {
+//            [self reset:YES];
+//            CCLOG(@"MYLOG:  I AM PLAYER 1");
+//            
+//        } else {
+//            [self reset:NO];
+//            CCLOG(@"MYLOG:  I AM PLAYER 2");
+//            
+//        }
     }
     return self;
 }
 
-- (void) createMap
+- (void) initMap
 {
-    // Tile map
-    _map = [CCTMXTiledMap tiledMapWithTMXFile:@"basic_tactics_v2.tmx"];
-    _map.position = CGPointMake(-45,-45);
-    _map.scale = MAPSCALE;
-    _tmxLayer = [_map layerNamed:@"layer"];
+    _map = [CCTMXTiledMap tiledMapWithTMXFile:@"GameMap.tmx"];
+    //_map.anchorPoint = ccp(0.5,0.5);
+    //_map.position = ccp(winSize.width/2, winSize.height/2);
+    NSLog(@"winsize %@",NSStringFromCGSize(winSize));
+    NSLog(@"mapsize %@",NSStringFromCGSize(_map.contentSize));
+    _tmxLayer = [_map layerNamed:@"tiles"];
     [_gameLayer addChild:_map z:MAP];
 }
 
-- (void) createUI
+- (void) initTemp
 {
-    // Setup Display
-    _display = [UnitDisplay displayWithPosition:ccp(85,265)];
-    [_hudLayer addChild:_display z:DISPLAYS];
-}
-
-- (void) createMenu
-{
-    [CCMenuItemFont setFontSize:20];
-    CCMenuItem *nw = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_NW_temp.png"]
-                                             selectedSprite:[CCSprite spriteWithFile:@"turn_NW_selected.png"]
-                                                     target:self
-                                                   selector:@selector(turnPressed:)];
-    nw.tag = NW; nw.position = ccp(-HALFLENGTH,HALFWIDTH);
-    CCMenuItem *ne = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_NE_temp.png"]
-                                             selectedSprite:[CCSprite spriteWithFile:@"turn_NE_selected.png"]
-                                                     target:self
-                                                   selector:@selector(turnPressed:)];
-    ne.tag = NE; ne.position = ccp(HALFLENGTH,HALFWIDTH);
-    CCMenuItem *se = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_SE_temp.png"]
-                                             selectedSprite:[CCSprite spriteWithFile:@"turn_SE_selected.png"]
-                                                     target:self
-                                                   selector:@selector(turnPressed:)];
-    se.tag = SE; se.position = ccp(HALFLENGTH,-HALFWIDTH);
-    CCMenuItem *sw = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_SW_temp.png"]
-                                             selectedSprite:[CCSprite spriteWithFile:@"turn_SW_selected.png"]
-                                                     target:self
-                                                   selector:@selector(turnPressed:)];
-    sw.tag = SW; sw.position = ccp(-HALFLENGTH,-HALFWIDTH);
-    
-    _turnMenu = [CCMenu menuWithItems:nw,ne,se,sw, nil];
-    _turnMenu.visible = NO;
-    [_gameLayer addChild:_turnMenu z:MENUS];
-    
-    // Old menu
-    _menu = [CCMenu menuWithItems:nil];
-    _menu.position = ccp(425,40);
-    _menu.visible = YES;
-    [_hudLayer addChild:_menu z:MENUS];
-    
     _debug = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
     _debug.position = ccp(440,25);
     _debug.scale = 0.65;
     [_hudLayer addChild:_debug];
-}
-
-#pragma mark - Touch Handlers
-- (void) turnPressed:(CCMenuItem *)sender
-{
-    NSLog(@">[NSLog] turnPressed with tag:%d",sender.tag);
-    self.selection.unit.direction = sender.tag;
-    self.turnMenu.visible = NO;
-    //[self sendEndTurn:sender.tag];
-    [self passPressed];
 }
 
 - (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -171,7 +125,7 @@
 - (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
 	if ([touches count] == 1) {
-        scrolled = YES;
+        scroll = YES;
         
         UITouch *touch = [touches anyObject];
         CGPoint touchLocation = [touch locationInView: [touch view]];
@@ -192,18 +146,17 @@
             pos = ccp(pos.x, MIN_SCROLL_Y);
         
         self.gameLayer.position = pos;
-        [self.brain setCurrentLayerPos:pos];
+        self.brain.currentLayerPosition = pos;
         
         //NSLog(@"New pos is %f %f",pos.x,pos.y);
-        
 	}
 }
 
 - (void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if ( scrolled ) {
-        scrolled = NO;
-
+    if ( scroll ) {
+        scroll = NO;
+        
     } else if ([touches count] == 1) {
         CGPoint position;
         UITouch *touch = [touches anyObject];
@@ -211,16 +164,81 @@
         position = [[CCDirector sharedDirector] convertToGL: position];
         position = [self convertToNodeSpace:position];
         
-        [self.debug setString:[NSString stringWithFormat:@"%d, %d", (int)position.x, (int)position.y]];
+        [self.debug setString:[NSString stringWithFormat:@"%@", NSStringFromCGPoint(position)]];
+        [self.brain lightUp:position];
         
         //NSLog(@"%@",NSStringFromCGPoint(position));
         
-        if (isMyTurn)
-            [self turn_drive:position];
-        else
-            [self offTurn_drive:position];
+//        if (isMyTurn)
+//            [self turn_drive:position];
+//        else
+//            [self offTurn_drive:position];
     }
 }
+/*
+- (void) createMap
+{
+    // Tile map
+    _map = [CCTMXTiledMap tiledMapWithTMXFile:@"basic_tactics_v2.tmx"];
+    _map.position = CGPointMake(-45,-45);
+    _map.scale = MAPSCALE;
+    _tmxLayer = [_map layerNamed:@"layer"];
+    [_gameLayer addChild:_map z:MAP];
+}
+
+- (void) createUI
+{
+    // Setup Display
+    _display = [UnitDisplay displayWithPosition:ccp(85,265)];
+    [_hudLayer addChild:_display z:DISPLAYS];
+}
+
+- (void) createMenu
+{
+//    [CCMenuItemFont setFontSize:20];
+//    CCMenuItem *nw = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_NW_temp.png"]
+//                                             selectedSprite:[CCSprite spriteWithFile:@"turn_NW_selected.png"]
+//                                                     target:self
+//                                                   selector:@selector(turnPressed:)];
+//    nw.tag = NW; nw.position = ccp(-HALFLENGTH,HALFWIDTH);
+//    CCMenuItem *ne = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_NE_temp.png"]
+//                                             selectedSprite:[CCSprite spriteWithFile:@"turn_NE_selected.png"]
+//                                                     target:self
+//                                                   selector:@selector(turnPressed:)];
+//    ne.tag = NE; ne.position = ccp(HALFLENGTH,HALFWIDTH);
+//    CCMenuItem *se = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_SE_temp.png"]
+//                                             selectedSprite:[CCSprite spriteWithFile:@"turn_SE_selected.png"]
+//                                                     target:self
+//                                                   selector:@selector(turnPressed:)];
+//    se.tag = SE; se.position = ccp(HALFLENGTH,-HALFWIDTH);
+//    CCMenuItem *sw = [CCMenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"turn_SW_temp.png"]
+//                                             selectedSprite:[CCSprite spriteWithFile:@"turn_SW_selected.png"]
+//                                                     target:self
+//                                                   selector:@selector(turnPressed:)];
+//    sw.tag = SW; sw.position = ccp(-HALFLENGTH,-HALFWIDTH);
+    
+//    _turnMenu = [CCMenu menuWithItems:nw,ne,se,sw, nil];
+//    _turnMenu.visible = NO;
+//    [_gameLayer addChild:_turnMenu z:MENUS];
+    
+    // Old menu
+    _menu = [CCMenu menuWithItems:nil];
+    _menu.position = ccp(425,40);
+    _menu.visible = YES;
+    [_hudLayer addChild:_menu z:MENUS];
+}
+
+#pragma mark - Touch Handlers
+- (void) turnPressed:(CCMenuItem *)sender
+{
+    NSLog(@">[NSLog] turnPressed with tag:%d",sender.tag);
+    //self.selection.unit.direction = sender.tag;
+    self.turnMenu.visible = NO;
+    //[self sendEndTurn:sender.tag];
+    [self passPressed];
+}
+
+
 
 #pragma mark - Main Turn Drivers
 - (void) offTurn_drive:(CGPoint)position
@@ -262,7 +280,7 @@
         [self.selection.unit.sprite stopActionByTag:IDLETAG];
         if ( [[self selection] isOwned] && ![self.selection.unit.sprite numberOfRunningActions]) {
             // Show visual selection
-            [[[self selection] unit] action:IDLE at:CGPointZero];
+            [self.selection.unit secondaryAction:ActionIdle at:CGPointZero];
             
             // Open the menu and set flag
             [[[self selection] unit] toggleMenu:YES];
@@ -278,17 +296,19 @@
 - (void) turnB:(CGPoint)position
 {
     CCLOG(@"\n==================TURN PHASE B: Confirm the action==================\n");
-    
+
+    [self highLightMode:HighlightModeOff skill:nil params:nil];
     CGPoint target = [[self brain] findBrdPos:position];
     ccColor3B temp = ccWHITE;
     if ( [self.brain isValidTile:target] )
         temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
 
-    if ( ![self isccColor3B:temp theSame:ccWHITE] ) {
-        [self highlightArea:NO];
-        // Direction
-        int direction = [self directionFrom:target to:self.selection.boardPos];
-        [self highLightEffect:YES toward:direction at:target];
+    if ( ![GeneralUtils ccColor3BCompare:temp :ccWHITE] ) {
+
+        NSMutableArray *tempArray = [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:target]];
+        [self highLightMode:HighlightModeEffect
+                      skill:self.currentSkill
+                     params:[NSMutableArray arrayWithObject:tempArray]];
         self.vector = [TileVector vectorWithTile:[self.brain findTile:target absPos:NO]
                                        direction:direction];
         // Go to turn D next click
@@ -297,10 +317,7 @@
         isTurnC = YES;
         
     } else {
-        if ( currentAction != UNKNOWN ) {
-            [self highlightArea:NO];
-            currentAction = UNKNOWN;
-        }
+        self.currentSkill = nil;
         
         [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
         
@@ -327,14 +344,17 @@
         temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
     
     SFSObject *obj = [SFSObject newInstance];
-    [self highLightEffect:NO toward:-1 at:CGPointZero];
+    [self highLightMode:HighlightModeOff skill:nil params:nil];
     
-    if ( ![self isccColor3B:temp theSame:ccWHITE] && [[self brain] doAction:currentAction for:[self selection]
-                                                                     toward:self.vector
-                                                                     oppObj:obj
-                                                                    targets:self.highlightPtr] )
+    if ( ![GeneralUtils ccColor3BCompare:temp :ccWHITE] &&
+          [self.brain doAction:currentAction
+                           for:self.selection
+                        toward:self.vector
+                       oppData:obj
+                       targets:self.boardTargets] )
     {
-        if ( currentAction == MOVE || currentAction == TELEPORT_MOVE ) {
+        if ( self.currentSkill.skillType == ActionMove
+            || self.currentSkill.skillType == ActionTeleport ) {
             // reorder child
             self.selection = self.vector.tile;
             [self reorderTile:[self selection]];
@@ -342,8 +362,8 @@
              
         CGPoint oldPos = [[self selection] boardPos];
         unitLocked = YES;
-        currentAction = UNKNOWN;
-             
+        self.currentSkill = nil;
+        
         // Send data
         [self sendDatafrom:oldPos to:position timeDuration:0 targets:obj];
         
@@ -354,7 +374,7 @@
         }
     } else {
         [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
-        currentAction = UNKNOWN;
+        self.currentSkill = nil;
         [self.display setDisplayFor:nil];
         [[[self selection] unit] toggleMenu:NO];
         
@@ -384,13 +404,13 @@
 - (void) reset:(bool)myTurn
 {
     // State variables
-    currentAction = UNKNOWN;
     unitLocked = NO;
     isMyTurn = myTurn;
     isTurnA = myTurn;
     isTurnB = NO;
     isTurnC = NO;
     self.selection = nil;
+    self.currentSkill = nil;
     
     [self displayTurnMessage:myTurn];
 }
@@ -448,11 +468,11 @@
     NSLog(@">[MYLOG]    Sending data: \
           \n>           From: %@ \
           \n            To: %@ \
-          \n            For Action: %d and Duration: %d \
+          \n            For Action: x and Duration: %d \
           \n            Effect: %@",
           NSStringFromCGPoint(boardPos),
           NSStringFromCGPoint(p),
-          currentAction, time,
+          time,
           [targets description] );
 
     SFSObject *obj = [SFSObject newInstance];
@@ -460,11 +480,11 @@
     [obj putInt:@"yBoard" value:boardPos.y];
     [obj putInt:@"xPos" value:p.x];
     [obj putInt:@"yPos" value:p.y];
-    [obj putInt:@"action" value:currentAction];
+    //[obj putInt:@"action" value:currentAction];
     [obj putSFSObject:@"effect" value:targets];
     [obj putSFSObject:@"null test" value:nil];
     [obj putInt:@"timeDuration" value:time];
-    [obj putClass:@"vector" value:self.vector];
+    //[obj putClass:@"vector" value:self.vector];
     
     // Send the message, targetRoom is nil due to default being last joined room
     [smartFox send:[PublicMessageRequest requestWithMessage:@"gameAction" params:obj targetRoom:nil]];
@@ -500,59 +520,6 @@
 }
 
 #pragma mark - Helpers
-- (DIRECTION) directionFrom:(CGPoint)start to:(CGPoint)end
-{
-    CGPoint difference = ccpSub(start, end);
-    if (difference.x > 0 ) return NW;
-    else if (difference.x < 0 ) return SE;
-    else if (difference.y > 0 ) return NE;
-    else if (difference.y < 0 ) return SW;
-    else return NE;
-}
-
-- (BOOL)isccColor3B:(ccColor3B)color1 theSame:(ccColor3B)color2
-{
-    if ((color1.r == color2.r) && (color1.g == color2.g) && (color1.b == color2.b)){
-        return YES;
-    } else {
-        return NO;
-    }
-}
-
-- (ccColor3B)darkenColor3B:(ccColor3B) color by:(float)factor
-{
-    return {color.r*factor, color.g*factor, color.b*factor};
-}
-
-- (ccColor3B) colorFromAction:(int)action
-{
-    ccColor3B colour;
-    // Find the colour to highlight ground
-    switch ( action ) {
-        case MOVE: colour = ccDODGERBLUE;
-            break;
-        case ATTK: colour = ccORANGE;
-            break;
-        case HEAL_ALL: colour = ccGREEN;
-            break;
-        case GORGON_SHOOT: colour = ccORANGE;
-            break;
-        case GORGON_FREEZE: colour = ccDARKCYAN;
-            break;
-        case TELEPORT_MOVE: colour = ccDODGERBLUE;
-            break;
-        case MUDGOLEM_EARTHQUAKE: colour = ccORANGE;
-            break;
-        case DRAGON_FIREBALL: colour = ccORANGE;
-            break;
-        case DRAGON_FLAMEBREATH: colour = ccORANGERED;
-            break;
-        default: CCLOG(@"Error! Unknown action occurred: %d", action);
-            break;
-    }
-    return colour;
-}
-
 - (void) tint:(CCSprite *)sprite with:(ccColor3B)color by:(int)factor
 {
     BOOL isRed = NO;
@@ -603,102 +570,71 @@
     [self.gameLayer reorderChild:[[tile unit] spriteSheet] z:SPRITES_TOP - pos];
 }
 
-- (void) highlightArea:(BOOL)highlight
+- (void) highLightMode:(HighlightMode)mode skill:(SkillObj *)skill params:(NSMutableArray *)params
 {
-    NSLog(@">[MYLOG]        BattleLayer::highlightArea is centering around %@ [%d]",
-          [self selection], highlight );
+    NSLog(@">[MYLOG]        BattleLayer::highlight is centering around %@ %d", [self selection], mode);
     
-    [self.display setDisplayFor:self.selection];
-    int action = currentAction;
-    ccColor3B colour = [self colorFromAction:action];
+    //[self.display setDisplayFor:self.selection]; //?
+    ccColor3B colour = [GeneralUtils colorFromAction:skill.skillType];
+    NSMutableArray *cgpointPtr;
     
-    NSArray *highlights = [[self brain] findActionTiles:[self selection] action:action];
-
-    if ( highlight ) {
-        for (NSValue *v in highlights) {
-            CGPoint pos = [v CGPointValue];
-
-            if ([self.brain isValidTile:pos]) {
-                // the registration point is the top corner
+    if ( mode == HighlightModeRange )
+    {
+        if ( skill.skillType == ActionMove || skill.skillType == ActionTeleport ) {
+            cgpointPtr = [self.brain findMoveTiles:self.selection.boardPos
+                                                      for:((MoveSkillObj *)skill).moveSkillRange];
+        } else {
+            cgpointPtr = skill.skillRange;
+        }
+        
+        for ( NSValue *v in cgpointPtr ) {
+            CGPoint pos = ccpAdd (self.selection.boardPos,[v CGPointValue] );
+            if ( [self.brain isValidTile:pos] ) {
                 CCSprite *temp = [self.tmxLayer tileAt:ccp(MAPLENGTH-1-pos.x,MAPWIDTH-1-pos.y)];
                 [temp setColor:colour];
             }
-        }
-    } else {
-        for (NSValue *v in highlights) {
-            CGPoint pos = [v CGPointValue];
-            
-            if ([self.brain isValidTile:pos]) {
-                // the registration point is the top corner
-                CCSprite *temp = [self.tmxLayer tileAt:ccp(MAPLENGTH-1-pos.x,MAPWIDTH-1-pos.y)];
-                [temp setColor:ccWHITE];
-            }
+            [self.boardTargets addObject:[NSValue valueWithCGPoint:pos]];
         }
     }
-}
-
-- (void) highLightEffect:(BOOL)highlight toward:(int)direction at:(CGPoint)position
-{
-    NSLog(@">[MYLOG]        BattleLayer::highlightEffect is centering around %@ direction %d",
-          [self selection], direction );
-    
-    [self.display setDisplayFor:self.selection];
-    int action = currentAction;
-    ccColor3B colour = [self colorFromAction:action];
-    colour = [self darkenColor3B:colour by:0.8];
-    if ( highlight )
-        self.highlightPtr = [[self brain] findEffectTiles:[self selection] action:action direction:direction center:position];
-
-    if ( highlight ) {
-        for (NSValue *v in self.highlightPtr) {
-            CGPoint pos = [v CGPointValue];
+    else if ( mode == HighlightModeEffect )
+    {
+        [skill getSkillEffectForTarget:[[params objectAtIndex:0] CGPointValue]];
+        cgpointPtr = skill.skillRange;
+        
+        for (NSValue *v in self.boardTargets) {
+            CGPoint pos = ccpAdd (self.selection.boardPos,[v CGPointValue] );
             if ([self.brain isValidTile:pos]) {
                 // the registration point is the top corner
                 CCSprite *temp = [self.tmxLayer tileAt:ccp(MAPLENGTH-1-pos.x,MAPWIDTH-1-pos.y)];
                 [temp setColor:colour];
                 [self tint:temp with:temp.color by:75];
             }
+            [self.boardTargets addObject:[NSValue valueWithCGPoint:pos]];
         }
-    } else {
-        for (NSValue *v in self.highlightPtr) {
+    }
+    else if ( mode == HighlightModeOff )
+    {
+        NSAssert( self.boardTargets == nil, @"FATAL BOARDTARGETS NIL");        
+        for ( NSValue *v in self.boardTargets ) {
             CGPoint pos = [v CGPointValue];
-            
             if ([self.brain isValidTile:pos]) {
-                // the registration point is the top corner
                 CCSprite *temp = [self.tmxLayer tileAt:ccp(MAPLENGTH-1-pos.x,MAPWIDTH-1-pos.y)];
                 [temp setColor:ccWHITE];
                 [temp stopAllActions];
             }
         }
+        self.boardTargets = nil;
     }
 }
 
 #pragma mark - Unit Delegates
-- (BOOL) unitDelegatePressedButton:(int)action
+- (BOOL) unitDelegatePressedSkill:(SkillObj *)skill
 {
-    NSLog(@">[MYLOG]    Received action %d",action);
+    NSLog(@">[MYLOG]    Received action %d",skill.skillType);
     isTurnA = NO;
     isTurnB = YES;
     isTurnC = NO;
-    
-    if ( action == MOVE ) {
-        currentAction = MOVE;
-        [self highlightArea:true];
-        
-    } else if ( action == ATTK ) {
-        currentAction = ATTK;
-        [self highlightArea:true];
-        
-    } else if ( action == DEFN ) {
-        currentAction = DEFN;
-        [self highlightArea:true];
-        
-    } else {
-        currentAction = action;
-        [self highlightArea:YES];
-        
-    }
-    return YES;
+    [self highLightMode:HighlightModeRange skill:skill params:nil];
 }
 
 - (void) unitDelegateKillMe:(Unit *)unit at:(CGPoint)position
@@ -708,7 +644,7 @@
     [self.brain killtile:position];
 }
 
-- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(int)z
+- (void) unitDelegateAddSprite:(CCSprite *)sprite z:(ZORDER)z
 {
     [self.gameLayer addChild:sprite z:z];
 }
@@ -718,7 +654,7 @@
     [self.gameLayer removeChild:sprite cleanup:YES];
 }
 
-- (void) unitDelegateUnit:(Unit *)unit finishedAction:(int)action
+- (void) unitDelegateUnit:(Unit *)unit finishedAction:(Action)action
 {
     [self center:unit.sprite.position];
     [self.display setDisplayFor:self.selection];
@@ -809,5 +745,5 @@
 - (void) animateTileAt:(CGPoint)position with:(CCAction *)action
 {
     
-}
+}*/
 @end

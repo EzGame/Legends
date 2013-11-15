@@ -12,16 +12,15 @@
 #import "Objects.h"
 // Others
 #import "Tile.h"
-#import "Minotaur.h"
 
 @class SetupBrain;
 
 @protocol SetupBrainDelegate <NSObject>
 @required
 - (void)setupbrainDelegateUpdateNumbers:(int)totalValue :(int)totalFood;
-- (void)setupbrainDelegateLoadTile:(SetupTile *)tile;
-- (void)setupbrainDelegateReorderTile:(SetupTile *)tile;
-- (BOOL)setupbrainDelegateRemoveTile:(SetupTile *)tile;
+//- (void)setupbrainDelegateLoadTile:(SetupTile *)tile;
+//- (void)setupbrainDelegateReorderTile:(SetupTile *)tile;
+//- (BOOL)setupbrainDelegateRemoveTile:(SetupTile *)tile;
 @end
 
 @interface SetupBrain : NSObject
@@ -45,12 +44,12 @@
 @property (nonatomic) CGAffineTransform toIso;
 @property (nonatomic) CGAffineTransform fromIso;
 
-- (void) restoreSetup;
-- (SetupTile *) findTile:(CGPoint)position absPos:(bool)absPos;
-- (void) viewUnitsForTag:(NSString *)tag;
-- (BOOL) move:(SetupTile *)tile to:(SetupTile *)target;
-- (bool) saveSetup;
-- (void) setCurrentLayerPos:(CGPoint)position;
+//- (void) restoreSetup;
+//- (SetupTile *) findTile:(CGPoint)position absPos:(bool)absPos;
+//- (void) viewUnitsForTag:(NSString *)tag;
+//- (BOOL) move:(SetupTile *)tile to:(SetupTile *)target;
+//- (bool) saveSetup;
+//- (void) setCurrentLayerPos:(CGPoint)position;
 
 - (int) isValidTile:(CGPoint)position;
 - (CGPoint) findBrdPos:(CGPoint)position;

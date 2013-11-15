@@ -90,7 +90,6 @@
                       @"UNCOMMON",
                       @"COMMON",
                       // Types
-                      @"MINOTAUR",
                       @"GORGON",
                       @"MUD GOLEM",
                       @"DRAGON",

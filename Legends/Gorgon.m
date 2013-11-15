@@ -8,33 +8,59 @@
 #define GORGONSCALE 0.5
 #define GORGONSETUPSCALE GORGONSCALE * SETUPMAPSCALE
 #import "Gorgon.h"
+
+
 @implementation Gorgon
 
-@synthesize idle = _idle, move = _move, shoot = _shoot, freeze = _freeze;
-@synthesize moveButton = _moveButton, shootButton = _shootButton, freezeButton = _freezeButton;
+@synthesize idle            = _idle;
+@synthesize move            = _move;
+@synthesize shoot           = _shoot;
+@synthesize freeze          = _freeze;
+@synthesize moveButton      = _moveButton;
+@synthesize shootButton     = _shootButton;
+@synthesize freezeButton    = _freezeButton;
+/* Unit Synthesizes */
+@synthesize direction       = _direction;
+@synthesize position        = _position;
+
+
+#pragma mark - Setters and getters
+- (void) setPosition:(CGPoint)position
+{
+    [super setPosition:position];
+    self.sprite.position = [self convertToNodeSpace:position];
+}
+
+- (CGPoint) position
+{
+    return [super position];
+}
+
+- (void) setDirection:(Direction)direction
+{
+    if ( direction == NE )
+        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"Medusa_NE.png"]];
+    else if ( direction == NW )
+        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"Medusa_NW.png"]];
+    else if ( direction == SW )
+        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"Medusa_SW.png"]];
+    else if ( direction == SE )
+        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"Medusa_SE.png"]];
+    _direction = direction;
+}
+
 
 #pragma mark - Alloc n Init
-
-+ (id) gorgonWithObj:(UnitObj *)obj;
++ (id) gorgonFor:(BOOL)side withObj:(UnitObj *)obj
 {
-    return [[Gorgon alloc] initGorgonFor:YES withObj:obj];
-}
-
-+ (id) gorgonForEnemyWithObj:(UnitObj *)obj;
-{
-    return [[Gorgon alloc] initGorgonFor:NO withObj:obj];
-}
-
-+ (id) gorgonForSetupWithObj:(UnitObj *)obj;
-{
-    return [[Gorgon alloc] initGorgonForSetupWithObj:obj];
+    return [[Gorgon alloc] initGorgonFor:side withObj:obj];
 }
 
 - (id) initGorgonFor:(BOOL)side withObj:(UnitObj *)obj
 {
     self = [super initForSide:side withObj:obj];
     if (self)
-    {        
+    {
         // Cache the sprite frames and texture
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"gorgon.plist"];
 
@@ -52,149 +78,120 @@
         if (side) self.sprite = [CCSprite spriteWithSpriteFrameName:@"Medusa_NE.png"];
         else self.sprite = [CCSprite spriteWithSpriteFrameName:@"Medusa_SW.png"];
 
-        // Create the menu
-        if (side) [self initMenu];
+        [self initMenu];
+        [self initEffects];
         
         self.sprite.scale = GORGONSCALE;
 
         [self.spriteSheet addChild:self.sprite];
-    }
-    return self;
-}
-
-- (id) initGorgonForSetupWithObj:(UnitObj *)obj
-{
-    self = [super initForSide:YES withObj:obj];
-    if (self)
-    {
-        // Cache the sprite frames and texture
-        [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:@"gorgon.plist"];
-        
-        // Create the sprite batch node
-        self.spriteSheet = [CCSpriteBatchNode batchNodeWithFile:@"gorgon.png"];
-        
-        //Create the sprite
-        self.sprite = [CCSprite spriteWithSpriteFrameName:@"Medusa_SW.png"];
-        
-        self.sprite.scale = GORGONSETUPSCALE;
-        
-        [self.spriteSheet addChild:self.sprite];
+        [self addChild:self.spriteSheet];
     }
     return self;
 }
 
 - (void) initMenu
 {
-    _moveButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_move.png"]
-                                        selectedSprite:[CCSprite spriteWithFile:@"button_overlay_1.png"]
-                                        disabledSprite:nil
-                                                target:self
-                                              selector:@selector(movePressed)];
+    _moveButton = [MenuItemSprite itemWithActionName:@"move" cost:1
+                                              target:self selector:@selector(movePressed)];
     _moveButton.position = ccp(-50,60);
-    _moveButton.costOfButton = 1;
     
-    _shootButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_ranged.png"]
-                                        selectedSprite:[CCSprite spriteWithFile:@"button_overlay_1.png"]
-                                        disabledSprite:nil
-                                                target:self
-                                              selector:@selector(shootPressed)];
+    _shootButton = [MenuItemSprite itemWithActionName:@"ranged" cost:2
+                                               target:self selector:@selector(shootPressed)];
     _shootButton.position = ccp(0,85);
-    _shootButton.costOfButton = 1;
     
-    _freezeButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"gorgon_freeze.png"]
-                                        selectedSprite:[CCSprite spriteWithFile:@"button_overlay_3.png"]
-                                        disabledSprite:nil
-                                                target:self
-                                              selector:@selector(freezePressed)];
+    _freezeButton = [MenuItemSprite itemWithActionName:@"magic" cost:2
+                                                target:self selector:@selector(freezePressed)];
     _freezeButton.position = ccp(50,60);
-    _freezeButton.costOfButton = 3;
     
     self.menu = [CCMenu menuWithItems:_moveButton, _shootButton, _freezeButton, nil];
     self.menu.visible = NO;
 }
 
+- (void) initEffects
+{
+    [super initEffects];
+}
+
+
 #pragma mark - Actions + combat
-/*
-- (void) action:(int)action at:(CGPoint)position
+- (void) primaryAction:(Action)action targets:(NSArray *)targets
+{
+    [self.sprite stopAllActions];
+    if ( action == ActionRange ) {
+        [self.shootButton setIsUsed:YES];
+        [self.freezeButton setIsUsed:YES];
+        
+        
+        /* single target */
+        UnitDamage *dmgTarget = [targets objectAtIndex:0];
+        CGPoint difference = ccpSub(dmgTarget.targetPos, self.position);
+        [self setDirectionWithDifference:difference];
+        
+        
+        /* projectile */
+        CCSprite *arrow = [CCSprite spriteWithFile:@"Medusa_ARROW.png"];
+        [self.delegate unitDelegateAddSprite:arrow z:EFFECTS];
+        arrow.position = self.sprite.position;
+        arrow.visible = NO;
+        arrow.rotation = [GeneralUtils getAngle:self.sprite.position :dmgTarget.targetPos];
+        float duration = ccpDistance(self.position, dmgTarget.targetPos)/400;
+
+        
+        /* animation */
+        id begin_shoot = [CCCallBlock actionWithBlock:^{
+            //[self.sprite runAction:[self.
+        }];
+        id delay_shoot = [CCDelayTime actionWithDuration:0.6];
+        //id shoot
+        //id delay_finish
+        id delay_arrow = [CCDelayTime actionWithDuration:duration];
+        id finish_shoot = [CCCallBlock actionWithBlock:^{
+            [self.sprite stopAllActions];
+            [self secondaryAction:ActionIdle at:CGPointZero];
+            if (self.isOwned) [self toggleMenu:YES];
+        }];
+        
+        
+        /* projectile animation */
+        id form_arrow = [CCFadeIn actionWithDuration:0.1];
+        id move_arrow = [CCMoveTo actionWithDuration:duration position:dmgTarget.targetPos];
+        
+        id begin_arrow = [CCSpawn actions:form_arrow, move_arrow, nil];
+        id finish_arrow = [CCCallBlock actionWithBlock:^{
+            [dmgTarget.target damageHealth:dmgTarget.damage];
+            [self.delegate unitDelegateRemoveSprite:arrow];
+        }];
+        
+
+        /* run */
+        [self.sprite runAction:[CCSequence actions:
+                                begin_shoot, delay_shoot,
+                                delay_arrow, finish_shoot, nil]];
+        [arrow runAction:[CCSequence actions:
+                          delay_shoot, begin_arrow,
+                          finish_arrow, nil]];
+        
+    } else if ( action == ActionParalyze ) {
+        [self.freezeButton setIsUsed:YES];
+        [self.shootButton setIsUsed:YES];
+    }
+}
+
+- (void) secondaryAction:(Action)action at:(CGPoint)position
 {
     [self.sprite stopAllActions];
     CGPoint difference = ccpSub(position, self.sprite.position);
-    if ( action != IDLE && action != DEAD ) {
-        // Find the facing direction
-        if (difference.x >= 0 && difference.y >= 0)
-            self.direction = NE;
-        else if (difference.x >= 0 && difference.y < 0)
-            self.direction = SE;
-        else if (difference.x < 0 && difference.y < 0)
-            self.direction = SW;
-        else
-            self.direction = NW;
-    }
+    [self setDirectionWithDifference:difference];
     
-    if ( action == MOVE ) {
+    if ( action == ActionIdle ) {
+        [self.delegate unitDelegateUnit:self finishedAction:ActionIdle];
+        
+    } else if ( action == ActionMove ) {
         [self.moveButton setIsUsed:YES];
         [self popStepAndAnimate];
-        return;
-        
-    } else if ( action == GORGON_SHOOT ) {
-        [self.shootButton setIsUsed:YES];
-        CCSequence *atk = [CCSequence actions:
-                           [CCDelayTime actionWithDuration:0.6f],
-                           [CCCallBlock actionWithBlock:
-                            ^{
-                                [self.sprite stopAllActions];
-                                [self action:IDLE at:CGPointZero];
-                                if (self.isOwned) [self toggleMenu:YES];
-                            }], nil];
-        
-        
-        CCSprite *arrow = [CCSprite spriteWithFile:@"Medusa_ARROW.png"];
-        [self.delegate addSprite:arrow z:EFFECTS];
-        arrow.position = self.sprite.position;
-        arrow.rotation = [self getAngle:self.sprite.position :position];
-        
-        CCSequence *fly = [CCSequence actions:
-                           [CCMoveTo actionWithDuration:0.2 position:position],
-                           [CCCallBlock actionWithBlock:
-                            ^{
-                                arrow.visible = NO;
-                             }], nil];
-        
-        [self.sprite runAction:atk];
-        [arrow runAction:fly];
-        
-    } else if ( action == GORGON_FREEZE ) {
-        [self.freezeButton setIsUsed:YES];
-        [self.sprite stopAllActions];
-        
-    } else if ( action == TURN ) {
-        [self.sprite stopAllActions];
-        
-        NSString *string = nil ;
-        if ( self.direction == NE ) {
-            string = @"Medusa_NE.png";
-        } else if ( self.direction == SE ) {
-            string = @"Medusa_SE.png";
-        } else if ( self.direction == SW ) {
-            string = @"Medusa_SW.png";
-        } else {
-            string = @"Medusa_NW.png";
-        }
-        
-        [[self sprite] setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:string]];
-        
-    } else if ( action == DEAD ) {
-        CCSequence *die = [CCSequence actions:
-                           [CCDelayTime actionWithDuration:0.6f],
-                           [CCCallBlock actionWithBlock:
-                            ^{
-                                self.sprite.visible = NO;
-                                [self.delegate killMe:self at:self.sprite.position];
-                             }], nil];
-        [self.sprite runAction:die];
         
     } else {
-        NSLog(@">[MYWARN]   Gorgon: I can't handle this LOL");
+        [super secondaryAction:action at:position];
     }
 }
 
@@ -203,8 +200,7 @@
     [[self sprite] stopAllActions];
     // Check if there remains path steps to go through
 	if ([[self shortestPath] count] == 0) {
-        [[self sprite] stopAllActions];
-        [self action:IDLE at:CGPointZero];
+        [self secondaryAction:ActionIdle at:CGPointZero];
         if (self.isOwned) [self toggleMenu:YES];
 		[self setShortestPath: nil];
 		return;
@@ -212,7 +208,6 @@
     
 	// Get the next step to move to
 	ShortestPathStep *s = [self.shortestPath objectAtIndex:0];
-    NSLog(@"GORGON! %@",s);
     CGPoint difference = ccpSub([s position], [[self sprite] position]);
     float duration = ccpLength(ccpSub([s position],self.sprite.position))/100;
     
@@ -240,52 +235,27 @@
 	[[self sprite] runAction:[CCSequence actions:moveAction, moveCallback, nil]];
 }
 
-- (void) take:(int)damage
+- (void) damageHealth:(DamageObj *)dmg
 {
-    health -= damage;
-    if ( health < 1 )
-        [self action:DEAD at:CGPointZero];
+    [super damageHealth:dmg];
 }
 
-- (void) heal:(int)damage after:(float)delay
+- (void) healHealth:(DamageObj *)dmg
 {
-    [self.sprite stopAllActions];
-    health = MIN(health+damage, self.attribute->max_health);
-    
-    [self.sprite runAction:
-     [CCSequence actions:
-      [CCDelayTime actionWithDuration:delay],
-      [CCCallBlock actionWithBlock:^{
-         [self.sprite setColor:ccGREEN];
-         [self.delegate displayCombatMessage:[NSString stringWithFormat:@"+%d",damage]
-                                  atPosition:self.sprite.position withColor:ccGREEN];
-     }],
-      [CCDelayTime actionWithDuration:0.2],
-      [CCTintTo actionWithDuration:1 red:255 green:255 blue:255], nil]];
+    [super healHealth:dmg];
 }
 
-- (int) calculate:(int)damage type:(int)dmgType
-{
-    return damage;
-}
 
 #pragma mark - Menu controls
-- (BOOL) canIDo:(int)action
+- (BOOL) canIDo:(Action)action
 {
-    if ( action == MOVE )
-        return !isStoned && !isStunned && !isFrozen && !isEnsnared;
-    else if ( action == GORGON_SHOOT )
-        return !isStoned && !isStunned && !isFrozen;
-    else if ( action == GORGON_FREEZE )
-        return !isStoned && !isStunned && !isFrozen;
-    else // menu asking, always the least needy option
-        return !isStoned && !isStunned && !isFrozen;
+    return [super canIDo:action];
 }
 
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] && [self canIDo:MOVE] ) {
-        if ( [self.delegate pressedButton:MOVE] ) {
+    if ( ![self.moveButton isUsed] && [self canIDo:ActionMove] ) {
+        if ( [self.delegate unitDelegatePressedButton:ActionMove] ) {
             [self toggleMenu:NO];
         }
     }
@@ -293,8 +263,8 @@
 
 - (void) shootPressed
 {
-    if ( ![self.shootButton isUsed] && [self canIDo:GORGON_SHOOT]) {
-        if ( [self.delegate pressedButton:GORGON_SHOOT] ) {
+    if ( ![self.shootButton isUsed] && [self canIDo:ActionRange]) {
+        if ( [self.delegate unitDelegatePressedButton:ActionRange] ) {
             [self toggleMenu:NO];
         }
     }
@@ -302,11 +272,23 @@
 
 - (void) freezePressed
 {
-    if ( ![self.freezeButton isUsed] && [self canIDo:GORGON_FREEZE] ) {
-        if ( [self.delegate pressedButton:GORGON_FREEZE] ) {
+    if ( ![self.freezeButton isUsed] && [self canIDo:ActionParalyze] ) {
+        if ( [self.delegate unitDelegatePressedButton:ActionParalyze] ) {
             [self toggleMenu:NO];
         }
     }
+}
+
+
+#pragma mark - Misc
+- (CGPoint *) getShootArea { return (CGPoint *)gorgonShootArea; }
+- (CGPoint *) getShootEffect { return (CGPoint *)gorgonShootEffect; }
+- (CGPoint *) getFreezeArea { return (CGPoint *)gorgonFreezeArea; }
+- (CGPoint *) getFreezeEffect { return (CGPoint *)gorgonFreezeEffect; }
+
+- (NSString *) description
+{
+    return [NSString stringWithFormat:@"Gorgon"];
 }
 
 - (void) reset
@@ -324,20 +306,8 @@
     self.freezeButton.isUsed = NO;
 }
 
-#pragma mark - Misc
-
-- (CGPoint *) getShootArea { return (CGPoint *)gorgonShootArea; }
-- (CGPoint *) getShootEffect { return (CGPoint *)gorgonShootEffect; }
-- (CGPoint *) getFreezeArea { return (CGPoint *)gorgonFreezeArea; }
-- (CGPoint *) getFreezeEffect { return (CGPoint *)gorgonFreezeEffect; }
-
 - (BOOL) hasActionLeft
 {
     return !self.moveButton.isUsed || !self.shootButton.isUsed || !self.freezeButton.isUsed;
 }
-
-- (NSString *) description
-{
-    return [NSString stringWithFormat:@"Gorgon Lv.%d",self.level];
-}*/
 @end

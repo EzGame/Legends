@@ -8,14 +8,14 @@
 
 #import "cocos2d.h"
 #import "Defines.h"
-#import "MudGolem.h"
-#import "Dragon.h"
-#import "LionMage.h"
 #import "Unit.h"
 #import "UnitDisplay.h"
 #import "Objects.h"
+#import "CustomActions.h"
 
-@interface TestLayer : CCLayer <UnitDelegate>
+#import "UnitObject.h"
+#import "Priest.h"
+@interface TestLayer : CCLayer //<UnitDelegate>
 
 @property (nonatomic, strong) Unit *unit;
 @property (nonatomic, strong) Unit *target;

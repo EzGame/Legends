@@ -8,7 +8,66 @@
 
 #import "Attributes.h"
 
-#define MAXSTAT (STATSPERLVL * MAXLEVEL)
+@implementation Attributes
+#pragma mark - Setters n Getters
+
+/* NOTE! -
+ * We can change the attributes here by 
+ */
+- (void) setStrength:(int)strength
+{
+    _strength = strength;
+    physical_power = strength;
+    physical_resistance = strength;
+}
+
+- (void) setAgility:(int)agility
+{
+    _agility = agility;
+    range_power = agility;
+    range_resistance = agility;
+}
+
+- (void) setIntellect:(int)intellect
+{
+    _intellect = intellect;
+    magic_power = intellect;
+    magic_resistance = intellect;
+}
+
+- (void) setSpirit:(int)spirit
+{
+    _spirit = spirit;
+    heal_power = spirit;
+    heal_multiplier = spirit;
+}
+
+- (void) setHealth:(int)health
+{
+    _health = health;
+}
+
+#pragma mark - Init n shit
++ (id) attributesWithObject:(StatObject *)stats
+{
+    return [[Attributes alloc] initAttributesWithObject:stats];
+}
+
+- (id) initAttributesWithObject:(StatObject *)stats
+{
+    self = [super init];
+    if ( self ) {
+        [self setStrength:stats.strength];
+        [self setAgility:stats.agility];
+        [self setIntellect:stats.intellect];
+        [self setSpirit:stats.spirit];
+        [self setHealth:stats.health];
+    }
+    return self;
+}
+
+@end
+/*#define MAXSTAT (STATSPERLVL * MAXLEVEL)
 
 #pragma mark - Attributes:
 @implementation Attributes : NSObject
@@ -94,38 +153,35 @@
     return r < physical_crit;
 }
 
-- (DamageObj *) damageCalculationForSkillType:(int)skillType multiplier:(float)multiplier target:(Attributes *)target
+- (DamageObj *) damageCalculationForSkillType:(int)skillType skillDamageType:(int)skillDamageType multiplier:(float)multiplier target:(Attributes *)target
 {
     int damage;
-    BOOL isCrit = [self rollToCrit];
-    if ( skillType == SkillTypeNormalHeal ) {
+    DamageObj *obj = [self.delegate attributesDelegateRequestObjWithSkillType:skillType];
+    if ( skillType == SkillDamageTypeNormalHeal ) {
         damage = self.wisdom * multiplier * target->heal_effectiveness ;
         
-    } else if ( skillType == SkillTypeNormalMagic ) {
+    } else if ( skillType == SkillDamageTypeNormalMagic ) {
         damage = self.intellect * multiplier * spell_power * ( 1 - target->spell_power );
         
-    } else if ( skillType == SkillTypeNormalRange ) {
+    } else if ( skillType == SkillDamageTypeNormalRange ) {
         damage = self.agility * multiplier * range_physical_power * ( 1 - physical_resistance );
-        damage *= (isCrit)?2:1;
         
-    } else if ( skillType == SkillTypeNormalMelee ) {
+    } else if ( skillType == SkillDamageTypeNormalMelee ) {
         damage = self.strength * multiplier * melee_physical_power * ( 1 - physical_resistance );
-        damage *= (isCrit)?2:1;
-        
-    } else if ( skillType == SkillTypePureMagic ) {
+
+    } else if ( skillType == SkillDamageTypePureMagic ) {
         damage = self.intellect * multiplier;
         
-    } else if ( skillType == SkillTypePureRange ) {
+    } else if ( skillType == SkillDamageTypePureRange ) {
         damage = self.agility * multiplier;
         
-    } else if ( skillType == SkillTypePureMelee ) {
+    } else if ( skillType == SkillDamageTypePureMelee ) {
         damage = self.strength * multiplier;
         
     } else {
         NSAssert(false, @">FATAL< UNKNOWN SKILL TYPE");
         
     }
-    DamageObj *obj = [DamageObj damageObjWith:damage isCrit:isCrit];
     return obj;
 }
 
@@ -134,5 +190,5 @@
     return [NSString stringWithFormat:@"str:%d,agi:%d,int:%d,wis:%d,hp:%d",
             _strength, _agility, _intellect , _wisdom, _max_health];
 }
-@end
+@end*/
 

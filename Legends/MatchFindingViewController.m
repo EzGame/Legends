@@ -125,7 +125,7 @@
             
             // SEND
             SFSObject *myData = [SFSObject newInstance];
-            [myData putSFSArray:@"SETUP" value:[[UserSingleton get] setup]];
+            [myData putSFSArray:@"SETUP" value:[[UserSingleton get] mySetup]];
             NSArray *users = [NSArray arrayWithObject:user];
             [smartFox send:[InviteUsersRequest requestWithInvitedUsers:users secondsForAnswer:15 params:myData]];
         }
@@ -161,7 +161,7 @@
         
         // SEND
         SFSObject *myResponse = [SFSObject newInstance];
-        [myResponse putSFSArray:@"SETUP" value:[[UserSingleton get] setup]];
+        [myResponse putSFSArray:@"SETUP" value:[[UserSingleton get] mySetup]];
         [myResponse putUtfString:@"ROOM" value:gameName];
         [smartFox send:[InvitationReplyRequest requestWithInvitation:invite invitationReply:InvitationReply_ACCEPT params:myResponse]];
     }

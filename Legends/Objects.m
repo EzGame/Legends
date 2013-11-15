@@ -31,6 +31,7 @@
         _wisdom = wis;
         _health = hp;
     }
+    
     return self;
 }
 
@@ -42,22 +43,22 @@
 @end
 
 
-#pragma mark - Unit Object
+/*#pragma mark - Unit Object
 @implementation UnitObj
 @synthesize type        = _type;
 @synthesize rarity      = _rarity;
 @synthesize experience  = _experience;
 @synthesize level       = _level;
 
-@synthesize upgrades    = _upgrades;
 @synthesize stats       = _stats;
+@synthesize skills      = _skills;
 @synthesize position    = _position;
 @synthesize locked      = _locked;
 
 - (void) setExperience:(int)experience
 {
     if ( !self.locked ) {
-        _experience = experience;
+        _experience = MIN(MAXEXPERIENCE,experience);
         [self setLevel:GETLVL(experience)];
     } else {
         NSLog(@">LOCKED<");
@@ -68,11 +69,11 @@
 {
     int difference = level - _level;
     if ( difference > 0 ) {
-        for ( int i = difference; i > 0; i-- )
-            [self levelup];
+        for ( int i = difference; i > 0; i-- ) [self levelup];
     } else {
         NSLog(@">REDUCING LEVEL???<");
     }
+    _level = MIN(MAXLEVEL,level);
 }
 
 + (id) unitObjWithString:(NSString *)string
@@ -86,35 +87,48 @@
     if ( self ) {
         NSArray *tokens = [string componentsSeparatedByCharactersInSet:
                            [NSCharacterSet characterSetWithCharactersInString:@"/"]];
+        int dataCount = [tokens count]; // 1 skill = 13, 2 = 18 etc
+        int tokenIndex = 0;
+        
         // Type
-        _type = [[tokens objectAtIndex:0] integerValue];
+        _type = [[tokens objectAtIndex:tokenIndex++] integerValue];
         
         // Exp + Lvl
-        _experience = [[tokens objectAtIndex:1] integerValue];
+        _experience = [[tokens objectAtIndex:tokenIndex++] integerValue];
         _level = GETLVL(_experience);
         
         // Stats
-        _stats = [StatObj statsWithStr:[[tokens objectAtIndex:2] integerValue]
-                                   agi:[[tokens objectAtIndex:3] integerValue]
-                                  inte:[[tokens objectAtIndex:4] integerValue]
-                                   wis:[[tokens objectAtIndex:5] integerValue]
-                                    hp:[[tokens objectAtIndex:6] integerValue]];
+        _stats = [StatObj statsWithStr:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                   agi:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                  inte:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                   wis:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                    hp:[[tokens objectAtIndex:tokenIndex++] integerValue]];
         
-        // Upgrades
-        _upgrades = [[[tokens objectAtIndex:7] componentsSeparatedByCharactersInSet:[NSCharacterSet characterSetWithCharactersInString:@","]] mutableCopy];
+        // Skills
+        for ( int i = tokenIndex; i + 5 < dataCount; i+=5 ) {
+            SkillObj *skill = [SkillObj skillWithType:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                                level:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                                 rank:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                          costOfSkill:[[tokens objectAtIndex:tokenIndex++] integerValue]
+                                           multiplier:[[tokens objectAtIndex:tokenIndex++] floatValue]];
+            [_skills addObject:skill];
+        }
         
+                
         // Position
-        _position = CGPointFromString ([tokens objectAtIndex:8]);
+        _position = CGPointFromString ([tokens objectAtIndex:tokenIndex++]);
         
         // locked
-        _locked = [[tokens objectAtIndex:9] boolValue];
-        NSLog(@"locked? %d %d %@",_locked, NO, [tokens objectAtIndex:9]);
+        _locked = [[tokens objectAtIndex:tokenIndex++] boolValue];
         
-        if      ( _type == MINOTAUR )   [self setup:minotaur_stats];
-        else if ( _type == GORGON )     [self setup:gorgon_stats];
+        NSAssert(tokenIndex != dataCount - 1, @">[FATAL]    Unit Object dataCount!=tokens!!!");
+        
+        if ( _type == GORGON )     [self setup:gorgon_stats];
         else if ( _type == MUDGOLEM )   [self setup:mudgolem_stats];
         else if ( _type == DRAGON )     [self setup:dragon_stats];
         else if ( _type == LIONMAGE )   [self setup:lionpriest_stats];
+        
+        NSLog(@">[MYLOG]    Created unit:\n%@",self);
     }
     return self;
 }
@@ -127,6 +141,12 @@
     levelup_wis = array[LVLUP_WIS];
     levelup_hp = array[LVLUP_HP];
     _rarity = array[UNITRARITY];
+    
+    if      ( _rarity == COMMON ) max_level = 40;
+    else if ( _rarity == UNCOMMON ) max_level = 50;
+    else if ( _rarity == RARE ) max_level = 60;
+    else if ( _rarity == EPIC ) max_level = 70;
+    
     for ( int i=0; i<=UNITRARITY; ++i )
         NSLog(@"%i", array[i]);
 }
@@ -144,10 +164,11 @@
 - (NSString *) description
 {
     return [NSString stringWithFormat:@"%d/%d/%@/%@/%@/%c",
-            self.type, self.experience, self.stats,
-            self.upgrades, NSStringFromCGPoint(self.position),self.locked];
+            self.type, self.experience, self.stats, self.skills,
+            NSStringFromCGPoint(self.position),self.locked];
 }
-@end
+@end*/
+
 
 #pragma mark - Damage Object
 @implementation DamageObj
@@ -169,6 +190,7 @@
     return self;
 }
 @end
+
 
 @implementation ScrollObj
 @synthesize type = _type, experience = _experience;

@@ -10,6 +10,10 @@
 #import "MudGolem.h"
 
 @interface MudGolem()
+// if it has a button, it has a skill object
+@property (nonatomic, strong) SkillObj *moveSkill;
+@property (nonatomic, strong) SkillObj *attackSkill;
+@property (nonatomic, strong) SkillObj *earthquakeSkill;
 @end
 
 @implementation MudGolem
@@ -42,7 +46,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
     return [super position];
 }
 
-- (void) setDirection:(int)direction
+- (void) setDirection:(Direction)direction
 {
     if ( direction == NE )
         [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"mudgolem_idle_NE_0.png"]];
@@ -102,14 +106,15 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 
 - (void) initMenu
 {
-    _moveButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_phase.png"]
-                                        selectedSprite:[CCSprite spriteWithFile:@"button_overlay_1.png"]
-                                        disabledSprite:nil
-                                                target:self
-                                              selector:@selector(movePressed)];
+    _moveButton = [MenuItemSprite itemWithActionName:@"phase" cost:1
+                                              target:self selector:@selector(movePressed)];
     _moveButton.position = ccp(-50,60);
     _moveButton.costOfButton = 1;
-    
+    _moveSkill = [[MoveSkillObj alloc] initWithRange:self.obj.movespeed];
+    _moveSkill.skillType = ActionTeleport;
+    _moveSkill.skillRank = 0; //#FIXITLATER
+    _moveSkill.skillCost = 1;
+
     _attkButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_melee.png"]
                                         selectedSprite:[CCSprite spriteWithFile:@"button_overlay_1.png"]
                                         disabledSprite:nil
@@ -117,6 +122,12 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
                                               selector:@selector(attkPressed)];
     _attkButton.position = ccp(0,85);
     _attkButton.costOfButton = 1;
+    _attackSkill = [[SkillObj alloc] init];
+    _attackSkill.skillType = ActionMelee;
+    _attackSkill.skillRank = 0; //#FIXITLATER
+    _attackSkill.skillRange = [self getAttkArea:0];
+    _attackSkill.skillEffect = [self getAttkEffect:0];
+    _attackSkill.skillCost = 1;
     
     _earthquakeButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_earthquake.png"]
                                               selectedSprite:[CCSprite spriteWithFile:@"button_overlay_2.png"]
@@ -125,6 +136,12 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
                                                     selector:@selector(earthquakePressed)];
     _earthquakeButton.position = ccp(50,60);
     _earthquakeButton.costOfButton = 2;
+    _earthquakeSkill = [[SkillObj alloc] init];
+    _earthquakeSkill.skillType = ActionMeleeAOE;
+    _earthquakeSkill.skillRank = 0; //#FIXITLATER
+    _earthquakeSkill.skillRange = [self getEarthquakeArea:0];
+    _earthquakeSkill.skillEffect = [self getEarthquakeEffect:0];
+    _earthquakeSkill.skillCost = 2;
     
     self.menu = [CCMenu menuWithItems:_moveButton, _attkButton, _earthquakeButton, nil];
     self.menu.visible = NO;
@@ -137,19 +154,19 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 
 
 #pragma mark - Actions + combat
-- (void) action:(int)action at:(CGPoint)position
+- (void) secondaryAction:(Action)action at:(CGPoint)position
 {
     [self.sprite stopAllActions];
     CGPoint difference = ccpSub(position, self.position);
-    if ( action != IDLE && action != DEAD && action != MUDGOLEM_EARTHQUAKE) {
+    if ( action != ActionIdle && action != ActionDie && action != ActionMeleeAOE) {
         [self setDirectionWithDifference:difference];
     }
     
-    if ( action == IDLE ) {
-        [self.delegate unitDelegateUnit:self finishedAction:IDLE];
+    if ( action == ActionIdle ) {
+        [self.delegate unitDelegateUnit:self finishedAction:ActionIdle];
         [self.sprite runAction:[self.idle getActionFor:self.direction]];
         
-    } else if ( action == MOVE ) {
+    } else if ( action == ActionMove ) {
         [self.moveButton setIsUsed:YES];
         
         /////////
@@ -170,22 +187,22 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
         /////////
         id finish = [CCCallBlock actionWithBlock:^{
             [self.sprite stopAllActions];
-            [self action:IDLE at:CGPointZero];
+            [self secondaryAction:ActionIdle at:CGPointZero];
             if ( self.isOwned ) [self toggleMenu:YES];
         }];
         
         [self.sprite runAction:[CCSequence actions:sink, rise, finish, nil]];
             
     } else {
-        [super action:action at:position];
+        [super secondaryAction:action at:position];
     }
 }
 
-- (void) combatAction:(int)action targets:(NSArray *)targets
+- (void) primaryAction:(Action)action targets:(NSArray *)targets
 {    
     [self.sprite stopAllActions];
 
-    if ( action == ATTK ) {
+    if ( action == ActionMelee ) {
         [self.attkButton setIsUsed:YES];
         [self.earthquakeButton setIsUsed:YES];
         
@@ -211,13 +228,13 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
         // 5
         id finish = [CCCallBlock actionWithBlock:^{
             [self.sprite stopAllActions];
-            [self action:IDLE at:CGPointZero];
+            [self secondaryAction:ActionIdle at:CGPointZero];
             if ( self.isOwned ) [self toggleMenu:YES];
         }];
         
         [self.sprite runAction:[CCSequence actions:begin, swingdelay, hit, swingfinish, finish, nil]];
         
-    } else if ( action == MUDGOLEM_EARTHQUAKE ) {
+    } else if ( action == ActionMeleeAOE ) {
         [self.earthquakeButton setIsUsed:YES];
         [self.attkButton setIsUsed:YES];
         
@@ -240,7 +257,7 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
             }
             [self.delegate unitDelegateShakeScreen];
             [self.sprite stopAllActions];
-            [self action:IDLE at:CGPointZero];
+            [self secondaryAction:ActionIdle at:CGPointZero];
             if ( self.isOwned ) [self toggleMenu:YES];
         }];
         // 4
@@ -275,9 +292,9 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 }
 
 #pragma mark - Menu controls
-- (BOOL) canIDo:(int)action
+- (BOOL) canIDo:(Action)action
 {
-    if ( action == MUDGOLEM_EARTHQUAKE ) {
+    if ( action == ActionMeleeAOE ) {
         return YES;
     } else {
         return [super canIDo:action];
@@ -286,8 +303,8 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] && [self canIDo:MOVE] ) {
-        if ( [self.delegate unitDelegatePressedButton:TELEPORT_MOVE] ) {
+    if ( ![self.moveButton isUsed] && [self canIDo:ActionTeleport] ) {
+        if ( [self.delegate unitDelegatePressedSkill:self.moveSkill] ) {
             [self toggleMenu:NO];
         }
     }
@@ -295,8 +312,8 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 
 - (void) attkPressed
 {
-    if ( ![self.attkButton isUsed] && [self canIDo:ATTK] ) {
-        if ( [self.delegate unitDelegatePressedButton:ATTK] ) {
+    if ( ![self.attkButton isUsed] && [self canIDo:ActionMelee] ) {
+        if ( [self.delegate unitDelegatePressedSkill:self.attackSkill] ) {
             [self toggleMenu:NO];
         }
     }
@@ -304,8 +321,8 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 
 - (void) earthquakePressed
 {
-    if ( ![self.earthquakeButton isUsed] && [self canIDo:ATTK] ) {
-        if ( [self.delegate unitDelegatePressedButton:MUDGOLEM_EARTHQUAKE] ) {
+    if ( ![self.earthquakeButton isUsed] && [self canIDo:ActionMeleeAOE] ) {
+        if ( [self.delegate unitDelegatePressedSkill:self.earthquakeSkill] ) {
             [self toggleMenu:NO];
         }
     }
@@ -338,9 +355,25 @@ const NSString *MUDGOLEM_MOVE_DESP = @"Teleporting";
 }
 
 
-#pragma mark - Areas
-- (CGPoint *) getAttkArea { return (CGPoint *)mudgolemAttkArea; }
-- (CGPoint *) getAttkEffect { return (CGPoint *)mudgolemAttkEffect; }
-- (CGPoint *) getEarthquakeArea { return (CGPoint *)mudgolemEarthquakeArea; }
-- (CGPoint *) getEarthquakeEffect { return (CGPoint *)mudgolemEarthquakeEffect; }
+#pragma mark - Mud golem shit
+- (NSMutableArray *) getAttkArea:(int)rank
+{
+    return [GeneralUtils getDiamondArea:1];
+}
+
+- (NSMutableArray *) getAttkEffect:(int)rank
+{
+    return [GeneralUtils getOneArea];
+}
+
+- (NSMutableArray *) getEarthquakeArea:(int)rank
+{
+    return [GeneralUtils getOneArea];
+}
+
+- (NSMutableArray *) getEarthquakeEffect:(int)rank
+{
+    return [GeneralUtils getDiamondAreaWithMe:3];
+}
+
 @end

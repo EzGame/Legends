@@ -9,15 +9,13 @@
 #import "Buff.h"
 #import "Tile.h"
 
+#pragma mark - NSMutableArray Weak (for delegation)
 @implementation NSMutableArray (WeakReferences)
-
 
 + (id)mutableArrayUsingWeakReferences
 {
     return [self mutableArrayUsingWeakReferencesWithCapacity:0];
 }
-
-
 
 + (id)mutableArrayUsingWeakReferencesWithCapacity:(NSUInteger)capacity
 {
@@ -31,175 +29,129 @@
 }
 
 @end
+
+
 #pragma mark - Buff
 @implementation Buff
-@synthesize duration = _duration, hasBuffBeenRemoved = _hasBuffBeenRemoved;
+- (void) setDuration:(int)duration
+{
+    NSLog(@">TEST<  Buff setDuration");
+    _duration = duration;
+    if ( _duration == 0 ) {
+        [self stop];
+    }
+}
 
 - (id) init
 {
     self = [super init];
     if ( self )
     {
-        _hasBuffBeenRemoved = NO;
+        
     }
     return self;
 }
 
-- (void) setDuration:(int)duration
+- (BOOL) buffEffectOnEvent:(Event)event forUnit:(Unit *)unit
 {
-    NSLog(@">[MYLOG] Entering Buff:setDuration:%d",duration);
-    _duration = duration;
-    if ( _duration == 0 ) {
-        [self.caster buffCasterFinished:self];
-        [self.target buffTargetFinished:self];
-    }
 }
 
-- (void) reset
+- (BOOL) buffEffectOnEvent:(Event)event forTile:(Tile *)tile
 {
-    NSLog(@">[RESET]    Buff:%@", self);
-    self.duration -= 1;
 }
 
-// targets says something has happened
-- (void) somethingChanged:(id)target
+- (void) start
 {
-    // Override me if other more than caster/target relationship
-    return;
+    NSLog(@">TEST<  Buff start");
+    [self.target buffTargetStarted:self];
 }
 
-// targets need buffs to end
-- (void) removeMyBuff:(id)target
+- (void) stop
 {
-    return;
-}
-
-- (void) removeMyReferences
-{
-    _caster = nil;
-    _target = nil;
-}
-@end
-
-
-
-#pragma mark - Stone Gaze
-
-@implementation StoneGazeDebuff
-@synthesize path = _path;
-
-+ (id) stoneGazeDebuffFromCaster:(id)caster atTarget:(id)target withPath:(NSMutableArray *)path for:(int)duration
-{
-    return [[StoneGazeDebuff alloc] initDebuffFromCaster:caster atTarget:target withPath:path for:duration];
-}
-
-- (id) initDebuffFromCaster:(id)caster atTarget:(id)target withPath:(NSMutableArray *)path for:(int)duration
-{
-    self = [super init];
-    if ( self )
-    {
-        NSLog(@">[MYLOG] Creating freeze debuff from %@ to %@\n\
-              Within %@", caster, target, path);
-        self.duration = duration;
-        self.caster = caster;
-        self.target = target;
-        [self.caster buffCasterStarted:self];
-        [self.target buffTargetStarted:self];
-        _path = path; // has to be weak!!
-        //_path = [NSMutableArray mutableArrayUsingWeakReferences];
-        for (id delegate in _path)
-             [delegate buffTargetStarted:self];
-    }
-    return self;
-}
-
-- (void) somethingChanged:(id)target
-{
-    NSLog(@">[MYLOG] StoneGazeDebuff:somethingChanged");
-    // Basically, if anything changes to any of the targets, we cancel the buff
-    [self.caster buffCasterFinished:self];
+    NSLog(@">TEST<  Buff stop");
     [self.target buffTargetFinished:self];
-    for ( id delegate in self.path ) {
-        [delegate buffTargetFinished:self];
-    }
-}
-
-- (void) removeMyBuff:(id)target
-{
-    NSLog(@">[MYLOG] StoneGazeDebuff:removeMyBuff");
-    if ( [target isEqual:self.caster] ) {
-        [self somethingChanged:nil];
-    }
-}
-
-- (void) removeMyReferences
-{
-    NSLog(@">[MYLOG] StoneGazeDebuff:removeMyReferences");
-    [super removeMyReferences];
-    [_path removeAllObjects];
 }
 @end
-
 
 
 #pragma mark - Blaze
-
-@implementation BlazeDebuff
-@synthesize targets = _targets;
-
-+ (id) blazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration damage:(int)damage
+@implementation BlazeBuff
++ (id) blazeBuffAtTarget:(id)target for:(int)duration damage:(int)damage
 {
-    return [[BlazeDebuff alloc] initBlazeDebuffFromCaster:caster atTargets:targets for:duration damage:damage];
+    return [[BlazeBuff alloc] initBlazeBuffAtTarget:target for:duration damage:damage];
 }
 
-- (id) initBlazeDebuffFromCaster:(id)caster atTargets:(NSMutableArray *)targets for:(int)duration damage:(int)damage
+- (id) initBlazeBuffAtTarget:(id)target for:(int)duration damage:(int)damage;
 {
     self = [super init];
     if ( self )
     {
-        NSLog(@">[MYLOG] Creating Blaze debuff from %@\n\
-              Within %@ for dmg %d", caster, targets, damage);
-        dmg = damage;
+        _damage = damage;
+        
         self.duration = duration;
-        
-        self.caster = caster;
-        self.targets = targets;
-        
-        [self.caster buffCasterStarted:self];
-        for ( id delegate in self.targets )
-            [delegate buffTargetStarted:self];
+        self.target = target;
     }
     return self;
 }
 
-- (void) somethingChanged:(id)target
+- (BOOL) buffEffectOnEvent:(Event)event forUnit:(Unit *)unit
 {
-    NSLog(@">[MYLOG] BlazeDebuff:somethingChanged! %@",target);
 }
 
-- (void) removeMyBuff:(id)target
+- (BOOL) buffEffectOnEvent:(Event)event forTile:(Tile *)tile
 {
-    NSLog(@">[MYLOG] BlazeDebuff:removeMyBuff! %@", target);
 }
 
-- (void) removeMyReferences
+- (void) start
 {
-    NSLog(@">[MYLOG] BlazeDebuff:removeMyReferences");
-    [super removeMyReferences];
-    [_targets removeAllObjects];
+    NSLog(@">TEST<  Blaze Buff start");
+    [super start];
 }
 
-- (NSString *)description
+- (void) stop
 {
-    return [NSString stringWithFormat:@"Blaze"];
+    NSLog(@">TEST<  Blaze Buff stop");
+    [super stop];
+}
+@end
+
+
+#pragma mark - Paralyze Buff
+@implementation ParalyzeBuff
+
++ (id) paralyzeBuffFromCaster:(id)caster atTarget:(id)target
+{
+    return [[ParalyzeBuff alloc] initBuffFromCaster:caster atTarget:target];
 }
 
-- (void) reset
+- (id) initBuffFromCaster:(id)caster atTarget:(id)target
 {
-    [super reset];
-    for ( id delegate in self.targets ) {
-        [delegate damage:dmg type:SkillTypePureMagic fromBuff:self fromCaster:self.caster];
+    self = [super init];
+    if ( self )
+    {
+        self.caster = caster;
+        self.target = target;
     }
+    return self;
+}
+
+- (BOOL) buffEffectOnEvent:(Event)event forUnit:(Unit *)unit
+{
+}
+
+- (void) start
+{
+    NSLog(@">TEST<  Paralyze Buff start");
+    [super start];
+    [self.caster buffCasterStarted:self];
+
+}
+
+- (void) stop
+{
+    NSLog(@">TEST<  Paralyze Buff end");
+    [super stop];
+    [self.caster buffCasterFinished:self];
 }
 @end
 

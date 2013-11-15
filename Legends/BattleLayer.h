@@ -15,39 +15,44 @@
 // Layers
 #import "SetupLayer.h"
 // Others
-#import "Minotaur.h"
 #import "Tile.h"
 #import "BattleBrain.h"
 #import "UnitDisplay.h"
 
-@interface BattleLayer : CCLayer <BattleBrainDelegate, UnitDelegate>
+#import "Constants.h"
+
+
+
+@interface BattleLayer : CCLayer //<BattleBrainDelegate, UnitDelegate>
 {
     // Turn variables
-    int currentAction;
     BOOL unitLocked;
-    bool isMyTurn;
+    BOOL isMyTurn;
     BOOL isTurnA;
     BOOL isTurnB;
     BOOL isTurnC;
 
     // Camera variables
-    BOOL scrolled;
+    BOOL scroll;
     
     // Others
     AppDelegate *appDelegate;
     SmartFox2XClient *smartFox;
+    CGSize winSize;
 }
 
-@property (nonatomic, strong) CCTMXTiledMap *map;
-@property (nonatomic, strong) CCTMXLayer *tmxLayer;
-@property (nonatomic, strong) CCLayer *gameLayer;
-@property (nonatomic, strong) CCLayer *hudLayer;
+@property (nonatomic, strong)   CCTMXTiledMap *map;
+@property (nonatomic, strong)      CCTMXLayer *tmxLayer;
+@property (nonatomic, strong)         CCLayer *gameLayer;
+@property (nonatomic, strong)         CCLayer *hudLayer;
 
-@property (nonatomic, weak) Tile *selection;
+@property (nonatomic, strong) CCLabelBMFont *debug;
 
-@property (nonatomic, strong) CCMenu *menu;
+/*@property (nonatomic, weak) Tile *selection;
+
+@property (nonatomic, strong) CCMenu *menu;//
 @property (nonatomic, strong) CCMenu *turnMenu;
 @property (nonatomic, strong) UnitDisplay *display;
-
+*/
 + (CCScene *) scene;
 @end

@@ -37,7 +37,7 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
     return [super position];
 }
 
-- (void) setDirection:(int)direction
+- (void) setDirection:(Direction)direction
 {
     if ( direction == NE )
         [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:@"lionmage_idle_NE_0.png"]];
@@ -70,16 +70,11 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
         
         _idle = [CCActions actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"lionmage_idle" andFrames:2 delay:0.5];
         _idle.tag = IDLETAG;
-        
         _move = [CCActions actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"lionmage_walk" andFrames:8 delay:0.1];
-        
         _heal = [CCActions actionsWithSpriteSheet:self.spriteSheet forName:@"lionmage_cast" andFrames:6 delay:0.1 reverse:NO];
         
-        if ( side ) {
-            self.sprite = [CCSprite spriteWithSpriteFrameName:@"lionmage_idle_NE_0.png"];
-        } else {
-            self.sprite = [CCSprite spriteWithSpriteFrameName:@"lionmage_idle_SW_0.png"];
-        }
+        if ( side ) self.sprite = [CCSprite spriteWithSpriteFrameName:@"lionmage_idle_NE_0.png"];
+        else self.sprite = [CCSprite spriteWithSpriteFrameName:@"lionmage_idle_SW_0.png"];
         
         [self initMenu];
         [self initEffects];
@@ -94,21 +89,13 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
 
 - (void) initMenu
 {
-    _moveButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_move.png"]
-                                        selectedSprite:[CCSprite spriteWithFile:@"button_overlay_2.png"]
-                                        disabledSprite:nil
-                                                target:self
-                                              selector:@selector(movePressed)];
+    _moveButton = [MenuItemSprite itemWithActionName:@"move" cost:2
+                                              target:self selector:@selector(movePressed)];
     _moveButton.position = ccp(-40,60);
-    _moveButton.costOfButton = 2;
-    
-    _healButton = [MenuItemSprite itemWithNormalSprite:[CCSprite spriteWithFile:@"button_cross-coloured.png"]
-                                        selectedSprite:[CCSprite spriteWithFile:@"button_overlay_3.png"]
-                                        disabledSprite:nil
-                                                target:self
-                                              selector:@selector(healPressed)];
+
+    _healButton = [MenuItemSprite itemWithActionName:@"cross-coloured" cost:3
+                                              target:self selector:@selector(healPressed)];
     _healButton.position = ccp(40,60);
-    _healButton.costOfButton = 3;
     
     self.menu = [CCMenu menuWithItems:_moveButton, _healButton, nil];
     self.menu.visible = NO;
@@ -131,73 +118,35 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
 
 
 #pragma mark - Actions + combat
-- (void) action:(int)action at:(CGPoint)position
+- (void) primaryAction:(Action)action targets:(NSArray *)targets
 {
     [self.sprite stopAllActions];
-    CGPoint difference = ccpSub(position, self.position);
-    if ( action != IDLE && action != DEAD ) {
-        [self setDirectionWithDifference:difference];
-    }
-    
-    if ( action == IDLE ) {
-        [self.delegate unitDelegateUnit:self finishedAction:IDLE];
-        [self.sprite runAction:[self.idle getActionFor:self.direction]];
-        
-    } else if ( action == MOVE ) {
-        [self.moveButton setIsUsed:YES];
-        [self popStepAndAnimate];
-        
-    } else if ( action == DEAD ) {
-        CCSprite *orb = [CCSprite spriteWithSpriteFrameName:@"deathorb_0.png"];
-        [self.delegate unitDelegateAddSprite:orb z:EFFECTS];
-        orb.position = self.position;
-        orb.visible = NO;
-        
-        id fade = [CCFadeOut actionWithDuration:0.4];
-        id form = [CCCallBlock actionWithBlock:^{
-            orb.visible = YES;
-            [orb runAction:self.death];
-        }];
-        id die = [CCSpawn actions:fade, form, nil];
-        
-        id spritefade = [CCCallBlock actionWithBlock:^{ [self.sprite runAction:die]; }];
-        id delay = [CCDelayTime actionWithDuration:0.5];
-        id orbfade = [CCCallBlock actionWithBlock:^{ [orb runAction:[CCFadeOut actionWithDuration:0.2]];}];
-        id finish = [CCCallBlock actionWithBlock:^{
-            self.sprite.visible = false;
-            [self.delegate unitDelegateRemoveSprite:orb];
-            [self.delegate unitDelegateKillMe:self at:self.position];
-        }];
-        
-        [self.sprite runAction:[CCSequence actions:spritefade, delay, orbfade, finish, nil]];
-        
-    } else {
-        [super action:action at:position];
-    }
-}
-
-- (void) combatAction:(int)action targets:(NSArray *)targets
-{
-    [self.sprite stopAllActions];
-    if ( action == HEAL_ALL ) {
+    if ( action == ActionHeal ) {
         [self.healButton setIsUsed:YES];
         
-        /* cast */
+        
+        /* effect */
+        CCParticleSystem *heal = [CCParticleSystem particleWithFile:@"heal"];
+        [heal setLife:1];
+        heal.autoRemoveOnFinish = YES;
+        
+        
+        /* animation */
         id startcast = [CCCallBlock actionWithBlock:^{
             [self.sprite runAction:[self.heal getActionFor:self.direction]];
         }];
         id delaycast = [CCDelayTime actionWithDuration:0.6];
         id finishcast = [CCCallBlock actionWithBlock:^{
             [self.sprite stopAllActions];
-            [self action:IDLE at:CGPointZero];
+            [self secondaryAction:ActionIdle at:CGPointZero];
             if ( self.isOwned ) [self toggleMenu:YES];
         }];
-        [self.sprite runAction:[CCSequence actions:startcast, delaycast, finishcast, nil]];
         
-        /* effect */
+        
+        /* effect animation */
         for ( UnitDamage *dmgPtr in targets )
         {
-            CCSprite *heal = [CCSprite spriteWithSpriteFrameName:@"heal_0.png"];
+            /*CCSprite *heal = [CCSprite spriteWithSpriteFrameName:@"heal_0.png"];
             heal.position = ccpAdd(ccp(0,10),dmgPtr.target.sprite.position);
             heal.visible = NO;
             [self.delegate unitDelegateAddSprite:heal z:EFFECTS];
@@ -218,8 +167,32 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
             
             [heal runAction:[CCSequence actions:
                              effectDelay, effectStart, effectRun,
-                             effectFade, effectRun, effectFinish, nil]];
+                             effectFade, effectRun, effectFinish, nil]];*/
+            //[dmgPtr.target addChild:[heal copy]];
         }
+        /* run */
+        [self.sprite runAction:[CCSequence actions:startcast, delaycast, finishcast, nil]];
+    }
+}
+
+- (void) secondaryAction:(Action)action at:(CGPoint)position
+{
+    [self.sprite stopAllActions];
+    CGPoint difference = ccpSub(position, self.position);
+    if ( action != ActionIdle && action != ActionDie ) {
+        [self setDirectionWithDifference:difference];
+    }
+    
+    if ( action == ActionIdle ) {
+        [self.delegate unitDelegateUnit:self finishedAction:ActionIdle];
+        [self.sprite runAction:[self.idle getActionFor:self.direction]];
+        
+    } else if ( action == ActionMove ) {
+        [self.moveButton setIsUsed:YES];
+        [self popStepAndAnimate];
+        
+    } else {
+        [super secondaryAction:action at:position];
     }
 }
 
@@ -227,7 +200,7 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
     // Check if there remains path steps to go through
     [[self sprite] stopAllActions];
     if ([[self shortestPath] count] == 0) {
-        [self action:IDLE at:CGPointZero];
+        [self secondaryAction:ActionIdle at:CGPointZero];
         if (self.isOwned) [self toggleMenu:YES];
         [self setShortestPath: nil];
         return;
@@ -235,7 +208,6 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
     
     // Get the next step to move to
     ShortestPathStep *s = [self.shortestPath objectAtIndex:0];
-    NSLog(@"%@! %@",self,s);
     CGPoint difference = ccpSub([s position], [[self sprite] position]);
     float duration = ccpLength(ccpSub([s position],self.position))/60;
     
@@ -289,15 +261,15 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
 
 
 #pragma mark - Menu controls
-- (BOOL) canIDo:(int)action
+- (BOOL) canIDo:(Action)action
 {
     return [super canIDo:action];
 }
 
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] && [self canIDo:MOVE] ) {
-        if ( [self.delegate unitDelegatePressedButton:MOVE] ) {
+    if ( ![self.moveButton isUsed] && [self canIDo:ActionMove] ) {
+        if ( [self.delegate unitDelegatePressedButton:ActionMove] ) {
             [self toggleMenu:NO];
         }
     }
@@ -305,8 +277,8 @@ const NSString *LIONMAGE_ONE_DESP = @"Heal all";
 
 - (void) healPressed
 {
-    if ( ![self.healButton isUsed] && [self canIDo:HEAL_ALL] ) {
-        if ( [self.delegate unitDelegatePressedButton:HEAL_ALL] ) {
+    if ( ![self.healButton isUsed] && [self canIDo:ActionHeal] ) {
+        if ( [self.delegate unitDelegatePressedButton:ActionHeal] ) {
             [self toggleMenu:NO];
         }
     }
