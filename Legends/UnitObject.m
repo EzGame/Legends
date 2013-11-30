@@ -96,14 +96,12 @@ const int lionpriest_upgrades[]  = {TOPAZ, SAPPHIRE,       EMERALD, OPAL};
         
         
         // Position
-        _position = CGPointFromString ([tokens objectAtIndex:tokenIndex++]);
+        _position = CGPointFromString([tokens objectAtIndex:tokenIndex++]);
         
         // locked
         //_locked = [[tokens objectAtIndex:tokenIndex++] boolValue];
         
         //NSAssert(tokenIndex != dataCount - 1, @">[FATAL]    Unit Object dataCount!=tokens!!!");
-        
-        NSLog(@">[MYLOG]    Created UnitObject:\n%@",self);
     }
     return self;
 }

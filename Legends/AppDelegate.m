@@ -109,10 +109,10 @@
 - (void) login:(NSString *)username pass:(NSString *)password
 {
     //[self switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
-    [self switchToScene:[BattleLayer scene]];
+    [self switchToScene:[BattleLayer sceneWithMatch:[UserSingleton get].obj]];
     //[self switchToScene:[SetupLayer scene]];
-    _username = username;
-    _password = password;
+    //_username = username;
+    //_password = password;
     //[self.smartFox send:[LoginRequest requestWithUserName:username password:@"" zoneName:nil params:nil]];
 
 }

@@ -1092,6 +1092,11 @@ static inline CGFloat bezierat( float a, float b, float c, float d, ccTime t )
 	return [[(CCTintTo*)[ self alloc] initWithDuration:t red:r green:g blue:b] autorelease];
 }
 
++(id) actionWithDuration:(ccTime)t color:(ccColor3B)color
+{
+	return [[(CCTintTo*)[ self alloc] initWithDuration:t red:color.r green:color.g blue:color.b] autorelease];
+}
+
 -(id) initWithDuration: (ccTime) t red:(GLubyte)r green:(GLubyte)g blue:(GLubyte)b
 {
 	if( (self=[super initWithDuration:t] ) )

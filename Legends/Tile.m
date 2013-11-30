@@ -13,12 +13,27 @@
     if ( unit != NULL ) {
         self.isOccupied = YES;
         self.isOwned = unit.isOwned;
-        
         unit.boardPos = self.boardPos;
     } else {
         self.isOccupied = NO;
         self.isOwned = NO;
     }
+    _unit = unit;
+}
+
+- (id) init
+{
+    self = [super init];
+    if ( self ) {
+        _touched = NO;
+    }
+    return self;
+}
+
+- (NSString *) description
+{
+    NSString *ret = [NSString stringWithFormat:@"<Tile> @%@ oc:%d ow:%d touched:%d",NSStringFromCGPoint(self.boardPos), self.isOccupied, self.isOwned, self.touched];
+    return ret;
 }
 @end
 //

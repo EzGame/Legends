@@ -55,55 +55,6 @@
     return [renderer getUIImage];
 }
 
-//-(CCParticleSystem *) getParticleSystemForPDFile:(NSString*) plistFile
-//{
-//    if( NSMutableDictionary * dict = [particlesDict objectForKey:plistFile] )
-//    {
-//        NSMutableArray * arr = [dict objectForKey:@"particle_systems"];
-//        
-//        for(CCParticleSystemQuad * psq in arr)
-//        {
-//            if(!psq.particleCount)
-//            {
-//                //                printf("---- returning reused particle systemn");
-//                //                printf("array count : %dn", [arr count]);
-//                return psq;
-//            }
-//        }
-//        
-//        NSMutableDictionary * PDDict = [dict objectForKey:@"pd_dict"];
-//        
-//        //        printf("---- returning new particle system from existing dictionaryn");
-//        //        printf("array count : %dn", [arr count]);
-//        
-//        CCParticleSystemQuad * emitter = [CCParticleSystemQuad particleWithDictionary:PDDict];
-//        [arr addObject:emitter];
-//        
-//        return emitter;
-//    }
-//    
-//    //    printf("---- creating new particle system for a new dictionaryn");
-//    
-//    NSMutableDictionary * newDict = [[NSMutableDictionary alloc] init];
-//    
-//    NSString *path = [CCFileUtils fullPathFromRelativePath:plistFile];
-//    NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:path];
-//    
-//    [newDict setObject:dict forKey:@"pd_dict"];
-//    
-//    NSMutableArray * emitterArray = [[NSMutableArray alloc] initWithCapacity:5];
-//    CCParticleSystemQuad * emitter = [CCParticleSystemQuad particleWithDictionary:dict];
-//    [emitterArray addObject:emitter];
-//    
-//    [newDict setObject:emitterArray forKey:@"particle_systems"];
-//    [emitterArray release];
-//    
-//    [particlesDict setObject:newDict forKey:plistFile];
-//    [newDict release];
-//    
-//    return emitter;
-//}
-
 + (CCSprite *)convertSpriteToGrayscale:(CCSprite *)image
 {
     UIImage* aUIImage = [GeneralUtils convertToGrayscale:[GeneralUtils renderUIImageFromSprite:image]];
@@ -124,6 +75,11 @@
     else if (difference.y > 0 ) return NE;
     else if (difference.y < 0 ) return SW;
     else return NE;
+}
+
++ (int) getDistance:(CGPoint)start to:(CGPoint)end
+{
+    return abs(end.x - start.x) + abs(end.y - start.y);
 }
 
 + (float) getAngle:(CGPoint)p1 :(CGPoint)p2
@@ -157,55 +113,20 @@
     ccColor3B colour;
     // Find the colour to highlight ground
     switch ( action ) {
-        case ActionMove: colour = ccDODGERBLUE;
+        case ActionMove: colour = ccAQUAMARINE;
             break;
         case ActionTeleport: colour = ccDODGERBLUE;
             break;
-        case ActionMelee: colour = ccORANGE;
+        case ActionSkillOne: colour = ccORANGE;
             break;
-        case ActionHeal: colour = ccGREEN;
+        case ActionSkillTwo: colour = ccRED;
             break;
-        case ActionRange: colour = ccORANGE;
-            break;
-        case ActionMagic: colour = ccORANGE;
-            break;
-        case ActionParalyze: colour = ccDARKCYAN;
-            break;
-        case ActionMeleeAOE: colour = ccORANGE;
+        case ActionSkillThree: colour = ccMAROON;
             break;
         default: NSLog(@"Error! Unknown action occurred: %d", action);
             break;
     }
     return colour;
-}
-
-#pragma mark - Algorithms
-+ (NSMutableArray *) getDiamond:(int)area
-{
-    NSMutableArray *array = [NSMutableArray array];
-    for (int i = -area; i <= area; i++ ) {
-        for ( int j = -area; j <= area; j++ ) {
-            if ( !i && !j ) continue;
-            [array addObject:[NSValue valueWithCGPoint:CGPointMake(i, j)]];
-        }
-    }
-    return array;
-}
-
-+ (NSMutableArray *)  getDiamondAreaWithMe:(int)area
-{
-    NSMutableArray *array = [NSMutableArray array];
-    for (int i = -area; i <= area; i++ ) {
-        for ( int j = -area; j <= area; j++ ) {
-            [array addObject:[NSValue valueWithCGPoint:CGPointMake(i, j)]];
-        }
-    }
-    return array;
-}
-
-+ (NSMutableArray *) getOneArea
-{
-    return [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:CGPointMake(0, 0)]];
 }
 
 #pragma mark - To String
@@ -229,6 +150,52 @@
     return ret;
 }
 
+#pragma mark - Algorithms
++ (NSMutableArray *) getDiamondArea:(int)area
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for (int i = -area; i <= area; i++ ) {
+        for ( int j = -area; j <= area; j++ ) {
+            if ( !(!i && !j) && abs(i) + abs(j) <= area )
+                [array addObject:[NSValue valueWithCGPoint:CGPointMake(i, j)]];
+        }
+    }
+    return array;
+}
 
++ (NSMutableArray *)  getDiamondAreaWithMe:(int)area
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for (int i = -area; i <= area; i++ ) {
+        for ( int j = -area; j <= area; j++ ) {
+            if ( abs(i + j) <= area )
+                [array addObject:[NSValue valueWithCGPoint:CGPointMake(i, j)]];
+        }
+    }
+    return array;
+}
+
++ (NSMutableArray *) getOneArea
+{
+    return [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:CGPointMake(0, 0)]];
+}
+
+#pragma mark - Animations
++ (void) tint:(CCSprite *)sprite with:(ccColor3B)color by:(int)factor
+{
+    id tintUp = [CCTintTo actionWithDuration:0.5
+                                         red:MIN(color.r+factor,255)
+                                       green:MIN(color.g+factor,255)
+                                        blue:MIN(color.b+factor,255)
+                 ];
+    id tintDown = [CCTintTo actionWithDuration:0.5
+                                           red:MAX(color.r-factor,0)
+                                         green:MAX(color.g-factor,0)
+                                          blue:MAX(color.b-factor,0)
+                   ];
+    id sequence = [CCSequence actionOne:tintUp two:tintDown];
+    
+    [sprite runAction:[CCRepeatForever actionWithAction:sequence]];
+}
 @end
 

@@ -59,28 +59,6 @@ typedef enum {
 }SkillType;
 
 typedef enum {
-    /*  Secondary Actions  */
-    ActionUnknown,
-    ActionIdle,
-    ActionMove,
-    ActionTeleport,
-    /*  Primary Actions  */
-    ActionMelee,
-    ActionRange,
-    ActionMagic,
-    ActionHeal,
-    ActionMeleeAOE,
-    ActionRangeAOE,
-    ActionMagicAOE,
-    ActionHealAOE,
-    ActionParalyze,
-    ActionEnsnare,
-    ActionDie,
-    /*  Other  */
-    ActionEndTurn,
-}Action;
-
-typedef enum {
     /*  Basic Events  */
     EventUnknown,
     EventSelect,

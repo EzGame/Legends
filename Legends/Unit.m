@@ -38,9 +38,9 @@
                                     key:@"percentage"
                                    from:_healthBar.percentage
                                      to:newPercentage],
-//      [CCDelayTime actionWithDuration:0.25],
+    //[CCDelayTime actionWithDuration:0.25],
       [CCCallBlock actionWithBlock:^{
-//         if ( _currentHP < 1 ) [self secondaryAction:ActionDie at:CGPointZero];
+         //if ( _currentHP < 1 ) [self secondaryAction:ActionDie at:CGPointZero];
      }], nil] ];
 }
 
@@ -49,10 +49,10 @@
 {
     self = [super init];
     if ( self ) {
-        // Save pointer to object
+        // Save pointer to UnitObject
         _object = obj;
         
-        // Initialize other objects
+        // Initialize Attributes
         _attributes = [Attributes attributesWithObject:obj.stats];
         
         // Find sprite strings
@@ -66,22 +66,22 @@
         
         // Cache the sprite frames and texture
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:plist];
-        
-        // Create a batchnode and a sprite
         _spriteSheet = [CCSpriteBatchNode batchNodeWithFile:png];
-        [self addChild:self.spriteSheet];
         _sprite = [CCSprite spriteWithSpriteFrameName:name];
-        [self.spriteSheet addChild:self.sprite];
+        _sprite.anchorPoint = ccp(0.5, 0);
+        [_spriteSheet addChild:self.sprite];
+        [self addChild:self.spriteSheet];
 
         // Health bar
-        _healthBar = [CCProgressTimer progressWithSprite:[CCSprite spriteWithFile:@"unit_healthBar.png"]];
+        _healthBar = [CCProgressTimer progressWithSprite:
+                      [CCSprite spriteWithFile:@"healthbar.png"]];
         _healthBar.type = kCCProgressTimerTypeBar;
         _healthBar.color = (owned) ? ccGREEN : ccRED;
         _healthBar.midpoint = ccp(0.0, 0.5f);
         _healthBar.barChangeRate = ccp(1,0);
         _healthBar.percentage = 100;
         _healthBar.anchorPoint = ccp(0.5,1.0);
-        _healthBar.position = ccpAdd(self.position,ccp(0,-50));
+        _healthBar.position = ccpAdd(self.position,ccp(0,0));
         [self addChild:_healthBar z:1];
         
         // A*
@@ -99,7 +99,6 @@
 
 #pragma mark - Actions
 - (void) action:(Action)action targets:(NSMutableArray *)targets{}
-- (void) action:(Action)action location:(CGPoint)position{}
 
 #pragma mark - Sender combat
 - (void) damage:(NSMutableArray *)units for:(int)amount{}
@@ -179,16 +178,23 @@
 }
 
 - (void) reset {}
+- (void) openMenu
+{
+    self.menu.visible = YES;
+}
+- (void) closeMenu
+{
+    self.menu.visible = NO;
+}
 @end
 
 
 #pragma mark - A*
 @implementation ShortestPathStep
-- (id)initWithPosition:(CGPoint)pos boardPos:(CGPoint)bpos;
+- (id)initWithPosition:(CGPoint)pos;
 {
 	if ((self = [super init])) {
 		_position = pos;
-        _boardPos = bpos;
 		_gScore = 0;
 		_hScore = 0;
 		_parent = nil;
@@ -198,7 +204,7 @@
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"%@  pos=%@%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(self.position), NSStringFromCGPoint(self.boardPos), self.gScore, self.hScore, [self fScore]];
+	return [NSString stringWithFormat:@"%@  pos=%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(self.position), self.gScore, self.hScore, [self fScore]];
 }
 
 - (BOOL)isEqual:(ShortestPathStep *)other

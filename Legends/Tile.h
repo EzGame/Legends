@@ -16,6 +16,7 @@
 @property (nonatomic)               BOOL isOccupied;
 @property (nonatomic)               BOOL isOwned;
 @property (nonatomic)            CGPoint boardPos;
+@property (nonatomic)               BOOL touched;
 @end
 //#import "Buff.h"
 //

@@ -8,7 +8,16 @@
 
 #import "Priest.h"
 @interface Priest()
-
+@property (nonatomic, strong)   UnitAction *idle;
+@property (nonatomic, strong)   UnitAction *move;
+@property (nonatomic, strong)   UnitAction *heal;
+@property (nonatomic, strong)   UnitAction *cast;
+@property (nonatomic, strong)   UnitButton *moveButton;
+@property (nonatomic, strong)   UnitButton *healButton;
+@property (nonatomic, strong)   UnitButton *castButton;
+@property (nonatomic, strong) ActionObject *moveAction;
+@property (nonatomic, strong) ActionObject *healAction;
+@property (nonatomic, strong) ActionObject *castAction;
 @end
 
 @implementation Priest
@@ -32,6 +41,7 @@
         _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_cast" andFrames:4 delay:0.1 reverse:NO];
         
         [self initMenu];
+        [self initActions];
     }
     return self;
 }
@@ -47,29 +57,59 @@
     _healButton.position = ccp(50, 60);
     
     self.menu = [CCMenu menuWithItems:_moveButton, _healButton, nil];
-    self.menu.visible = YES;
+    self.menu.visible = NO;
     self.menu.anchorPoint = ccp(0.5, 0.5);
     self.menu.position = ccp(0,0);
     [self addChild:self.menu];
 }
 
+- (void) initActions
+{
+    _moveAction = [[ActionObject alloc] init];
+    _moveAction.type = ActionMove;
+    _moveAction.areaOfRange = [GeneralUtils getDiamondArea:3];
+    _moveAction.areaOfEffect = [GeneralUtils getDiamondAreaWithMe:0];
+    _moveAction.range = 3;
+    
+    _healAction = [[ActionObject alloc] init];
+    _healAction.type = ActionSkillOne;
+    _healAction.areaOfRange = [GeneralUtils getDiamondArea:-1];
+    _healAction.areaOfEffect = [GeneralUtils getDiamondArea:-1];
+    
+    _castAction = [[ActionObject alloc] init];
+    _castAction.type = ActionSkillTwo;
+    _castAction.areaOfRange = [GeneralUtils getDiamondArea:-1];
+    _castAction.areaOfEffect = [GeneralUtils getDiamondArea:-1];
+}
+
 #pragma mark - Action
 - (void) action:(Action)action targets:(NSMutableArray *)targets
 {
-    for ( Unit *unit in targets ) {
-        CGPoint posOfTarget = [self convertToNodeSpace:unit.position];
-        CCParticleSystemQuad *effect = [[GameObjSingleton get] getParticleSystemForFile:@"healEffect.plist"];
-        if ( effect.parent ) {
-            [effect.parent removeChild:effect cleanup:NO];
+    if ( action == ActionIdle ) {
+        // Get action
+        CCAction *actPtr = [self.idle getActionFor:self.direction];
+        
+        // Run action
+        [self runAction:actPtr];
+    } else if ( action == ActionMove ) {
+        [self actionWalk];
+        
+    } else {
+        for ( Unit *unit in targets ) {
+            CGPoint posOfTarget = [self convertToNodeSpace:unit.position];
+            CCParticleSystemQuad *effect = [[GameObjSingleton get] getParticleSystemForFile:@"healEffect.plist"];
+            if ( effect.parent ) {
+                [effect.parent removeChild:effect cleanup:NO];
+            }
+            
+            effect.position = posOfTarget;
+            // WE HAVE TO PUT THIS INTO THE SCENE, CANNOT MANAGE Z ORDER HERE
+            [self addChild:effect z:EFFECTS];
+            [unit gain:10 from:self];
         }
         
-        effect.position = posOfTarget;
-        // WE HAVE TO PUT THIS INTO THE SCENE, CANNOT MANAGE Z ORDER HERE
-        [self addChild:effect z:EFFECTS];
-        [unit gain:10 from:self];
+        [self.sprite runAction:[self.heal getActionFor:self.direction]];
     }
-    
-    [self.sprite runAction:[self.heal getActionFor:self.direction]];
 }
 
 - (void) actionWalk {
@@ -89,49 +129,42 @@
     
     // Find the facing direction
     if (difference.x >= 0 && difference.y >= 0) {
-        [self.sprite runAction:self.move.action_NE];
         self.direction = NE;
     } else if (difference.x >= 0 && difference.y < 0) {
-        [self.sprite runAction:self.move.action_SE];
         self.direction = SE;
     } else if (difference.x < 0 && difference.y < 0) {
-        [self.sprite runAction:self.move.action_SW];
         self.direction = SW;
     } else {
-        [self.sprite runAction:self.move.action_NW];
         self.direction = NW;
     }
-    
-//    [self.delegate unitDelegateUnit:self updateLayer:s.boardPos];
-    [self.delegate unitDidMoveTo:s.position];
+    [self.sprite runAction:[self.move getActionFor:self.direction]];
+    [self.delegate unit:self didMoveTo:s.position];
     
     // Prepare the action and the callback
     id moveAction = [CCMoveTo actionWithDuration:duration position:[s position]];
-    id moveCallback = [CCCallFunc actionWithTarget:self selector:@selector(popStepAndAnimate)]; // set the method itself as the callback
+    id moveCallback = [CCCallFunc actionWithTarget:self
+                                          selector:@selector(actionWalk)];
     [self.shortestPath removeObjectAtIndex:0];
     
     // Play actions
-    [[self sprite] runAction:[CCSequence actions:moveAction, moveCallback, nil]];
+    [self runAction:[CCSequence actions:moveAction, moveCallback, nil]];
 }
 
 #pragma mark -
 - (void) movePressed
 {
-//    if ( ![self.moveButton isUsed] && [self canIDo:ActionMove] ) {
-//        if ( [self.delegate unitDelegatePressedButton:ActionMove] ) {
-//            [self toggleMenu:NO];
-//        }
-//    }
+    if ( ![self.moveButton isUsed] ) {
+        self.menu.visible = NO;
+        [self.delegate unit:self didPress:self.moveAction];
+    }
 }
 
 - (void) healPressed
 {
-    CCParticleSystemQuad *test = [CCParticleSystemQuad particleWithFile:@"healEffect.plist"];
-    test.autoRemoveOnFinish = YES;
-    test.position = ccp(0,-25);
-    [self addChild:test z:100];
-    [self.sprite runAction:[self.heal getActionFor:self.direction]];
-    [self gain:10 from:self];
+    if ( ![self.healButton isUsed] ) {
+        self.menu.visible = NO;
+        [self.delegate unit:self didPress:self.healAction];
+    }
 }
 
 - (void) reset

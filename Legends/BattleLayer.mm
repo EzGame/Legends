@@ -22,24 +22,17 @@
 @end
 
 @implementation BattleLayer
-
 #pragma mark - Setters n Getters
-//- (void) setSelection:(Tile *)selection
-//{
-//    if ( _selection != nil && selection == nil )
-//        [_selection.unit.sprite stopActionByTag:IDLETAG];
-//    _selection = selection;
-//}
 
 #pragma mark - Init n Class
-+(CCScene *) scene
++ (CCScene *) sceneWithMatch:(MatchObject *)obj
 {
     CCLOG(@"=========================<ENTERING BattleLayer>=========================");
 	// 'scene' is an autorelease object.
 	CCScene *scene = [CCScene node];
 	
 	// 'layer' is an autorelease object.
-	BattleLayer *layer = [BattleLayer node];
+	BattleLayer *layer = [[BattleLayer alloc] initWithMatch:obj];
     layer.tag = kTagBattleLayer;
 	
 	// add layer as a child to scene
@@ -49,15 +42,14 @@
 	return scene;
 }
 
-- (id)init
+- (id)initWithMatch:(MatchObject *)obj
 {
-    if ( (self=[super init]) )
-    {
-        //CGSize winSize = [[CCDirector sharedDirector] winSize];
+    self = [super init];
+    if ( self ) {
         isTouchEnabled_ = YES;
-        appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
-        smartFox = appDelegate.smartFox;
         winSize = [[CCDirector sharedDirector] winSize];
+        
+        _matchObj = obj;
         
         _gameLayer = [CCLayer node];
         [self addChild:_gameLayer z:GAMELAYER];
@@ -68,22 +60,16 @@
         [self initMap];
         [self initTemp];
         
-        _brain = [[BattleBrain alloc] initWithMap:_tmxLayer];
+        _brain = [[BattleBrain alloc] initWithMap:_tmxLayer delegate:self];
         
-//        // Game Layer
-//        _gameLayer = [CCLayer node];
-//        [self addChild:_gameLayer z:GAMELAYER];
-//        
-
-//        
+        if ( [_matchObj.myUser isItMe] ) {
+            turnState = TurnStateA;
+        }
+            
+        
 //        [self createMap];
 //        [self createUI];
 //        [self createMenu];
-//        
-//        // Setup Brain
-//        _brain = [[BattleBrain alloc] initWithMap:_tmxLayer];
-//        [_brain setDelegate:self];
-//        [_brain restoreSetup];
 //
 //        if ( [[UserSingleton get] amIPlayerOne] ) {
 //            [self reset:YES];
@@ -101,12 +87,19 @@
 - (void) initMap
 {
     _map = [CCTMXTiledMap tiledMapWithTMXFile:@"GameMap.tmx"];
-    //_map.anchorPoint = ccp(0.5,0.5);
-    //_map.position = ccp(winSize.width/2, winSize.height/2);
-    NSLog(@"winsize %@",NSStringFromCGSize(winSize));
-    NSLog(@"mapsize %@",NSStringFromCGSize(_map.contentSize));
+    
     _tmxLayer = [_map layerNamed:@"tiles"];
     [_gameLayer addChild:_map z:MAP];
+    
+    // Do random tile
+    gid_t gid = (arc4random()%4) + [_tmxLayer.tileset firstGid];
+    for ( int i = 0 ; i < GAMEMAPWIDTH ; i++ ) {
+        for ( int k = 0 ; k < GAMEMAPHEIGHT ; k++ ) {
+            CGPoint pos = CGPointMake(i, k);
+            if ( [_tmxLayer tileGIDAt:pos] != 0 )
+                [_tmxLayer setTileGID:gid at:pos];
+        }
+    }
 }
 
 - (void) initTemp
@@ -165,15 +158,162 @@
         position = [self convertToNodeSpace:position];
         
         [self.debug setString:[NSString stringWithFormat:@"%@", NSStringFromCGPoint(position)]];
-        [self.brain lightUp:position];
+        //[self.brain lightUp:position];
         
-        //NSLog(@"%@",NSStringFromCGPoint(position));
-        
-//        if (isMyTurn)
-//            [self turn_drive:position];
-//        else
-//            [self offTurn_drive:position];
+        [self.brain turn_driver:position];
     }
+}
+
+#pragma mark - Turn State Machine
+
+
+- (void) turnA:(CGPoint)position
+{
+    //[self.brain doSelection];
+    
+//    // Set selection and display
+//    Tile *temp = [self.brain doSelect:position];
+//    [self.display setDisplayFor:temp];
+//    if ( !unitLocked )  [self setSelection:temp];
+//    
+//    if ( temp.unit != nil ) {
+//        [self center:temp.unit.sprite.position];
+//        if ( ![self.selection.unit isEqual:temp.unit] ) return;
+//        
+//        [self.selection.unit.sprite stopActionByTag:IDLETAG];
+//        if ( [[self selection] isOwned] && ![self.selection.unit.sprite numberOfRunningActions]) {
+//            // Show visual selection
+//            [self.selection.unit secondaryAction:ActionIdle at:CGPointZero];
+//            
+//            // Open the menu and set flag
+//            [[[self selection] unit] toggleMenu:YES];
+//            
+//            // Go to turn B next click
+//            NSLog(@">[MYLOG] Proceed to B next\n");
+//            isTurnA = NO;
+//            isTurnB = YES;
+//        }
+//    }
+}
+
+- (void) turnB:(CGPoint)position
+{
+    
+//    [self highLightMode:HighlightModeOff skill:nil params:nil];
+//    CGPoint target = [[self brain] findBrdPos:position];
+//    ccColor3B temp = ccWHITE;
+//    if ( [self.brain isValidTile:target] )
+//        temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
+//    
+//    if ( ![GeneralUtils ccColor3BCompare:temp :ccWHITE] ) {
+//        
+//        NSMutableArray *tempArray = [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:target]];
+//        [self highLightMode:HighlightModeEffect
+//                      skill:self.currentSkill
+//                     params:[NSMutableArray arrayWithObject:tempArray]];
+//        self.vector = [TileVector vectorWithTile:[self.brain findTile:target absPos:NO]
+//                                       direction:direction];
+//        // Go to turn D next click
+//        NSLog(@">[MYLOG] Proceed to C next\n");
+//        isTurnB = NO;
+//        isTurnC = YES;
+//        
+//    } else {
+//        self.currentSkill = nil;
+//        
+//        [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
+//        
+//        [self.display setDisplayFor:nil];
+//        [[[self selection] unit] toggleMenu:NO];
+//        
+//        // Go to turn A immediately
+//        NSLog(@">[MYLOG] Proceed to A immediately\n");
+//        isTurnB = NO;
+//        isTurnA = YES;
+//        
+//        [self turnA:position];
+//    }
+}
+
+- (void) turnC:(CGPoint)position
+{
+    
+//    // Find the target to compare with the confirming
+//    CGPoint target = [[self brain] findBrdPos:position];
+//    ccColor3B temp = ccWHITE;
+//    if ( [self.brain isValidTile:target] )
+//        temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
+//    
+//    SFSObject *obj = [SFSObject newInstance];
+//    [self highLightMode:HighlightModeOff skill:nil params:nil];
+//    
+//    if ( ![GeneralUtils ccColor3BCompare:temp :ccWHITE] &&
+//        [self.brain doAction:currentAction
+//                         for:self.selection
+//                      toward:self.vector
+//                     oppData:obj
+//                     targets:self.boardTargets] )
+//    {
+//        if ( self.currentSkill.skillType == ActionMove
+//            || self.currentSkill.skillType == ActionTeleport ) {
+//            // reorder child
+//            self.selection = self.vector.tile;
+//            [self reorderTile:[self selection]];
+//        }
+//        
+//        CGPoint oldPos = [[self selection] boardPos];
+//        unitLocked = YES;
+//        self.currentSkill = nil;
+//        
+//        // Send data
+//        [self sendDatafrom:oldPos to:position timeDuration:0 targets:obj];
+//        
+//        if ( [self.selection.unit hasActionLeft] ) {
+//            NSLog(@">[MYLOG] Proceed to turn B next");
+//            isTurnC = NO;
+//            isTurnB = YES;
+//        }
+//    } else {
+//        [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
+//        self.currentSkill = nil;
+//        [self.display setDisplayFor:nil];
+//        [[[self selection] unit] toggleMenu:NO];
+//        
+//        // Go to turn A immediately
+//        NSLog(@">[MYLOG] Proceed to A immediately\n");
+//        isTurnC = NO;
+//        isTurnA = YES;
+//        
+//        [self turnA:position];
+//    }
+}
+
+
+#pragma mark - Helper Functions
+- (void) reorderTile:(Tile *)tile
+{
+    int pos = tile.boardPos.x + tile.boardPos.y;
+    [self.gameLayer reorderChild:tile.unit z:SPRITES_TOP - pos];
+}
+
+
+#pragma mark - BattleBrain Delegates
+- (void) battleBrainDidLoadUnitAt:(Tile *)tile
+{
+    NSLog(@"position %@, %@", NSStringFromCGPoint(tile.boardPos), NSStringFromCGPoint(tile.unit.position));
+    NSLog(@"%@",tile.unit);
+    [self.gameLayer addChild:tile.unit z:SPRITES_TOP];
+    [self reorderTile:tile];
+}
+
+- (MatchObject *) battleBrainNeedsMatchObj
+{
+    return self.matchObj;
+}
+
+- (void) battleBrainWantsToDisplay:(Unit *)unit
+{
+    
 }
 /*
 - (void) createMap
@@ -564,11 +704,7 @@
     [self.brain setCurrentLayerPos:destination];
 }
 
-- (void) reorderTile:(Tile *)tile
-{
-    int pos = tile.boardPos.x + tile.boardPos.y;
-    [self.gameLayer reorderChild:[[tile unit] spriteSheet] z:SPRITES_TOP - pos];
-}
+
 
 - (void) highLightMode:(HighlightMode)mode skill:(SkillObj *)skill params:(NSMutableArray *)params
 {

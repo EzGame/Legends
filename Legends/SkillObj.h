@@ -7,6 +7,7 @@
 //
 
 #import "Defines.h"
+#import "Constants.h"
 
 @interface CombatObj : NSObject
 @property (nonatomic) CGPoint target;

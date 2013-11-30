@@ -14,17 +14,15 @@
 #import "Defines.h"
 
 /* Data Objects */
-#import "Buff.h"
-#import "Objects.h"
-#import "SkillObj.h"
-
+//#import "Buff.h"
 
 #import "cocos2d.h"
 #import "GeneralUtils.h"
+#import "Constants.h"
 
 #import "Attributes.h"
 #import "UnitObject.h"
-
+#import "ActionObject.h"
 
 //typedef enum {
 //    NE,
@@ -41,42 +39,26 @@
 
 @protocol UnitDelegate <NSObject>
 @optional
-- (void) unitDidMoveTo:(CGPoint) position;
-- (void) unitDidFinishAction:(Action) action;
-- (void) unitDidPress:(Action) action;
+- (void) unit:(Unit *)unit didMoveTo:(CGPoint)position;
+- (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action;
+- (void) unit:(Unit *)unit didPress:(ActionObject *)action;
 @end
 
 @interface Unit : CCNode
-
-/*  [UnitObject WIP] - object
-        Read only, weak pointer to object in userSingleton. The object contains all unit specific information that differes from base information.
- */
-@property (nonatomic, strong, readonly)    UnitObject *object;
-
-/*  Attributes - attributes
-        Instantiation of stats object in UnitObject. This object contains more specific information to the unit and not just the basic 5 stats
- */
+@property (nonatomic, strong, readonly)  UnitObject *object;
 @property (nonatomic, strong)            Attributes *attributes;
 
-/*  Cocos2d stuff
- */
 @property (nonatomic, strong)              CCSprite *sprite;
 @property (nonatomic, strong)     CCSpriteBatchNode *spriteSheet;
 @property (nonatomic, strong)       CCProgressTimer *healthBar;
+@property (nonatomic, strong)                CCMenu *menu;
 
-/*  SP data structures
-        Mutable arrays that hold information used in the path finding algorith A*
- */
 @property (nonatomic, strong)        NSMutableArray *spOpenSteps;
 @property (nonatomic, strong)        NSMutableArray *spClosedSteps;
 @property (nonatomic, strong)        NSMutableArray *shortestPath;
 
-/*  Delegate
- */
 @property (nonatomic, assign)                    id delegate;
 
-/*  State management variables
- */
 @property (nonatomic)                     Direction direction;
 @property (nonatomic)                       CGPoint boardPos;
 @property (nonatomic)                           int currentCD;
@@ -85,26 +67,21 @@
 @property (nonatomic)                           int moveSpeed;
 @property (nonatomic)                          BOOL isOwned;
 
-@property (nonatomic, strong)   CCMenu *menu;
-- (id) initUnit:(UnitObject *)obj isOwned:(BOOL)owned;
+- (id)      initUnit:(UnitObject *)obj isOwned:(BOOL)owned;
 
+- (void)    action:(Action)action targets:(NSMutableArray *)targets;
 
-/* Actions */
-- (void) action:(Action)action targets:(NSMutableArray *)targets;
-- (void) action:(Action)action location:(CGPoint)position;
-
-/* Sender combat */
-- (void) damage:(NSMutableArray *)units for:(int)amount;
-- (void) heal:(NSMutableArray *)units for:(int)amount;
+- (void)    damage:(NSMutableArray *)units for:(int)amount;
+- (void)    heal:(NSMutableArray *)units for:(int)amount;
 //- (void) buff:(NSMutableArray *)units;
 
-/* Receiver combat */
-- (void) take:(int)amount from:(Unit *)unit;
-- (void) gain:(int)amount from:(Unit *)unit;
+- (void)    take:(int)amount from:(Unit *)unit;
+- (void)    gain:(int)amount from:(Unit *)unit;
 //- (void) buff:(int)amount from:(Unit *)unit;
 
-/* Mechanical functions */
-- (void) reset;
+- (void)    reset;
+- (void)    openMenu;
+- (void)    closeMenu;
 @end
 
 
@@ -118,12 +95,11 @@
 //}
 
 @property (nonatomic, assign) CGPoint position;
-@property (nonatomic, assign) CGPoint boardPos;
 @property (nonatomic, assign) int gScore;
 @property (nonatomic, assign) int hScore;
 @property (nonatomic, unsafe_unretained) ShortestPathStep *parent;
 
-- (id)initWithPosition:(CGPoint)pos boardPos:(CGPoint)bpos;
+- (id)initWithPosition:(CGPoint)pos;
 - (int)fScore;
 
 @end

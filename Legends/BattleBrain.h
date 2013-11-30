@@ -20,19 +20,23 @@
 @class BattleBrain;
 @protocol BattleBrainDelegate <NSObject>
 @required
-- (void) battleBrainDidLoadUnitAt:(Tile *)tile;
+- (void)            battleBrainDidLoadUnitAt:(Tile *)tile;
+- (MatchObject *)   battleBrainNeedsMatchObj;
+- (void)            battleBrainWantsToDisplay:(Unit *)unit;
 @end
 
-@interface BattleBrain : NSObject
+@interface BattleBrain : NSObject <UnitDelegate>
+
 @property (nonatomic, assign)                id delegate;
 @property (nonatomic, strong)           NSArray *gameBoard;
+@property (nonatomic, weak)          CCTMXLayer *tmxLayer;
 @property (nonatomic)                   CGPoint currentLayerPosition;
 @property (nonatomic)         CGAffineTransform toIso;
 @property (nonatomic)         CGAffineTransform toWld;
 
-- (id) initWithMap:(CCTMXLayer *) map;
+- (id)      initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate;
+- (void)    turn_driver:(CGPoint)position;
 
-- (void) lightUp:(CGPoint)position;
 @end
 
 //// Auto includes

@@ -242,10 +242,10 @@
     if ([[evt.params objectForKey:@"message"] isEqual:@"GO"]
         && ![sender.name isEqual:smartFox.mySelf.name]) {
         received = YES;
-        if ( sent ) [appDelegate switchToScene:[BattleLayer scene]];
+        //if ( sent ) [appDelegate switchToScene:[BattleLayer scene]];
     } else {
         sent = YES;
-        if ( received ) [appDelegate switchToScene:[BattleLayer scene]];
+        //if ( received ) [appDelegate switchToScene:[BattleLayer scene]];
     }
 }
 

@@ -14,13 +14,7 @@
 #import "UnitButton.h"
 
 @interface Priest : Unit
-@property (nonatomic, strong) UnitAction *idle;
-@property (nonatomic, strong) UnitAction *move;
-@property (nonatomic, strong) UnitAction *heal;
-@property (nonatomic, strong) UnitAction *cast;
-@property (nonatomic, strong) UnitButton *moveButton;
-@property (nonatomic, strong) UnitButton *healButton;
-@property (nonatomic, strong) UnitButton *castButton;
+
 
 + (id) priest:(UnitObject *)object
       isOwned:(BOOL)owned;

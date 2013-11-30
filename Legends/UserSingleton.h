@@ -9,8 +9,11 @@
 #import <Foundation/Foundation.h>
 #import <SFS2XAPIIOS/SmartFox2XClient.h>
 #import "Defines.h"
-#import "Objects.h"
 #import "UICKeyChainStore.h"
+
+// Temp
+#import "UnitObject.h"
+#import "MatchObject.h"
 
 @interface UserSingleton : NSObject
 // Inventory
@@ -31,6 +34,8 @@
 @property (nonatomic) int TELO;
 
 // Game properties
+@property (nonatomic, strong) MatchObject *obj;
+
 @property (nonatomic) BOOL amIPlayerOne;
 @property (nonatomic, strong) SFSArray *mySetup;
 @property (nonatomic, strong) SFSArray *oppSetup;
@@ -46,9 +51,5 @@
 - (BOOL) uploadProfile;
 - (int) getKForMM;
 - (int) getKForTMM;
-
-/* TESTING FUNCTIONS DELETE AT RELEASE */
-- (void) createUnit;
-- (void) createMaxUnit;
 @end
 

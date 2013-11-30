@@ -7,24 +7,49 @@
 ////
 
 #import "BattleBrain.h"
+@interface BattleBrain()
+@property (nonatomic, weak)         Unit *currentUnitPtr;
+@property (nonatomic, weak) ActionObject *currentActionPtr;
+@property (nonatomic)            CGPoint currentHighlightPos;
+@property (nonatomic)          TurnState turnState;
+@end
 
 @implementation BattleBrain
 #pragma mark - Setters n Getters
 - (void) setCurrentLayerPosition:(CGPoint)currentLayerPosition
 {
+    CGAffineTransform inverIso = CGAffineTransformMake(-GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+                                                       GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+                                                       GAMETILEOFFSETX + currentLayerPosition.x,
+                                                       GAMETILEOFFSETY + currentLayerPosition.y);
+    self.toIso = CGAffineTransformInvert(inverIso);
     _currentLayerPosition = currentLayerPosition;
-    self.toWld = CGAffineTransformMake(-GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
-                                        GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
-                                        GAMETILEOFFSETX + currentLayerPosition.x,
-                                        GAMETILEOFFSETY + currentLayerPosition.y);
-    self.toIso = CGAffineTransformInvert(self.toWld);
 }
 
+- (void) setTurnState:(TurnState)turnState
+{
+    if ( turnState == TurnStateA ) {
+        self.currentUnitPtr = nil;
+        self.currentActionPtr = nil;
+//        self.currentHighlightPos = CGPointZero;
+    } else if ( turnState == TurnStateB ) {
+        [self.currentUnitPtr openMenu];
+//        self.currentActionPtr = nil;
+    }
+    _turnState = turnState;
+}
+
+
+
 #pragma mark - Init n Shit
-- (id) initWithMap:(CCTMXLayer *) map;
+- (id) initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate
 {
     self = [super init];
     if ( self ) {
+        // Set delegate
+        _delegate = delegate;
+        
+        // Create gameboard
         _gameBoard = [[NSArray alloc] initWithObjects:
                       [NSMutableArray array],       // 0
                       [NSMutableArray array],       // 1
@@ -37,26 +62,30 @@
                       [NSMutableArray array],       // 8
                       [NSMutableArray array],       // 9
                       [NSMutableArray array], nil]; // 10
+
+        // Save weak pointer to tmxLayer
+        _tmxLayer = tmxLayer;
         
-        // Populating board
+        // Populating board with tiles
         for ( int i = 0 ; i < GAMEMAPWIDTH ; i++ ) {
             for ( int k = 0 ; k < GAMEMAPHEIGHT ; k++ ) {
                 CGPoint pos = CGPointMake(i, k);
-                NSLog(@"pos %@", NSStringFromCGPoint(pos));
                 Tile *tile = [[Tile alloc] init];
                 if ( [self isValidPos:pos] ) {
                     tile.boardPos = pos;
-                    tile.sprite = [map tileAt:pos];
+                    tile.sprite = [tmxLayer tileAt:[self getInvertedPos:pos]];
                 }
                 [[_gameBoard objectAtIndex:i] addObject:tile];
             }
         }
         
+        // Setting isometric - world transforms
         _toWld = CGAffineTransformMake( -GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
                                          GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
                                          GAMETILEOFFSETX, GAMETILEOFFSETY);
         _toIso = CGAffineTransformInvert(_toWld);
         
+        // Fill board with player owned units
         [self initSetup];
     }
     return self;
@@ -64,50 +93,405 @@
 
 - (void) initSetup
 {
-    // Populating pieces
-    NSLog(@"start");
-
-    for ( int i = 0; i < [[[UserSingleton get] mySetup] size]; i++ )
+    MatchObject *matchObj = [self.delegate battleBrainNeedsMatchObj];
+    
+    // Populating our pieces
+    for ( int i = 0; i < [matchObj.mySetup size]; i++ )
     {
-        // The stored string is in the form of @type[@x,@y]
-        //UnitObj *obj = [UnitObj unitObjWithString:@"3/10000/1/1/1/1/1/1/1/1/{5,3}/0"];
-        UnitObject *obj = [[[UserSingleton get] mySetup] getElementAt:i];
-
+        // create unit
+        UnitObject *obj = [matchObj.oppSetup getElementAt:i];
         Unit *unit = [self createUnitWith:obj isOwned:YES];
-        Tile *tile = [self getTileWithPos:obj.position];
-        tile.unit = unit;
-
+        unit.delegate = self;
+        
+        // get tile
+        Tile *tilePtr = [self getTileWithPos:obj.position];
+        tilePtr.unit = unit;
+        tilePtr.unit.position = [self getWorldPosFromIso:tilePtr.boardPos];
+        
         // Upload visually
-        [self.delegate battleBrainDidLoadUnitAt:tile];
+        [self.delegate battleBrainDidLoadUnitAt:tilePtr];
     }
 
     // Populating opponent pieces
-    for ( int i = 0; i < [[[UserSingleton get] oppSetup] size]; i++ )
+    for ( int i = 0; i < [matchObj.oppSetup size]; i++ )
     {
-        // The stored string is in the form of @type[@x,@y]
-        //UnitObj *obj = [UnitObj unitObjWithString:@"3/10000/1/1/1/1/1/1/1/1/{5,3}/0"];
-        UnitObject *obj = [[[UserSingleton get] oppSetup] getElementAt:i];
-
+        // create unit
+        UnitObject *obj = [matchObj.oppSetup getElementAt:i];
         Unit *unit = [self createUnitWith:obj isOwned:NO];
-        Tile *tile = [self getTileWithPos:obj.position];
-        tile.unit = unit;
+        unit.delegate = self;
+        
+        // get tile
+        Tile *tilePtr = [self getTileWithPos:[self getInvertedPos:obj.position]];
+        tilePtr.unit = unit;
+        tilePtr.unit.position = [self getWorldPosFromIso:tilePtr.boardPos];
 
         // Upload visually
-        [self.delegate battleBrainDidLoadUnitAt:tile];
+        [self.delegate battleBrainDidLoadUnitAt:tilePtr];
     }
 }
-//- (id) makeUnit:(int)type withObj:(UnitObj *)obj owned:(BOOL)side;
-//{
 
-//}
-
-- (void) lightUp:(CGPoint)position
+- (Unit *) createUnitWith:(UnitObject *)obj isOwned:(BOOL)isOwned
 {
-    CGPoint pos = [self getIsoPosFromWorld:position];
-    NSLog(@"%@",NSStringFromCGPoint(pos));
-    Tile *tilePtr = [[self.gameBoard objectAtIndex:pos.x] objectAtIndex:pos.y];
-    [tilePtr.sprite setColor:ccRED];
+    if ( obj.type == UnitTypePriest ) {
+        return [Priest priest:obj isOwned:isOwned];
+        
+    } else {
+        NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDTYPE %d", obj.type);
+        return nil;
+    }
 }
+
+
+
+#pragma mark - Turn State Machine
+- (void) turn_driver:(CGPoint)position
+{
+    // Turn touch position into board position
+    CGPoint brdPos = [self getIsoPosFromWorld:position];
+    NSLog(@">>>> Turn State: %d, brdPos: %@",self.turnState,NSStringFromCGPoint(brdPos));
+    
+    // Find tile at board position
+    Tile *tilePtr = [self getTileWithPos:brdPos];
+    
+    // If selection is outside of board, return to state A
+    if ( tilePtr == nil && !CGPointEqualToPoint(position, CGPointFlag) ) {
+        self.turnState = TurnStateA;
+        return;
+    }
+    
+    if ( self.turnState == TurnStateA ) {
+        NSLog(@"\n==================TURN STATE A: Make a selection==================\n");
+        // Display information of that location
+        [self.delegate battleBrainWantsToDisplay:tilePtr.unit];
+
+        // If unit is not owned or nil, return to state A
+        if ( ![tilePtr.unit isOwned] ) {
+            self.turnState = TurnStateA;
+            return;
+        }
+        
+        // set Current Unit Pointer
+        self.currentUnitPtr = tilePtr.unit;
+        
+        // Advance turn state
+        self.turnState = TurnStateB;
+
+    } else if ( self.turnState == TurnStateB ) {
+        NSLog(@"\n==================TURN STATE B: Highlight action==================\n");
+        // If current action was not set, return to state A
+        if ( self.currentActionPtr == nil ) {
+            self.turnState = TurnStateA;
+            return;
+        }
+
+        // Save highlight pos and highlight with mode HighlightModeRange
+        self.currentHighlightPos = self.currentUnitPtr.boardPos;
+        [self highlightTilesWithMode:HighlightModeRange];
+        
+        // Advance turn state
+        self.turnState = TurnStateC;
+        
+    } else if ( self.turnState == TurnStateC ) {
+        NSLog(@"\n==================TURN STATE C: Confirm the action================\n");
+        // If selection is white, return to state B
+        if ( [GeneralUtils ccColor3BCompare:tilePtr.sprite.color :ccWHITE] ) {
+            self.turnState = TurnStateB;
+            
+            // Turn off highlight
+            [self highlightTilesWithMode:HighlightModeRangeOff];
+            return;
+        }
+        
+        // Turn off highlight
+        [self highlightTilesWithMode:HighlightModeRangeOff];
+        
+        // Save highlight pos and highlight with mode HighlightModeEffect
+        self.currentHighlightPos = brdPos;
+        [self highlightTilesWithMode:HighlightModeEffect];
+        
+        // Advance turn state
+        self.turnState = TurnStateD;
+        
+    } else if ( self.turnState == TurnStateD ) {
+        NSLog(@"\n==================TURN STATE D: Perform an action==================\n");
+        // If selection is not animated, return to state B
+        if ( ![tilePtr.sprite numberOfRunningActions] ) {
+            self.turnState = TurnStateB;
+            
+            // Turn off highlight
+            [self highlightTilesWithMode:HighlightModeEffectOff];
+            return;
+        }
+        
+        // Turn off highlight
+        [self highlightTilesWithMode:HighlightModeEffectOff];
+
+        // Perform the action
+        [self performAction:self.currentActionPtr
+                         to:self.currentHighlightPos
+                         by:self.currentUnitPtr];
+        
+        // Reset turn state
+        self.turnState = TurnStateA;
+        
+    } else if ( self.turnState == TurnStateX ) {
+        // display information and stop
+        [self.delegate battleBrainWantsToDisplay:tilePtr.unit];
+    }
+}
+
+- (void) highlightTilesWithMode:(HighlightMode)mode
+{
+    // Set some variables
+    CGPoint centerPos = self.currentHighlightPos;
+    ccColor3B color = [GeneralUtils colorFromAction:self.currentActionPtr.type];
+    
+    // Find area based on mode
+    NSMutableArray *area;
+    BOOL isShifted = NO;
+    if ( mode == HighlightModeRange ) {
+        // Specific check if BFS needs to be performed first
+        if ( self.currentActionPtr.type == ActionMove ) {
+            area = [self searchMoveRange:self.currentActionPtr.range at:centerPos];
+            isShifted = YES;
+        } else {
+            area = self.currentActionPtr.areaOfRange;
+        }
+    } else if ( mode == HighlightModeRangeOff ) {
+        area = self.currentActionPtr.areaOfRange;
+        
+    } else if ( mode == HighlightModeEffect || mode == HighlightModeEffectOff ) {
+        area = self.currentActionPtr.areaOfEffect;
+    }
+    
+    // Do the highlight
+    for ( NSValue *v in area ) {
+        CGPoint boardPos = [v CGPointValue];
+        Tile *tilePtr = [self getTileWithPos:
+                         (isShifted) ? boardPos : ccpAdd(boardPos, centerPos)];
+        
+        // Do action based on mode
+        if ( mode == HighlightModeRange ) {
+            CCAction *tint = [CCTintTo actionWithDuration:0.2 color:color];
+            [tilePtr.sprite runAction:tint];
+        } else if ( mode == HighlightModeRangeOff ) {
+            [tilePtr.sprite setColor:ccWHITE];
+            // This is where we set all touched tiles to NO
+            tilePtr.touched = NO;
+        } else if ( mode == HighlightModeEffect ) {
+            [GeneralUtils tint:tilePtr.sprite with:color by:50];
+        } else if ( mode == HighlightModeEffectOff ) {
+            [tilePtr.sprite setColor:ccWHITE];
+            [tilePtr.sprite stopAllActions];
+        }
+    }
+}
+
+- (void) performAction:(ActionObject *)action to:(CGPoint)target by:(Unit *)unit
+{
+    // Specific handler for move action for path finding
+    if ( action.type == ActionMove ) {
+        [self createPathTo:target For:unit];
+        [unit action:action.type targets:nil];
+        return;
+    }
+}
+
+
+
+#pragma mark - Path finding Algorithms
+- (NSMutableArray *) searchMoveRange:(int)range at:(CGPoint)position
+{
+    // Creating a queue and return set
+    NSMutableArray *queue = [NSMutableArray array];
+    NSMutableArray *ret = [NSMutableArray array];
+    
+    // Adding the root
+    [queue addObject:[NSValue valueWithCGPoint:position]];
+    [queue addObject:[NSValue valueWithCGPoint:CGPointFlag]];
+    Tile *tilePtr = [self getTileWithPos:position];
+    tilePtr.touched = YES;
+    
+    // Depth counter
+    int depth = 1;
+    
+    // Looping
+    while ( [queue count] > 0 ) {
+        // De-queue
+        CGPoint pos = [[queue firstObject] CGPointValue];
+        [queue removeObjectAtIndex:0];
+        
+        // If we de-queued the flag, queue new flag and increase depth
+        if ( CGPointEqualToPoint(pos, CGPointFlag)) {
+            depth++;
+            [queue addObject:[NSValue valueWithCGPoint:CGPointFlag]];
+            if ( depth > range  ) break;
+        }
+        
+        // Find adjacent tiles and loop
+        NSMutableArray *adjacent = [self getEmptyAdjacentPointsAt:pos flag:YES];
+        for ( NSValue *v in adjacent ) {
+            [queue addObject:v];
+            [ret addObject:v];
+        }
+    }
+    return ret;
+}
+
+- (void) createPathTo:(CGPoint)target For:(Unit *)unit
+{
+    // Allocate memory
+    unit.spOpenSteps = [NSMutableArray array];
+    unit.spClosedSteps = [NSMutableArray array];
+    unit.shortestPath = [NSMutableArray array];
+    
+    // Insert the starting location
+    [self insertInOpenSteps:[[ShortestPathStep alloc] initWithPosition:unit.boardPos] with:unit];
+    
+    do
+    {
+        // Get the lowest F cost step
+        ShortestPathStep *currentStep = [unit.spOpenSteps firstObject];
+        
+        // Add the current step to the closed set
+        [unit.spClosedSteps addObject:currentStep];
+        
+        // Remove it from the open list
+        [unit.spOpenSteps removeObjectAtIndex:0];
+        
+        // If the currentStep is the desired tile coordinate, we are done!
+        if ( CGPointEqualToPoint(currentStep.position, target) ) {
+            [self constructPathFromStep:currentStep for:unit];
+            unit.spOpenSteps = nil;
+            unit.spClosedSteps = nil;
+            break;
+        }
+        
+        // Get the adjacent tiles coord of the current step
+        NSMutableArray *adjSteps = [self getEmptyAdjacentPointsAt:currentStep.position flag:NO];
+        
+        // Loop through sides
+        for (NSValue *v in adjSteps)
+        {
+            ShortestPathStep *step = [[ShortestPathStep alloc] initWithPosition:[v CGPointValue]];
+            
+            // Check if the step isn't already in the closed set
+            if ( [unit.spClosedSteps containsObject:step] ) {
+                continue;
+            }
+            
+            // Compute the cost from the current step to that step
+            int moveCost = 1;
+            
+            // Check if the step is already in the open list
+            NSUInteger index = [unit.spOpenSteps indexOfObject:step];
+            if (index == NSNotFound) {
+                // Set the current step as the parent
+                step.parent = currentStep;
+                
+                // Calculate G and H score and add
+                step.gScore = currentStep.gScore + moveCost;
+                step.hScore = [self computeHScoreFrom:step.position to:target];
+                [self insertInOpenSteps:step with:unit];
+                
+            } else {
+                // Release the freshly created one
+                step = [unit.spOpenSteps objectAtIndex:index];
+                
+                // Check to see if the G score for that step is lower
+                if ((currentStep.gScore + moveCost) < step.gScore) {
+                    
+                    // Calculate G score and re-insert
+                    step.gScore = currentStep.gScore + moveCost;
+                    [unit.spOpenSteps removeObjectAtIndex:index];
+                    [self insertInOpenSteps:step with:unit];
+                }
+            }
+        }
+    } while (unit.spOpenSteps.count > 0 );
+}
+
+- (NSMutableArray *) getEmptyAdjacentPointsAt:(CGPoint)position flag:(BOOL)flag
+{
+    NSMutableArray *array = [NSMutableArray array];
+    
+    // Looking SOUTH WEST
+    CGPoint p = CGPointMake(position.x, position.y - 1);
+    Tile *tilePtr = [self getTileWithPos:p];
+    if ( tilePtr != nil && !tilePtr.touched &&
+        (!tilePtr.isOccupied || tilePtr.isOwned))
+        [array addObject:[NSValue valueWithCGPoint:p]];
+    if ( flag ) tilePtr.touched = YES;
+    
+    // LOOKING SOUTH EAST
+    p = CGPointMake(position.x - 1, position.y);
+    tilePtr = [self getTileWithPos:p];
+    if ( tilePtr != nil && !tilePtr.touched &&
+        (!tilePtr.isOccupied || tilePtr.isOwned) )
+        [array addObject:[NSValue valueWithCGPoint:p]];
+    if ( flag ) tilePtr.touched = YES;
+    
+    // LOOKING NORTH EAST
+    p = CGPointMake(position.x, position.y + 1);
+    tilePtr = [self getTileWithPos:p];
+    if ( tilePtr != nil  && !tilePtr.touched
+        && (!tilePtr.isOccupied || tilePtr.isOwned))
+        [array addObject:[NSValue valueWithCGPoint:p]];
+    if ( flag ) tilePtr.touched = YES;
+    
+    // LOOKING NORTH WEST
+    p = CGPointMake(position.x + 1, position.y);
+    tilePtr = [self getTileWithPos:p];
+    if ( tilePtr != nil && !tilePtr.touched
+        && (!tilePtr.isOccupied || tilePtr.isOwned))
+        [array addObject:[NSValue valueWithCGPoint:p]];
+    if ( flag ) tilePtr.touched = YES;
+    
+    return array;
+}
+
+- (void) constructPathFromStep:(ShortestPathStep *)step for:(Unit *)unit
+{
+    // Create path in reversal and insert into unit's memory
+    while ( step != nil ) {
+        if ( step.parent != nil ) {
+            step.position = [self getWorldPosFromIso:step.position];
+            [unit.shortestPath insertObject:step atIndex:0];
+        }
+        step = step.parent;
+    }
+    
+    for (ShortestPathStep *s in unit.shortestPath) {
+        NSLog(@"%@", s);
+    }
+}
+
+- (void) insertInOpenSteps:(ShortestPathStep *)step with:(Unit *)unit
+{
+    // Create variables
+	int newFScore = step.fScore;
+	int count = unit.spOpenSteps.count;
+    int i = 0;
+    
+    // Loop to find FScore that is more than step
+	for (; i < count; i++) {
+        ShortestPathStep *unitStep = [unit.spOpenSteps objectAtIndex:i];
+		if ( newFScore <= unitStep.fScore) {
+			break;
+		}
+	}
+    
+    // Insert at that location
+    [unit.spOpenSteps insertObject:step atIndex:i];
+}
+
+- (int) computeHScoreFrom:(CGPoint)fromCoord to:(CGPoint)toCoord
+{
+    // F Score calculation
+	return abs(toCoord.x - fromCoord.x) + abs(toCoord.y - fromCoord.y);
+}
+
+
 
 #pragma mark - Helper Functions
 - (void) printBoard
@@ -140,15 +524,13 @@
     CCLOG(@"    ***********************************************");
 }
 
-- (Unit *) createUnitWith:(UnitObject *)obj isOwned:(BOOL)isOwned
+- (BOOL) isValidPos:(CGPoint)position
 {
-    if ( obj.type == UnitTypePriest ) {
-        return [[Priest alloc] initUnit:obj isOwned:isOwned];
-        
-    } else {
-        NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDTYPE %d", obj.type);
-        return nil;
-    }
+    int i = position.x;
+    int j = position.y;
+    if ( i < 0 || i > LASTMAPWIDTH || j < 0 || j > LASTMAPHEIGHT )
+        return false;
+    return !([self.tmxLayer tileGIDAt:position] == 0);
 }
 
 - (Tile *) getTileWithPos:(CGPoint)pos
@@ -162,123 +544,41 @@
 
 - (CGPoint) getWorldPosFromIso:(CGPoint)position
 {
-    CGPoint pos = CGPointMake(LASTMAPWIDTH - position.x, LASTMAPHEIGHT - position.y);
-    NSLog(@"%@",NSStringFromCGPoint(pos));
-    return CGPointApplyAffineTransform(pos, self.toWld);
+    return CGPointApplyAffineTransform(position, self.toWld);
 }
 
 - (CGPoint) getIsoPosFromWorld:(CGPoint)position
 {
     CGPoint pos = CGPointApplyAffineTransform(position, self.toIso);
-    NSLog(@"%@",NSStringFromCGPoint(pos));
-    return CGPointMake(LASTMAPWIDTH-floor(pos.x), LASTMAPHEIGHT-floor(pos.y));
+    return ccp(floor(pos.x), floor(pos.y));
 }
 
-- (BOOL) isValidPos:(CGPoint)position
+- (CGPoint) getInvertedPos:(CGPoint)position
 {
-    int i = position.x;
-    int k = position.y;
-    if ( i < 0 || i > LASTMAPWIDTH || k < 0 || k > LASTMAPHEIGHT )
-        return false;
-    // DO NOT FUCK WITH THIS BOOL
-    return !((!( abs(i-LASTMAPWIDTH) && abs(k-LASTMAPHEIGHT) ) &&
-              i-LASTMAPWIDTH > -2 && k-LASTMAPHEIGHT > -2) ||
-             (!( abs(i-LASTMAPWIDTH) && k ) &&
-              i-LASTMAPWIDTH > -2 && k < 2) ||
-             (!( i && abs(k-LASTMAPHEIGHT) ) &&
-              k-LASTMAPHEIGHT > -2 && i < 2) ||
-             (!(i && k) &&
-              i < 2 && k < 2));
+    return CGPointMake(LASTMAPWIDTH - floor(position.x), LASTMAPHEIGHT - floor(position.y));
+}
+
+
+
+#pragma mark - Unit Delegates
+- (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action
+{
+    
+}
+
+- (void) unit:(Unit *)unit didMoveTo:(CGPoint)position
+{
+    
+}
+
+- (void) unit:(Unit *)unit didPress:(ActionObject *)action
+{
+    // Store all these info
+    self.currentActionPtr = action;
+    [self turn_driver:CGPointFlag];
 }
 @end
 
-//
-//#import "BattleBrain.h"
-//
-//@implementation TileVector
-//@synthesize tile = _tile, direction = _direction;
-//+ (id) vectorWithTile:(Tile *)tile direction:(int)direction
-//{
-//    return [[TileVector alloc] initWithTile:tile direction:direction];
-//}
-//
-//- (id) initWithTile:(Tile *)tile direction:(int)direction
-//{
-//    if ( self = [super init] ) {
-//        _tile = tile;
-//        _direction = direction;
-//    }
-//    return self;
-//}
-//
-//- (NSString *) description
-//{
-//    return [NSString stringWithFormat:@"TileVector %@->%d",self.tile,self.direction];
-//}
-//@end
-//
-//
-//@interface BattleBrain ()
-//- (void)        constructPathAndStartAnimationFromStep:(ShortestPathStep *)step
-//                                                   for:(Tile *)tile;
-//- (void)        insertInOpenSteps:(ShortestPathStep *)step
-//                             with:(Tile *)tile;
-//- (int)         computeHScoreFromCoord:(CGPoint)fromCoord
-//                               toCoord:(CGPoint)toCoord;
-//- (NSArray *)   walkableAdjacentTilesCoordForTileCoord:(CGPoint)tileCoord
-//                                                   opp:(BOOL)opp;
-//@end
-//
-//@implementation BattleBrain
-//@synthesize board = _board;
-//@synthesize delegate = _delegate;
-//@synthesize toIso = _toIso, fromIso = _fromIso;
-//
-//#pragma mark - Init n Shit
-//- (id) initWithMap:(CCTMXLayer *) map
-//{
-//    self = [super init];
-//    if (self)
-//    {
-//        // Matrices for conversion from cartesian to isometric and vice versa.
-//        _toIso = CGAffineTransformMake(-HALFLENGTH, HALFWIDTH, HALFLENGTH, HALFWIDTH, OFFSETX, OFFSETY);
-//        _fromIso = CGAffineTransformInvert(_toIso);
-//        
-//        _board = [[NSArray alloc] initWithObjects:
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array],
-//                  [NSMutableArray array], nil];
-//        
-//        // Populating board
-//        for ( int i = 0 ; i < MAPLENGTH ; i++ ) {
-//            for ( int k = 0 ; k < MAPWIDTH ; k++ ) {
-//                if ( ![self isValidTile:ccp(i,k)] ) {
-//                    CCSprite *temp = [map tileAt:ccp(MAPLENGTH-1-i, MAPWIDTH-1-k)];
-//                    Tile *tile = [Tile invalidTileWithPosition:ccp(i,k) sprite:temp];
-//                    [[self.board objectAtIndex:i] addObject:tile];
-//                    tile.delegate = self;
-//                    
-//                } else {
-//                    CCSprite *temp = [map tileAt:ccp(MAPLENGTH-1-i, MAPWIDTH-1-k)];
-//                    Tile *tile = [Tile tileWithPosition:ccp(i,k) sprite:temp];
-//                    [[self.board objectAtIndex:i] addObject:tile];
-//                    tile.delegate = self;
-//                }
-//            }
-//        }
-//    }
-//    return self;
-//}
-//
-//
 //#pragma mark - UNIT/ACTION SPECIFIC HANDLERS
 
 //
@@ -746,229 +1046,7 @@
 //    return YES;
 //}
 //
-//- (BOOL) moveToward:(TileVector *)vector with:(Tile *)tile opp:(BOOL)opp
-//{
-//    // Find the board tiles
-//    Tile *end = vector.tile;
-//    
-//    // check if we're already there
-//    if ( CGPointEqualToPoint ([end boardPos], [tile boardPos]) )
-//    {
-//        CCLOG(@"    You're already there!");
-//        return NO;
-//    }
-//    
-//    // check if destination is occupied
-//    if ( [end isOccupied] )
-//    {
-//        CCLOG(@"    Destination is occupied!");
-//        return NO;
-//    }
-//    
-//    CCLOG(@"    From: %@", NSStringFromCGPoint([tile boardPos]));
-//    CCLOG(@"    To: %@", NSStringFromCGPoint([end boardPos]));
-//    
-//    [[tile unit] setSpOpenSteps: [[NSMutableArray alloc] init]];
-//    [[tile unit] setSpClosedSteps: [[NSMutableArray alloc] init]];
-//    
-//    // Start by adding the from position to the open list
-//    [self insertInOpenSteps:[[ShortestPathStep alloc] initWithPosition:[tile boardPos] boardPos:[tile boardPos]] with:tile];
-//    
-//    do
-//    {
-//        // Get the lowest F cost step
-//        // Because the list is ordered, the first step is always the one with the lowest F cost
-//        ShortestPathStep *currentStep = [[[tile unit] spOpenSteps] objectAtIndex:0];
-//        
-//        // Add the current step to the closed set
-//        [[[tile unit] spClosedSteps] addObject:currentStep];
-//        
-//        // Remove it from the open list
-//        // Note that if we wanted to first removing from the open list, care should be taken to the memory
-//        [[[tile unit] spOpenSteps] removeObjectAtIndex:0];
-//        
-//        // If the currentStep is the desired tile coordinate, we are done!
-//        if (CGPointEqualToPoint(currentStep.position, [end boardPos])) {
-//            [self constructPathAndStartAnimationFromStep:currentStep for:tile];
-//            [[tile unit] setSpOpenSteps: nil]; // Set to nil to release unused memory
-//            [[tile unit] setSpClosedSteps: nil]; // Set to nil to release unused memory
-//            break;
-//            
-//        } else {
-//            int count = 0;
-//            ShortestPathStep *curStepPtr = currentStep;
-//            do {
-//                count ++;
-//                curStepPtr = curStepPtr.parent;
-//            } while (curStepPtr != nil);
-//            
-//            if ( count > tile.unit.obj.movespeed ) {
-//                CCLOG(@"    Tile is too far away");
-//                break;
-//            }
-//        }
-//        
-//        // Get the adjacent tiles coord of the current step
-//        NSArray *adjSteps = [self walkableAdjacentTilesCoordForTileCoord:currentStep.position
-//                                                                     opp:opp];
-//        
-//        for (NSValue *v in adjSteps)
-//        {
-//            ShortestPathStep *step = [[ShortestPathStep alloc] initWithPosition:[v CGPointValue] boardPos:[v CGPointValue]];
-//            
-//            // Check if the step isn't already in the closed set
-//            if ([[[tile unit] spClosedSteps] containsObject:step]) {
-//                 // Must releasing it to not leaking memory ;-)
-//                continue; // Ignore it
-//            }
-//            
-//            // Compute the cost from the current step to that step
-//            int moveCost = 1;
-//            
-//            // Check if the step is already in the open list
-//            NSUInteger index = [[[tile unit] spOpenSteps] indexOfObject:step];
-//            
-//            if (index == NSNotFound) { // Not on the open list, so add it
-//                
-//                // Set the current step as the parent
-//                step.parent = currentStep;
-//                
-//                // The G score is equal to the parent G score + the cost to move from the parent to it
-//                step.gScore = currentStep.gScore + moveCost;
-//                
-//                // Compute the H score which is the estimated movement cost to move from that step to the desired tile coordinate
-//                step.hScore = [self computeHScoreFromCoord:step.position toCoord:[end boardPos]];
-//                
-//                // Adding it with the function which is preserving the list ordered by F score
-//                [self insertInOpenSteps:step with:tile];
-//                
-//                // Done, now release the step
-//                
-//            } else { // Already in the open list
-//                
-//                 // Release the freshly created one
-//                step = [[[tile unit] spOpenSteps] objectAtIndex:index]; // To retrieve the old one (which has its scores already computed ;-)
-//                
-//                // Check to see if the G score for that step is lower if we use the current step to get there
-//                if ((currentStep.gScore + moveCost) < step.gScore) {
-//                    
-//                    // The G score is equal to the parent G score + the cost to move from the parent to it
-//                    step.gScore = currentStep.gScore + moveCost;
-//                    
-//                    // Because the G Score has changed, the F score may have changed too
-//                    // So to keep the open list ordered we have to remove the step, and re-insert it with
-//                    // the insert function which is preserving the list ordered by F score
-//                    
-//                    // We have to retain it before removing it from the list
-//                    
-//                    // Now we can removing it from the list without be afraid that it can be released
-//                    [[[tile unit] spOpenSteps] removeObjectAtIndex:index];
-//                    
-//                    // Re-insert it with the function which is preserving the list ordered by F score
-//                    [self insertInOpenSteps:step with:tile];
-//                    
-//                    // Now we can release it because the oredered list retain it
-//                }
-//            }
-//        }
-//    } while ([[[tile unit] spOpenSteps] count] > 0 );
-//    
-//    if ( [[tile unit] shortestPath] == nil ) {
-//        CCLOG(@"    Could not find path");
-//        return NO;
-//    } else {
-//        [end setUnit:[tile unit]];
-//        [tile setUnit:nil];
-//        return YES;
-//    }
-//}
 //
-//#pragma mark - A* HELPERS
-//- (void)constructPathAndStartAnimationFromStep:(ShortestPathStep *)step for:(Tile *)tile
-//{
-//	[[tile unit] setShortestPath: [NSMutableArray array]];
-//    
-//	do
-//    {
-//		if ( step.parent != nil )
-//        { // Don't add the last step which is the start position (remember we go backward, so the last one is the origin position ;-)
-//            [step setPosition:[self findAbsPos:step.position]];
-//			[[[tile unit] shortestPath] insertObject:step atIndex:0]; // Always insert at index 0 to reverse the path
-//		}
-//		step = step.parent; // Go backward
-//	} while (step != nil); // Until there is no more parents
-//    
-//    for ( ShortestPathStep *s in [[tile unit] shortestPath] )
-//    {
-//        CCLOG(@"    %@", s);
-//    }
-//    
-//    [[tile unit] secondaryAction:ActionMove at:CGPointZero];
-//}
-//
-//- (void)insertInOpenSteps:(ShortestPathStep *)step with:(Tile *)tile
-//{
-//	int stepFScore = [step fScore]; // Compute the step's F score
-//	int count = [[[tile unit] spOpenSteps] count];
-//    int i = 0;
-//	for (; i < count; i++)
-//    {
-//		if ( stepFScore <= [[[[tile unit] spOpenSteps] objectAtIndex:i] fScore])
-//        { // If the step's F score is lower or equals to the step at index i
-//			// Then we found the index at which we have to insert the new step
-//            // Basically we want the list sorted by F score
-//			break;
-//		}
-//	}
-//	// Insert the new step at the determined index to preserve the F score ordering
-//	[[[tile unit] spOpenSteps] insertObject:step atIndex:i];
-//}
-//
-//- (int)computeHScoreFromCoord:(CGPoint)fromCoord toCoord:(CGPoint)toCoord
-//{
-//	// Here we use the Manhattan method, which calculates the total number of step moved horizontally and vertically to reach the
-//	// final desired step from the current step, ignoring any obstacles that may be in the way
-//	return abs(toCoord.x - fromCoord.x) + abs(toCoord.y - fromCoord.y);
-//}
-//
-//- (NSArray *)walkableAdjacentTilesCoordForTileCoord:(CGPoint)tileCoord opp:(BOOL)opp
-//{
-//	NSMutableArray *tmp = [NSMutableArray arrayWithCapacity:4];
-//    
-//	// SW
-//	CGPoint p = CGPointMake(tileCoord.x, tileCoord.y - 1);
-//	if ([self isValidTile:p] &&
-//        (![self isOccupiedTile:p] ||
-//         ( [self isOwnedTile:p] ^ opp ) ) ) {
-//		[tmp addObject:[NSValue valueWithCGPoint:p]];
-//	}
-//    
-//	// NW
-//	p = CGPointMake(tileCoord.x - 1, tileCoord.y);
-//	if ([self isValidTile:p] &&
-//        (![self isOccupiedTile:p] ||
-//         ( [self isOwnedTile:p] ^ opp ) ) ) {
-//		[tmp addObject:[NSValue valueWithCGPoint:p]];
-//	}
-//    
-//	// NE
-//	p = CGPointMake(tileCoord.x, tileCoord.y + 1);
-//	if ([self isValidTile:p] &&
-//        (![self isOccupiedTile:p] ||
-//         ( [self isOwnedTile:p] ^ opp ) ) ) {
-//		[tmp addObject:[NSValue valueWithCGPoint:p]];
-//	}
-//    
-//	// SE
-//	p = CGPointMake(tileCoord.x + 1, tileCoord.y);
-//	if ([self isValidTile:p] &&
-//        (![self isOccupiedTile:p] ||
-//         ( [self isOwnedTile:p] ^ opp ) ) ) {
-//		[tmp addObject:[NSValue valueWithCGPoint:p]];
-//	}
-//    
-//	return [NSArray arrayWithArray:tmp];
-//}
 //
 //
 //#pragma mark - TILE FINDERS
@@ -1173,8 +1251,45 @@
 //    return array;
 //}
 //
+//- (NSArray *)walkableAdjacentTilesCoordForTileCoord:(CGPoint)tileCoord opp:(BOOL)opp
+//{
+//	NSMutableArray *tmp = [NSMutableArray arrayWithCapacity:4];
+//    
+//	// SW
+//	CGPoint p = CGPointMake(tileCoord.x, tileCoord.y - 1);
+//	if ([self isValidPos:p] &&
+//        (![self isOccupiedTile:p] ||
+//         ( [self isOwnedTile:p] ^ opp ) ) ) {
+//            [tmp addObject:[NSValue valueWithCGPoint:p]];
+//        }
+//    
+//	// NW
+//	p = CGPointMake(tileCoord.x - 1, tileCoord.y);
+//	if ([self isValidPos:p] &&
+//        (![self isOccupiedTile:p] ||
+//         ( [self isOwnedTile:p] ^ opp ) ) ) {
+//            [tmp addObject:[NSValue valueWithCGPoint:p]];
+//        }
+//    
+//	// NE
+//	p = CGPointMake(tileCoord.x, tileCoord.y + 1);
+//	if ([self isValidPos:p] &&
+//        (![self isOccupiedTile:p] ||
+//         ( [self isOwnedTile:p] ^ opp ) ) ) {
+//            [tmp addObject:[NSValue valueWithCGPoint:p]];
+//        }
+//    
+//	// SE
+//	p = CGPointMake(tileCoord.x + 1, tileCoord.y);
+//	if ([self isValidPos:p] &&
+//        (![self isOccupiedTile:p] ||
+//         ( [self isOwnedTile:p] ^ opp ) ) ) {
+//            [tmp addObject:[NSValue valueWithCGPoint:p]];
+//        }
+//    
+//	return [NSArray arrayWithArray:tmp];
+//}
 //
-
 //
 //- (BOOL) isOccupiedTile:(CGPoint)position
 //{

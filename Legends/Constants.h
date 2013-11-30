@@ -19,6 +19,8 @@
 #define LASTMAPWIDTH GAMEMAPWIDTH-1
 #define LASTMAPHEIGHT GAMEMAPHEIGHT-1
 
+#define CGPointFlag CGPointMake(-1337,0)
+
 typedef enum {
     ALPHA = 0,
     BLUE = 1,
@@ -41,7 +43,41 @@ typedef enum {
 typedef enum {
     HighlightModeRange,
     HighlightModeEffect,
-    HighlightModeOff,
+    HighlightModeRangeOff,
+    HighlightModeEffectOff,
 }HighlightMode;
+
+typedef enum {
+    TurnStateA,
+    TurnStateB,
+    TurnStateC,
+    TurnStateD,
+    TurnStateX,
+}TurnState;
+
+typedef enum {
+    ActionUnknown,
+    ActionIdle,
+    ActionSkillOne,
+    ActionSkillTwo,
+    ActionSkillThree,
+    ActionMove,
+    ActionTeleport,
+    /*  Other  */
+    ActionEndTurn,
+    /* NOT USED */
+//    ActionMelee,
+//    ActionRange,
+//    ActionMagic,
+//    ActionHeal,
+//    ActionMeleeAOE,
+//    ActionRangeAOE,
+//    ActionMagicAOE,
+//    ActionHealAOE,
+//    ActionParalyze,
+//    ActionEnsnare,
+//    ActionDie,
+
+}Action;
 
 #endif

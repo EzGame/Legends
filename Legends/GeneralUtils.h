@@ -27,6 +27,7 @@
 /*  Math  */
 + (float)       getAngle:(CGPoint)p1 :(CGPoint)p2;
 + (Direction)   getDirection:(CGPoint)start to:(CGPoint)end;
++ (int)         getDistance:(CGPoint)start to:(CGPoint)end;
 
 /*  Color  */
 + (BOOL)        ccColor3BCompare:(ccColor3B)color1 :(ccColor3B)color2;
@@ -37,5 +38,8 @@
 + (NSMutableArray *) getDiamondArea:(int)area;
 + (NSMutableArray *) getDiamondAreaWithMe:(int)area;
 + (NSMutableArray *) getOneArea;
+
+/* Animations */
++ (void) tint:(CCSprite *)sprite with:(ccColor3B)color by:(int)factor;
 
 @end

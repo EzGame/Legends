@@ -35,6 +35,15 @@ static UserSingleton* _sharedUserSingleton = nil;
 	return nil;
 }
 
+- (SFSArray *)mySetup
+{
+    if ( !_mySetup ) {
+        _mySetup = [SFSArray newInstance];
+        [_mySetup addClass:[self createMaxUnit:UnitTypePriest]];
+    }
+    return _mySetup;
+}
+
 - (id)init {
 	self = [super init];
 	if (self != nil)
@@ -65,10 +74,11 @@ static UserSingleton* _sharedUserSingleton = nil;
         
         for ( int i = 0; i < 30; i++ )
             [self createUnit];
+        
+        [self createMatchObj];
     }
 	return self;
 }
-
 
 - (BOOL) saveOpp:(SFSUser *)user setup:(SFSArray *)array
 {
@@ -124,43 +134,53 @@ static UserSingleton* _sharedUserSingleton = nil;
     return ret;
 }
 
-//- (void) createUnit
-//{
-//    int type = (arc4random() % (LAST_UNIT)) + 1;
-//    int experience = (arc4random() % MAXEXPERIENCE);
-//    int str = (arc4random() % 100 );
-//    int agi = (arc4random() % 100 );
-//    int inte = (arc4random() % 100 );
-//    int wis = (arc4random() % 100 );
-//    int hp = (arc4random() % 100 );
-//    int primary = (arc4random() % 11 );
-//    int secondary = (arc4random() % 11 );
-//    int tertiary = (arc4random() % 11 );
-//    NSString *string = [NSString stringWithFormat:
-//                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
-//                        type, experience, str, agi, inte, wis, hp,
-//                        primary, secondary, tertiary];
-//    UnitObj *unit = [UnitObj unitObjWithString:string];
-//    [self.units addObject:unit];
-//}
-//
-//- (void) createMaxUnit
-//{
-//    int type = (arc4random() % LAST_UNIT - 1) + 1;
-//    int experience = MAXEXPERIENCE;
-//    int str = 100;
-//    int agi = 100;
-//    int inte = 100;
-//    int wis = 100;
-//    int hp = 100;
+- (void) createUnit
+{
+    int type = (arc4random() % (UnitTypePriest)) + 1;
+    int experience = (arc4random() % 10000);
+    int str = (arc4random() % 100 );
+    int agi = (arc4random() % 100 );
+    int inte = (arc4random() % 100 );
+    int wis = (arc4random() % 100 );
+    int hp = (arc4random() % 100 );
+    int primary = (arc4random() % 11 );
+    int secondary = (arc4random() % 11 );
+    int tertiary = (arc4random() % 11 );
+    NSString *string = [NSString stringWithFormat:
+                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
+                        type, experience, str, agi, inte, wis, hp,
+                        primary, secondary, tertiary];
+    UnitObject *unit = [[UnitObject alloc] initWithString:string];
+    [self.units addObject:unit];
+}
+
+- (void) createMatchObj
+{
+    _obj = [[MatchObject alloc] init];
+    _obj.mySetup = self.mySetup;
+    _obj.oppSetup = self.mySetup;
+    _obj.myUser = [[SFSUser alloc] initWithId:101 name:@"fucker" isItMe:YES];
+    _obj.oppUser = [[SFSUser alloc] initWithId:99 name:@"shit-for-brains" isItMe:NO];
+    _obj.playerOne = _obj.myUser;
+    _obj.myELO = 9999;
+    _obj.oppELO = 1111;
+}
+
+- (UnitObject *) createMaxUnit:(int)type
+{
+    int experience = 100000;
+    int str = 100;
+    int agi = 100;
+    int inte = 100;
+    int wis = 100;
+    int hp = 100;
 //    int primary = 10;
 //    int secondary = 10;
 //    int tertiary = 10;
-//    NSString *string = [NSString stringWithFormat:
-//                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
-//                        type, experience, str, agi, inte, wis, hp,
-//                        primary, secondary, tertiary];
-//    UnitObj *unit = [UnitObj unitObjWithString:string];
-//    [self.units addObject:unit];
-//}
+    NSString *string = [NSString stringWithFormat:
+                        @"%d/%d/%d/%d/%d/%d/%d/{2,%d}/0",
+                        type, experience, str, agi, inte, wis, hp, type];
+    UnitObject *unit = [[UnitObject alloc] initWithString:string];
+    return unit;
+}
 @end
