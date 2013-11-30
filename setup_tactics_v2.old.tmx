@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="isometric" width="11" height="8" tilewidth="128" tileheight="96">
+ <tileset firstgid="1" name="Tileset_setup" tilewidth="128" tileheight="141">
+  <tileoffset x="0" y="46"/>
+  <image source="Tileset_setup.png" width="256" height="141"/>
+ </tileset>
+ <layer name="layer" width="11" height="8">
+  <data encoding="base64" compression="zlib">
+   eJxjYmBgYBpgzDgIMAMJ6hiIUA8DAGLIAHQ=
+  </data>
+ </layer>
+</map>
