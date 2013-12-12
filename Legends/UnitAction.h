@@ -47,4 +47,5 @@
                                delay:(float)delay;
 
 - (CCAction *) getActionFor:(Direction)direction;
+- (CCAnimation *) getAnimationFor:(Direction)direction;
 @end

@@ -53,7 +53,8 @@
         _object = obj;
         
         // Initialize Attributes
-        _attributes = [Attributes attributesWithObject:obj.stats];
+        _attributes = [AttributesObject attributesWithObject:obj.stats
+                                                     augment:obj.augmentedStats];
         
         // Find sprite strings
         NSString *plist = [NSString stringWithFormat:@"%@.plist",
@@ -63,14 +64,29 @@
         NSString *name = [NSString stringWithFormat:@"%@_idle_%@_0.png",
                           [GeneralUtils stringFromType:obj.type],
                           [GeneralUtils stringFromDirection:( owned ) ? NE : SW]];
+        NSString *glow = [NSString stringWithFormat:@"zglow_%@.png",
+                          [GeneralUtils stringFromType:obj.type]];
         
         // Cache the sprite frames and texture
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:plist];
         _spriteSheet = [CCSpriteBatchNode batchNodeWithFile:png];
         _sprite = [CCSprite spriteWithSpriteFrameName:name];
         _sprite.anchorPoint = ccp(0.5, 0);
-        [_spriteSheet addChild:self.sprite];
-        [self addChild:self.spriteSheet];
+        
+        _glowSprite = [CCSprite spriteWithSpriteFrameName:glow];
+        _glowSprite.color = [GeneralUtils colorFromAttribute:obj.highestAttribute];
+        _glowSprite.blendFunc = (ccBlendFunc) { GL_ONE, GL_ONE };
+        _glowSprite.anchorPoint = ccp(0.5, 0);
+        [_glowSprite runAction:
+         [CCRepeatForever actionWithAction:
+          [CCSequence actions:
+           [CCFadeTo actionWithDuration:0.9f opacity:150],
+           [CCFadeTo actionWithDuration:0.9f opacity:255], nil] ]
+         ];
+        
+        [_spriteSheet addChild:_glowSprite z:-1];
+        [_spriteSheet addChild:_sprite];
+        [self addChild:_spriteSheet];
 
         // Health bar
         _healthBar = [CCProgressTimer progressWithSprite:
@@ -177,6 +193,7 @@
      }], nil]];
 }
 
+#pragma mark - Other
 - (void) reset {}
 - (void) openMenu
 {
@@ -186,15 +203,35 @@
 {
     self.menu.visible = NO;
 }
+
+#pragma mark - Subclassing functions
+- (void) playAnimation:(CCAnimation *)animation selector:(SEL)s
+{
+    if ( [self.sprite numberOfRunningActions] )
+        [self.sprite stopAllActions];
+    
+    // For a finite animation, we want to call a selector when we're finished.
+    [self.sprite runAction:
+     [CCSequence actions:
+      [CCAnimate actionWithAnimation:animation],
+      [CCCallFunc actionWithTarget:self selector:s], nil]];
+}
+
+- (void) playAction:(CCAction *)action
+{
+    if ( [self.sprite numberOfRunningActions] )
+        [self.sprite stopAllActions];
+    [self.sprite runAction:action];
+}
 @end
 
 
 #pragma mark - A*
 @implementation ShortestPathStep
-- (id)initWithPosition:(CGPoint)pos;
+- (id)initWithBoardPos:(CGPoint)pos;
 {
 	if ((self = [super init])) {
-		_position = pos;
+        _boardPos = pos;
 		_gScore = 0;
 		_hScore = 0;
 		_parent = nil;
@@ -204,12 +241,13 @@
 
 - (NSString *)description
 {
-	return [NSString stringWithFormat:@"%@  pos=%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(self.position), self.gScore, self.hScore, [self fScore]];
+	return [NSString stringWithFormat:@"%@  pos=%@/%@  g=%d  h=%d  f=%d", [super description], NSStringFromCGPoint(self.position), NSStringFromCGPoint(self.boardPos), self.gScore,
+            self.hScore, [self fScore]];
 }
 
 - (BOOL)isEqual:(ShortestPathStep *)other
 {
-	return CGPointEqualToPoint(self.position, other.position);
+	return CGPointEqualToPoint(self.boardPos, other.boardPos);
 }
 
 - (int)fScore

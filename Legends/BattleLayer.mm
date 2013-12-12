@@ -141,7 +141,7 @@
         self.gameLayer.position = pos;
         self.brain.currentLayerPosition = pos;
         
-        //NSLog(@"New pos is %f %f",pos.x,pos.y);
+//        NSLog(@"New pos is %f %f",pos.x,pos.y);
 	}
 }
 
@@ -311,9 +311,19 @@
     return self.matchObj;
 }
 
-- (void) battleBrainWantsToDisplay:(Unit *)unit
+- (void) battleBrainWantsToReorder:(Tile *)tile
 {
-    
+    [self reorderTile:tile];
+}
+
+- (void) battleBrainWantsToDisplayInfo:(Unit *)unit
+{
+}
+
+- (void) battleBrainWantsToDisplayChild:(CCNode *)child at:(CGPoint)boardPos
+{
+    int pos = boardPos.x + boardPos.y;
+    [self.gameLayer addChild:child z:SPRITES_TOP - pos];
 }
 /*
 - (void) createMap

@@ -33,6 +33,8 @@
 + (BOOL)        ccColor3BCompare:(ccColor3B)color1 :(ccColor3B)color2;
 + (ccColor3B)   darkenColor3B:(ccColor3B) color by:(float)factor;
 + (ccColor3B)   colorFromAction:(Action)action;
++ (ccColor3B)   colorFromHeart:(Heart)heart;
++ (ccColor3B)   colorFromAttribute:(Attribute)attribute;
 
 /* Algorithms */
 + (NSMutableArray *) getDiamondArea:(int)area;

@@ -136,4 +136,12 @@
     else return self.action_SW;
 }
 
+- (CCAnimation *) getAnimationFor:(Direction)direction
+{
+    if ( direction == NE ) return self.animation_NE;
+    else if ( direction == NW ) return self.animation_NW;
+    else if ( direction == SE ) return self.animation_SE;
+    else return self.animation_SW;
+}
+
 @end

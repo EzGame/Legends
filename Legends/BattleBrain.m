@@ -8,35 +8,55 @@
 
 #import "BattleBrain.h"
 @interface BattleBrain()
-@property (nonatomic, weak)         Unit *currentUnitPtr;
-@property (nonatomic, weak) ActionObject *currentActionPtr;
-@property (nonatomic)            CGPoint currentHighlightPos;
-@property (nonatomic)          TurnState turnState;
+@property (nonatomic, weak)             Unit *currentUnitPtr;
+@property (nonatomic, weak)     ActionObject *currentActionPtr;
+@property (nonatomic)                CGPoint currentHighlightPos;
+@property (nonatomic, strong) NSMutableArray *currentHighlightedTiles;
+@property (nonatomic)              TurnState turnState;
 @end
 
 @implementation BattleBrain
 #pragma mark - Setters n Getters
 - (void) setCurrentLayerPosition:(CGPoint)currentLayerPosition
 {
-    CGAffineTransform inverIso = CGAffineTransformMake(-GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+    self.toScn = CGAffineTransformMake(-GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
                                                        GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
                                                        GAMETILEOFFSETX + currentLayerPosition.x,
                                                        GAMETILEOFFSETY + currentLayerPosition.y);
-    self.toIso = CGAffineTransformInvert(inverIso);
+    self.toIso = CGAffineTransformInvert(self.toScn);
     _currentLayerPosition = currentLayerPosition;
 }
 
 - (void) setTurnState:(TurnState)turnState
 {
     if ( turnState == TurnStateA ) {
+        NSLog(@"==================TURN STATE A: Make a selection==================");
         self.currentUnitPtr = nil;
         self.currentActionPtr = nil;
-//        self.currentHighlightPos = CGPointZero;
     } else if ( turnState == TurnStateB ) {
+        NSLog(@"==================TURN STATE B: Highlight action==================");
         [self.currentUnitPtr openMenu];
-//        self.currentActionPtr = nil;
+    } else if ( turnState == TurnStateC ) {
+        NSLog(@"==================TURN STATE C: Confirm the action================");
+        
+    } else if ( turnState == TurnStateD ) {
+        NSLog(@"==================TURN STATE D: Perform an action=================");
+        
+    } else if ( turnState == TurnStateX ) {
+        NSLog(@"==================TURN STATE X: WTF is this again?================");
+        
     }
     _turnState = turnState;
+}
+
+- (void) setCurrentUnitPtr:(Unit *)currentUnitPtr
+{
+    if ( currentUnitPtr )
+        [currentUnitPtr action:ActionIdle targets:nil];
+//    else
+//        [_currentUnitPtr action:ActionStop targets:nil];
+    
+    _currentUnitPtr = currentUnitPtr;
 }
 
 
@@ -83,6 +103,7 @@
         _toWld = CGAffineTransformMake( -GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
                                          GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
                                          GAMETILEOFFSETX, GAMETILEOFFSETY);
+        _toScn = _toWld;
         _toIso = CGAffineTransformInvert(_toWld);
         
         // Fill board with player owned units
@@ -147,8 +168,7 @@
 - (void) turn_driver:(CGPoint)position
 {
     // Turn touch position into board position
-    CGPoint brdPos = [self getIsoPosFromWorld:position];
-    NSLog(@">>>> Turn State: %d, brdPos: %@",self.turnState,NSStringFromCGPoint(brdPos));
+    CGPoint brdPos = [self getIsoPosFromScreen:position];
     
     // Find tile at board position
     Tile *tilePtr = [self getTileWithPos:brdPos];
@@ -160,41 +180,43 @@
     }
     
     if ( self.turnState == TurnStateA ) {
-        NSLog(@"\n==================TURN STATE A: Make a selection==================\n");
         // Display information of that location
-        [self.delegate battleBrainWantsToDisplay:tilePtr.unit];
+        [self.delegate battleBrainWantsToDisplayInfo:tilePtr.unit];
 
         // If unit is not owned or nil, return to state A
         if ( ![tilePtr.unit isOwned] ) {
+            NSLog(@"Regress to state A");
             self.turnState = TurnStateA;
             return;
         }
         
         // set Current Unit Pointer
         self.currentUnitPtr = tilePtr.unit;
-        
         // Advance turn state
+        NSLog(@"Moving to state B");
         self.turnState = TurnStateB;
 
     } else if ( self.turnState == TurnStateB ) {
-        NSLog(@"\n==================TURN STATE B: Highlight action==================\n");
         // If current action was not set, return to state A
         if ( self.currentActionPtr == nil ) {
+            NSLog(@"Regress to state A");
             self.turnState = TurnStateA;
             return;
         }
 
         // Save highlight pos and highlight with mode HighlightModeRange
         self.currentHighlightPos = self.currentUnitPtr.boardPos;
+        NSLog(@"B set currentHighlightPos to %@",NSStringFromCGPoint(self.currentHighlightPos));
         [self highlightTilesWithMode:HighlightModeRange];
         
         // Advance turn state
+        NSLog(@"Moving to state C");
         self.turnState = TurnStateC;
         
     } else if ( self.turnState == TurnStateC ) {
-        NSLog(@"\n==================TURN STATE C: Confirm the action================\n");
         // If selection is white, return to state B
         if ( [GeneralUtils ccColor3BCompare:tilePtr.sprite.color :ccWHITE] ) {
+            NSLog(@"Regress to state B");
             self.turnState = TurnStateB;
             
             // Turn off highlight
@@ -207,36 +229,49 @@
         
         // Save highlight pos and highlight with mode HighlightModeEffect
         self.currentHighlightPos = brdPos;
+        NSLog(@"C set currentHighlightPos to %@",NSStringFromCGPoint(self.currentHighlightPos));
         [self highlightTilesWithMode:HighlightModeEffect];
         
         // Advance turn state
+        NSLog(@"Moving to state D");
         self.turnState = TurnStateD;
         
     } else if ( self.turnState == TurnStateD ) {
-        NSLog(@"\n==================TURN STATE D: Perform an action==================\n");
         // If selection is not animated, return to state B
         if ( ![tilePtr.sprite numberOfRunningActions] ) {
+            NSLog(@"Regress to state B");
             self.turnState = TurnStateB;
             
             // Turn off highlight
             [self highlightTilesWithMode:HighlightModeEffectOff];
             return;
         }
+
+        // Save targets
+        NSMutableArray *targets = [NSMutableArray array];
+        for ( NSValue *v in self.currentHighlightedTiles ) {
+            Tile *tilePtr = [self getTileWithPos:[v CGPointValue]];
+            CGPoint position = [self getScreenPosFromIso:[v CGPointValue]];
+            [targets addObject:(tilePtr.unit) ?
+             tilePtr.unit : [NSValue valueWithCGPoint:position]];
+        }
+//        [targets addObject:[NSValue valueWithCGPoint:ccp(200,200)]];
         
         // Turn off highlight
         [self highlightTilesWithMode:HighlightModeEffectOff];
 
         // Perform the action
         [self performAction:self.currentActionPtr
-                         to:self.currentHighlightPos
+                         to:targets
                          by:self.currentUnitPtr];
         
         // Reset turn state
+        NSLog(@"Moving to state A");
         self.turnState = TurnStateA;
         
     } else if ( self.turnState == TurnStateX ) {
         // display information and stop
-        [self.delegate battleBrainWantsToDisplay:tilePtr.unit];
+        [self.delegate battleBrainWantsToDisplayInfo:tilePtr.unit];
     }
 }
 
@@ -245,55 +280,101 @@
     // Set some variables
     CGPoint centerPos = self.currentHighlightPos;
     ccColor3B color = [GeneralUtils colorFromAction:self.currentActionPtr.type];
-    
-    // Find area based on mode
     NSMutableArray *area;
-    BOOL isShifted = NO;
+    
+    if ( mode % 2 ) {
+        // The mode is to turn it off, current highlighted must be non nil
+        NSAssert(self.currentHighlightedTiles, @"<FATAL> highlightTilesWithMode: self.currentHighlightedTiles nil");
+    } else {
+        // The mode is to turn it on, current highlighted must be nil
+        NSAssert(!self.currentHighlightedTiles, @"<FATAL> highlightTilesWithMode: self.currentHighlightedTiles not nil");
+        self.currentHighlightedTiles = [NSMutableArray array];
+    }
+    
+    // Switch between modes
     if ( mode == HighlightModeRange ) {
-        // Specific check if BFS needs to be performed first
-        if ( self.currentActionPtr.type == ActionMove ) {
-            area = [self searchMoveRange:self.currentActionPtr.range at:centerPos];
-            isShifted = YES;
-        } else {
-            area = self.currentActionPtr.areaOfRange;
+        // Normal highlight with path finding option
+        switch (self.currentActionPtr.rangeType) {
+            case RangePathFind:
+                area = [self searchMoveRange:self.currentActionPtr.range at:centerPos];
+                break;
+            case RangeAllied: area = [self allOwnedTiles]; break;
+            case RangeEnemy: area = [self allEnemyTiles]; break;
+            case RangeNormal:
+            default: {
+                NSMutableArray *temp = [NSMutableArray arrayWithArray:self.currentActionPtr.areaOfRange];
+                area = [self shiftPoints:temp by:centerPos];
+                break;
+            }
         }
-    } else if ( mode == HighlightModeRangeOff ) {
-        area = self.currentActionPtr.areaOfRange;
         
-    } else if ( mode == HighlightModeEffect || mode == HighlightModeEffectOff ) {
-        area = self.currentActionPtr.areaOfEffect;
+    } else if ( mode == HighlightModeRangeOff ) {
+        // Copy the current highlights and nil the global pointer
+        area = [self.currentHighlightedTiles copy];
+        self.currentHighlightedTiles = nil;
+        
+    } else if ( mode == HighlightModeEffect ) {
+        // Effect highlight that pulsates
+        switch (self.currentActionPtr.rangeType) {
+            case RangeAllied: area = [self allOwnedTiles]; break;
+            case RangeEnemy: area = [self allEnemyTiles]; break;
+            case RangeNormal:
+            case RangePathFind:
+            default: {
+                NSMutableArray *temp = [NSMutableArray arrayWithArray:self.currentActionPtr.areaOfEffect];
+                area = [self shiftPoints:temp by:centerPos];
+                break;
+            }
+        }
+        
+    } else if ( mode == HighlightModeEffectOff) {
+        // Copy the current highlights and nil the global pointer
+        area = [self.currentHighlightedTiles copy];
+        self.currentHighlightedTiles = nil;
+    
     }
     
     // Do the highlight
     for ( NSValue *v in area ) {
         CGPoint boardPos = [v CGPointValue];
-        Tile *tilePtr = [self getTileWithPos:
-                         (isShifted) ? boardPos : ccpAdd(boardPos, centerPos)];
+        Tile *tilePtr = [self getTileWithPos:boardPos];
         
         // Do action based on mode
         if ( mode == HighlightModeRange ) {
+            // Highlight and add to current
             CCAction *tint = [CCTintTo actionWithDuration:0.2 color:color];
             [tilePtr.sprite runAction:tint];
+            [self.currentHighlightedTiles addObject:[NSValue valueWithCGPoint:tilePtr.boardPos]];
+       
         } else if ( mode == HighlightModeRangeOff ) {
+            // Turn off highlights and turn off BFS flag
             [tilePtr.sprite setColor:ccWHITE];
-            // This is where we set all touched tiles to NO
             tilePtr.touched = NO;
+            [self getTileWithPos:self.currentUnitPtr.boardPos].touched = NO;
+            
         } else if ( mode == HighlightModeEffect ) {
+            // Highlight and add to current
             [GeneralUtils tint:tilePtr.sprite with:color by:50];
+            [self.currentHighlightedTiles addObject:[NSValue valueWithCGPoint:tilePtr.boardPos]];
+            
         } else if ( mode == HighlightModeEffectOff ) {
+            // Turn off highlights
             [tilePtr.sprite setColor:ccWHITE];
             [tilePtr.sprite stopAllActions];
+            
         }
     }
 }
 
-- (void) performAction:(ActionObject *)action to:(CGPoint)target by:(Unit *)unit
+- (void) performAction:(ActionObject *)action to:(NSMutableArray *)targets by:(Unit *)unit
 {
     // Specific handler for move action for path finding
     if ( action.type == ActionMove ) {
-        [self createPathTo:target For:unit];
+        CGPoint target = [[targets firstObject] CGPointValue];
+        [self createPathTo:[self getIsoPosFromScreen:target] For:unit];
         [unit action:action.type targets:nil];
-        return;
+    } else {
+        [unit action:action.type targets:targets];
     }
 }
 
@@ -346,7 +427,7 @@
     unit.shortestPath = [NSMutableArray array];
     
     // Insert the starting location
-    [self insertInOpenSteps:[[ShortestPathStep alloc] initWithPosition:unit.boardPos] with:unit];
+    [self insertInOpenSteps:[[ShortestPathStep alloc] initWithBoardPos:unit.boardPos] with:unit];
     
     do
     {
@@ -360,7 +441,7 @@
         [unit.spOpenSteps removeObjectAtIndex:0];
         
         // If the currentStep is the desired tile coordinate, we are done!
-        if ( CGPointEqualToPoint(currentStep.position, target) ) {
+        if ( CGPointEqualToPoint(currentStep.boardPos, target) ) {
             [self constructPathFromStep:currentStep for:unit];
             unit.spOpenSteps = nil;
             unit.spClosedSteps = nil;
@@ -368,12 +449,12 @@
         }
         
         // Get the adjacent tiles coord of the current step
-        NSMutableArray *adjSteps = [self getEmptyAdjacentPointsAt:currentStep.position flag:NO];
+        NSMutableArray *adjSteps = [self getEmptyAdjacentPointsAt:currentStep.boardPos flag:NO];
         
         // Loop through sides
         for (NSValue *v in adjSteps)
         {
-            ShortestPathStep *step = [[ShortestPathStep alloc] initWithPosition:[v CGPointValue]];
+            ShortestPathStep *step = [[ShortestPathStep alloc] initWithBoardPos:[v CGPointValue]];
             
             // Check if the step isn't already in the closed set
             if ( [unit.spClosedSteps containsObject:step] ) {
@@ -391,7 +472,7 @@
                 
                 // Calculate G and H score and add
                 step.gScore = currentStep.gScore + moveCost;
-                step.hScore = [self computeHScoreFrom:step.position to:target];
+                step.hScore = [self computeHScoreFrom:step.boardPos to:target];
                 [self insertInOpenSteps:step with:unit];
                 
             } else {
@@ -455,7 +536,7 @@
     // Create path in reversal and insert into unit's memory
     while ( step != nil ) {
         if ( step.parent != nil ) {
-            step.position = [self getWorldPosFromIso:step.position];
+            step.position = [self getWorldPosFromIso:step.boardPos];
             [unit.shortestPath insertObject:step atIndex:0];
         }
         step = step.parent;
@@ -494,6 +575,7 @@
 
 
 #pragma mark - Helper Functions
+/* Print out the current state of the board by unit type and ownership */
 - (void) printBoard
 {
     CCLOG(@"    ********TYPE*******************OWNED***********");
@@ -524,6 +606,7 @@
     CCLOG(@"    ***********************************************");
 }
 
+/* Returns if the position is a valid board position */
 - (BOOL) isValidPos:(CGPoint)position
 {
     int i = position.x;
@@ -533,42 +616,97 @@
     return !([self.tmxLayer tileGIDAt:position] == 0);
 }
 
-- (Tile *) getTileWithPos:(CGPoint)pos
+/* Returns a tile at the position */
+- (Tile *) getTileWithPos:(CGPoint)position
 {
-    if ( ![self isValidPos:pos] ) {
+    if ( ![self isValidPos:position] ) {
         return nil;
     } else {
-        return [[self.gameBoard objectAtIndex:pos.x] objectAtIndex:pos.y];
+        return [[self.gameBoard objectAtIndex:position.x] objectAtIndex:position.y];
     }
 }
 
+/* Returns a world position transformed from a board position */
 - (CGPoint) getWorldPosFromIso:(CGPoint)position
 {
     return CGPointApplyAffineTransform(position, self.toWld);
 }
 
-- (CGPoint) getIsoPosFromWorld:(CGPoint)position
+/* Returns a screen position transformed from a board position */
+- (CGPoint) getScreenPosFromIso:(CGPoint)position
+{
+    return CGPointApplyAffineTransform(position, self.toScn);
+}
+
+/* Returns a board position transformed from a screen position */
+- (CGPoint) getIsoPosFromScreen:(CGPoint)position
 {
     CGPoint pos = CGPointApplyAffineTransform(position, self.toIso);
     return ccp(floor(pos.x), floor(pos.y));
 }
 
+/* Returns a inverted board position */
 - (CGPoint) getInvertedPos:(CGPoint)position
 {
     return CGPointMake(LASTMAPWIDTH - floor(position.x), LASTMAPHEIGHT - floor(position.y));
 }
 
+/* Returns an array of all owned tiles */
+- (NSMutableArray *) allOwnedTiles
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for ( int i = 0 ; i < GAMEMAPWIDTH ; i++ ) {
+        for ( int j = 0 ; j < GAMEMAPHEIGHT ; j++ ) {
+            Tile *tilePtr = [self getTileWithPos:ccp(i,j)];
+            if ( tilePtr.isOwned )
+                [array addObject:[NSValue valueWithCGPoint:tilePtr.boardPos]];
+        }
+    }
+    return array;
+}
 
+/* Returns an array of all non-owned tiles */
+- (NSMutableArray *) allEnemyTiles
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for ( int i = 0 ; i < GAMEMAPWIDTH ; i++ ) {
+        for ( int j = 0 ; j < GAMEMAPHEIGHT ; j++ ) {
+            Tile *tilePtr = [self getTileWithPos:ccp(i,j)];
+            if ( !tilePtr.isOwned )
+                [array addObject:[NSValue valueWithCGPoint:tilePtr.boardPos]];
+        }
+    }
+    return array;
+}
+
+/* Returns a shifted arrayOfPnts by shiftValue*/
+- (NSMutableArray *) shiftPoints:(NSMutableArray *)arrayOfPnts by:(CGPoint)shiftValue
+{
+    NSLog(@"Shifted %@ by %@",arrayOfPnts, NSStringFromCGPoint(shiftValue));
+    // Can't use fast enum for this algorithm
+    for ( int i = 0; i < arrayOfPnts.count; i++ ) {
+        NSValue *v = [arrayOfPnts objectAtIndex:i];
+        CGPoint position = [v CGPointValue];
+        NSValue *new = [NSValue valueWithCGPoint:ccpAdd(position, shiftValue)];
+        [arrayOfPnts replaceObjectAtIndex:i withObject:new];
+    }
+
+    return arrayOfPnts;
+}
 
 #pragma mark - Unit Delegates
 - (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action
 {
-    
+    [self printBoard];
 }
 
 - (void) unit:(Unit *)unit didMoveTo:(CGPoint)position
 {
-    
+    Tile *oldTilePtr = [self getTileWithPos:unit.boardPos];
+    Tile *newTilePtr = [self getTileWithPos:position];
+    newTilePtr.unit = unit;
+    oldTilePtr.unit = nil;
+    [self.delegate battleBrainWantsToReorder:newTilePtr];
 }
 
 - (void) unit:(Unit *)unit didPress:(ActionObject *)action
@@ -576,6 +714,12 @@
     // Store all these info
     self.currentActionPtr = action;
     [self turn_driver:CGPointFlag];
+}
+
+- (void) unit:(Unit *)unit wantsToPlace:(CCNode *)child
+{
+    CGPoint boardPos = [self getIsoPosFromScreen:child.position];
+    [self.delegate  battleBrainWantsToDisplayChild:child at:boardPos];
 }
 @end
 

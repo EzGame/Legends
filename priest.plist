@@ -888,6 +888,19 @@
 			<key>sourceSize</key>
 			<string>{56,82}</string>
 		</dict>
+		<key>zglow_priest.png</key>
+		<dict>
+			<key>frame</key>
+			<string>{{234,674},{62,82}}</string>
+			<key>offset</key>
+			<string>{0,0}</string>
+			<key>rotated</key>
+			<false/>
+			<key>sourceColorRect</key>
+			<string>{{0,0},{62,82}}</string>
+			<key>sourceSize</key>
+			<string>{62,82}</string>
+		</dict>
 	</dict>
 	<key>metadata</key>
 	<dict>
@@ -898,7 +911,7 @@
 		<key>size</key>
 		<string>{512,1024}</string>
 		<key>smartupdate</key>
-		<string>$TexturePacker:SmartUpdate:3ef2bf3f7dc715509ade9d215e1a6204:1/1$</string>
+		<string>$TexturePacker:SmartUpdate:ae936e75fde7e4311702aaec856259ac:1/1$</string>
 		<key>textureFileName</key>
 		<string>priest.png</string>
 	</dict>

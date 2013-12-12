@@ -136,22 +136,22 @@ static UserSingleton* _sharedUserSingleton = nil;
 
 - (void) createUnit
 {
-    int type = (arc4random() % (UnitTypePriest)) + 1;
-    int experience = (arc4random() % 10000);
-    int str = (arc4random() % 100 );
-    int agi = (arc4random() % 100 );
-    int inte = (arc4random() % 100 );
-    int wis = (arc4random() % 100 );
-    int hp = (arc4random() % 100 );
-    int primary = (arc4random() % 11 );
-    int secondary = (arc4random() % 11 );
-    int tertiary = (arc4random() % 11 );
-    NSString *string = [NSString stringWithFormat:
-                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
-                        type, experience, str, agi, inte, wis, hp,
-                        primary, secondary, tertiary];
-    UnitObject *unit = [[UnitObject alloc] initWithString:string];
-    [self.units addObject:unit];
+//    int type = (arc4random() % (UnitTypePriest)) + 1;
+//    int experience = (arc4random() % 10000);
+//    int str = (arc4random() % 100 );
+//    int agi = (arc4random() % 100 );
+//    int inte = (arc4random() % 100 );
+//    int wis = (arc4random() % 100 );
+//    int hp = (arc4random() % 100 );
+//    int primary = (arc4random() % 11 );
+//    int secondary = (arc4random() % 11 );
+//    int tertiary = (arc4random() % 11 );
+//    NSString *string = [NSString stringWithFormat:
+//                        @"%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/{-1,-1}/0",
+//                        type, experience, str, agi, inte, wis, hp,
+//                        primary, secondary, tertiary];
+//    UnitObject *unit = [[UnitObject alloc] initWithString:string];
+//    [self.units addObject:unit];
 }
 
 - (void) createMatchObj
@@ -168,18 +168,28 @@ static UserSingleton* _sharedUserSingleton = nil;
 
 - (UnitObject *) createMaxUnit:(int)type
 {
-    int experience = 100000;
     int str = 100;
     int agi = 100;
     int inte = 100;
-    int wis = 100;
+    int spr = 100;
     int hp = 100;
+    int aug_str = 0;
+    int aug_agi = 0;
+    int aug_inte = 25;
+    int aug_spr = 50;
+    int aug_hp = 0;
+    Heart heart = (arc4random() % UnholyHeart) + 1;
+    
+    
 //    int primary = 10;
 //    int secondary = 10;
 //    int tertiary = 10;
     NSString *string = [NSString stringWithFormat:
-                        @"%d/%d/%d/%d/%d/%d/%d/{2,%d}/0",
-                        type, experience, str, agi, inte, wis, hp, type];
+                        @"%d/%d/%d/{2,%d}/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d",
+                        type, Common, 4, type,
+                        str, agi, inte, spr, hp,
+                        aug_str, aug_agi, aug_inte, aug_spr, aug_hp,
+                        heart, 15 ];
     UnitObject *unit = [[UnitObject alloc] initWithString:string];
     return unit;
 }

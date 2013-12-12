@@ -129,6 +129,56 @@
     return colour;
 }
 
+
++ (ccColor3B) colorFromHeart:(Heart)heart
+{
+    ccColor3B colour;
+    switch (heart) {
+        case VoidHeart: colour          = ccWHITE; break;
+        /* STR RED */
+        case IronHeart: colour          = ccWHITE; break;
+        case MuscleHeart: colour        = ccWHITE; break;
+        case VindictiveHeart: colour    = ccWHITE; break;
+        case BraveHeart: colour         = ccWHITE; break;
+        /* AGI PURPLE */
+        case NimbleHeart: colour        = ccWHITE; break;
+        case JesterHeart: colour        = ccWHITE; break;
+        case SilentHeart: colour        = ccWHITE; break;
+        case SavageHeart: colour        = ccWHITE; break;
+        /* INT BLUE */
+        case CunningHeart: colour       = ccWHITE; break;
+        case SageHeart: colour          = ccWHITE; break;
+        case LogicalHeart: colour       = ccWHITE; break;
+        case GiftedHeart: colour        = ccWHITE; break;
+        /* SPR YELLOW */
+        case DevoutHeart: colour        = ccWHITE; break;
+        case SaintlyHeart: colour       = ccWHITE; break;
+        case FaithfulHeart: colour      = ccWHITE; break;
+        case HolyHeart: colour          = ccWHITE; break;
+        /* HP GREEN */
+        case RoyalHeart: colour         = ccWHITE; break;
+        case TitanHeart: colour         = ccWHITE; break;
+        case ThickHeart: colour         = ccWHITE; break;
+        case UnholyHeart: colour        = ccWHITE; break;
+        default: break;
+    }
+    return colour;
+}
+
++ (ccColor3B) colorFromAttribute:(Attribute)attribute
+{
+    ccColor3B colour;
+    switch (attribute) {
+        case Strength: colour = ccRED; break;
+        case Agility: colour = ccGREEN; break;
+        case Intellect: colour = ccBLUE; break;
+        case Spirit: colour = ccPURPLE; break;
+        case Health: colour = ccYELLOW; break;
+        default: break;
+    }
+    return colour;
+}
+
 #pragma mark - To String
 + (NSString *) stringFromType:(UnitType)type
 {

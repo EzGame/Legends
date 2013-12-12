@@ -22,7 +22,10 @@
 @required
 - (void)            battleBrainDidLoadUnitAt:(Tile *)tile;
 - (MatchObject *)   battleBrainNeedsMatchObj;
-- (void)            battleBrainWantsToDisplay:(Unit *)unit;
+- (void)            battleBrainWantsToDisplayInfo:(Unit *)unit;
+- (void)            battleBrainWantsToReorder:(Tile *)tile;
+- (void)            battleBrainWantsToDisplayChild:(CCNode *)child
+                                                at:(CGPoint)boardPos;
 @end
 
 @interface BattleBrain : NSObject <UnitDelegate>
@@ -31,8 +34,14 @@
 @property (nonatomic, strong)           NSArray *gameBoard;
 @property (nonatomic, weak)          CCTMXLayer *tmxLayer;
 @property (nonatomic)                   CGPoint currentLayerPosition;
+
+// Screen -> toIso -> Isometric position
+// Iso -> toWld -> World (gamelayer) position
+// Iso -> toScn -> Screen position
+
 @property (nonatomic)         CGAffineTransform toIso;
 @property (nonatomic)         CGAffineTransform toWld;
+@property (nonatomic)         CGAffineTransform toScn;
 
 - (id)      initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate;
 - (void)    turn_driver:(CGPoint)position;

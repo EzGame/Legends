@@ -14,4 +14,19 @@
     return [NSString stringWithFormat:@"%d/%d/%d/%d/%d",
             _strength, _agility, _intellect, _spirit, _health];
 }
+
+- (int) getStat:(Attribute)stat
+{
+    if ( stat == Strength ) {
+        return self.strength;
+    } else if ( stat == Agility ) {
+        return self.agility;
+    } else if ( stat == Intellect ) {
+        return self.intellect;
+    } else if ( stat == Spirit ) {
+        return self.spirit;
+    } else {
+        return self.health;
+    }
+}
 @end

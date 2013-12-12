@@ -20,8 +20,9 @@
 #import "GeneralUtils.h"
 #import "Constants.h"
 
-#import "Attributes.h"
+#import "AttributesObject.h"
 #import "UnitObject.h"
+#import "UnitAction.h"
 #import "ActionObject.h"
 
 //typedef enum {
@@ -36,19 +37,22 @@
 @class Unit;
 @class ShortestPathStep;
 @class SetupUnit;
+@class Tile;
 
 @protocol UnitDelegate <NSObject>
 @optional
 - (void) unit:(Unit *)unit didMoveTo:(CGPoint)position;
 - (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action;
 - (void) unit:(Unit *)unit didPress:(ActionObject *)action;
+- (void) unit:(Unit *)unit wantsToPlace:(CCNode *)child;
 @end
 
 @interface Unit : CCNode
+/* General Objects */
 @property (nonatomic, strong, readonly)  UnitObject *object;
-@property (nonatomic, strong)            Attributes *attributes;
-
+@property (nonatomic, strong)      AttributesObject *attributes;
 @property (nonatomic, strong)              CCSprite *sprite;
+@property (nonatomic, strong)              CCSprite *glowSprite;
 @property (nonatomic, strong)     CCSpriteBatchNode *spriteSheet;
 @property (nonatomic, strong)       CCProgressTimer *healthBar;
 @property (nonatomic, strong)                CCMenu *menu;
@@ -56,9 +60,9 @@
 @property (nonatomic, strong)        NSMutableArray *spOpenSteps;
 @property (nonatomic, strong)        NSMutableArray *spClosedSteps;
 @property (nonatomic, strong)        NSMutableArray *shortestPath;
-
 @property (nonatomic, assign)                    id delegate;
 
+/* In-game stats */
 @property (nonatomic)                     Direction direction;
 @property (nonatomic)                       CGPoint boardPos;
 @property (nonatomic)                           int currentCD;
@@ -66,6 +70,9 @@
 @property (nonatomic)                           int maximumHP;
 @property (nonatomic)                           int moveSpeed;
 @property (nonatomic)                          BOOL isOwned;
+@property (nonatomic)                          BOOL isBusy;
+
+/* Real time stats */
 
 - (id)      initUnit:(UnitObject *)obj isOwned:(BOOL)owned;
 
@@ -82,6 +89,10 @@
 - (void)    reset;
 - (void)    openMenu;
 - (void)    closeMenu;
+
+/* Sub classing functions */
+- (void)    playAnimation:(CCAnimation *)animation selector:(SEL)s;
+- (void)    playAction:(CCAction *)action;
 @end
 
 
@@ -95,11 +106,12 @@
 //}
 
 @property (nonatomic, assign) CGPoint position;
+@property (nonatomic, assign) CGPoint boardPos;
 @property (nonatomic, assign) int gScore;
 @property (nonatomic, assign) int hScore;
 @property (nonatomic, unsafe_unretained) ShortestPathStep *parent;
 
-- (id)initWithPosition:(CGPoint)pos;
+- (id)initWithBoardPos:(CGPoint)pos;
 - (int)fScore;
 
 @end

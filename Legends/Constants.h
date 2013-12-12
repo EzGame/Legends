@@ -35,15 +35,33 @@ typedef enum {
     NW,
 }Direction;
 
+typedef enum Rarity {
+    Vagrant,
+    Common,
+    Uncommon,
+    Rare,
+    Epic,
+    LAST_RARITY = Epic,
+}Rarity;
+
+typedef enum {
+    Strength,
+    Agility,
+    Intellect,
+    Spirit,
+    Health
+}Attribute;
+
 typedef enum {
     UnitTypeNone,
     UnitTypePriest,
 }UnitType;
 
+/* Keep this in alternating on/off */
 typedef enum {
     HighlightModeRange,
-    HighlightModeEffect,
     HighlightModeRangeOff,
+    HighlightModeEffect,
     HighlightModeEffectOff,
 }HighlightMode;
 
@@ -63,21 +81,43 @@ typedef enum {
     ActionSkillThree,
     ActionMove,
     ActionTeleport,
+    ActionStop,
     /*  Other  */
     ActionEndTurn,
-    /* NOT USED */
-//    ActionMelee,
-//    ActionRange,
-//    ActionMagic,
-//    ActionHeal,
-//    ActionMeleeAOE,
-//    ActionRangeAOE,
-//    ActionMagicAOE,
-//    ActionHealAOE,
-//    ActionParalyze,
-//    ActionEnsnare,
-//    ActionDie,
-
 }Action;
+
+typedef enum Heart {
+    VoidHeart,       // nothing
+    
+    IronHeart,       // +str -agi        [done]
+    MuscleHeart,     // +str -int        [done]
+    VindictiveHeart, // +str -spr        [done]
+    BraveHeart,      // +str -hp         [done]
+    
+    NimbleHeart,     // +agi -str        [done]
+    JesterHeart,     // +agi -int        [done]
+    SilentHeart,     // +agi -spr
+    SavageHeart,     // +agi -hp         [done]
+    
+    CunningHeart,    // +int -str
+    SageHeart,       // +int -agility
+    LogicalHeart,    // +int -spr        [done]
+    GiftedHeart,     // +int -hp
+    
+    DevoutHeart,     // +spr -str
+    SaintlyHeart,    // +spr -agi
+    FaithfulHeart,   // +spr -int        [done]
+    HolyHeart,       // +spr -hp         [done]
+    
+    RoyalHeart,      // +hp  -str        [done]
+    TitanHeart,      // +hp  -agi        [done]
+    ThickHeart,      // +hp  -int        [done]
+    UnholyHeart,     // +hp  -spr        [done]
+}Heart;
+
+
+
+#pragma mark - Unit Constants
+#define UNIT_MAXAUGMENTATION_COUNT 20
 
 #endif

@@ -10,7 +10,7 @@
 @implementation Tile
 - (void) setUnit:(Unit *)unit
 {
-    if ( unit != NULL ) {
+    if ( unit ) {
         self.isOccupied = YES;
         self.isOwned = unit.isOwned;
         unit.boardPos = self.boardPos;
