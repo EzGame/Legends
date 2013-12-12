@@ -160,132 +160,18 @@
         [self.debug setString:[NSString stringWithFormat:@"%@", NSStringFromCGPoint(position)]];
         //[self.brain lightUp:position];
         
-        [self.brain turn_driver:position];
+//        [self.brain turn_driver:position];
+        [self animTest:position];
     }
 }
 
-#pragma mark - Turn State Machine
-
-
-- (void) turnA:(CGPoint)position
+- (void) animTest:(CGPoint)position;
 {
-    //[self.brain doSelection];
-    
-//    // Set selection and display
-//    Tile *temp = [self.brain doSelect:position];
-//    [self.display setDisplayFor:temp];
-//    if ( !unitLocked )  [self setSelection:temp];
-//    
-//    if ( temp.unit != nil ) {
-//        [self center:temp.unit.sprite.position];
-//        if ( ![self.selection.unit isEqual:temp.unit] ) return;
-//        
-//        [self.selection.unit.sprite stopActionByTag:IDLETAG];
-//        if ( [[self selection] isOwned] && ![self.selection.unit.sprite numberOfRunningActions]) {
-//            // Show visual selection
-//            [self.selection.unit secondaryAction:ActionIdle at:CGPointZero];
-//            
-//            // Open the menu and set flag
-//            [[[self selection] unit] toggleMenu:YES];
-//            
-//            // Go to turn B next click
-//            NSLog(@">[MYLOG] Proceed to B next\n");
-//            isTurnA = NO;
-//            isTurnB = YES;
-//        }
-//    }
-}
-
-- (void) turnB:(CGPoint)position
-{
-    
-//    [self highLightMode:HighlightModeOff skill:nil params:nil];
-//    CGPoint target = [[self brain] findBrdPos:position];
-//    ccColor3B temp = ccWHITE;
-//    if ( [self.brain isValidTile:target] )
-//        temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
-//    
-//    if ( ![GeneralUtils ccColor3BCompare:temp :ccWHITE] ) {
-//        
-//        NSMutableArray *tempArray = [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:target]];
-//        [self highLightMode:HighlightModeEffect
-//                      skill:self.currentSkill
-//                     params:[NSMutableArray arrayWithObject:tempArray]];
-//        self.vector = [TileVector vectorWithTile:[self.brain findTile:target absPos:NO]
-//                                       direction:direction];
-//        // Go to turn D next click
-//        NSLog(@">[MYLOG] Proceed to C next\n");
-//        isTurnB = NO;
-//        isTurnC = YES;
-//        
-//    } else {
-//        self.currentSkill = nil;
-//        
-//        [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
-//        
-//        [self.display setDisplayFor:nil];
-//        [[[self selection] unit] toggleMenu:NO];
-//        
-//        // Go to turn A immediately
-//        NSLog(@">[MYLOG] Proceed to A immediately\n");
-//        isTurnB = NO;
-//        isTurnA = YES;
-//        
-//        [self turnA:position];
-//    }
-}
-
-- (void) turnC:(CGPoint)position
-{
-    
-//    // Find the target to compare with the confirming
-//    CGPoint target = [[self brain] findBrdPos:position];
-//    ccColor3B temp = ccWHITE;
-//    if ( [self.brain isValidTile:target] )
-//        temp = [[self tmxLayer] tileAt:ccp(MAPLENGTH-1-target.x, MAPWIDTH-1-target.y)].color;
-//    
-//    SFSObject *obj = [SFSObject newInstance];
-//    [self highLightMode:HighlightModeOff skill:nil params:nil];
-//    
-//    if ( ![GeneralUtils ccColor3BCompare:temp :ccWHITE] &&
-//        [self.brain doAction:currentAction
-//                         for:self.selection
-//                      toward:self.vector
-//                     oppData:obj
-//                     targets:self.boardTargets] )
-//    {
-//        if ( self.currentSkill.skillType == ActionMove
-//            || self.currentSkill.skillType == ActionTeleport ) {
-//            // reorder child
-//            self.selection = self.vector.tile;
-//            [self reorderTile:[self selection]];
-//        }
-//        
-//        CGPoint oldPos = [[self selection] boardPos];
-//        unitLocked = YES;
-//        self.currentSkill = nil;
-//        
-//        // Send data
-//        [self sendDatafrom:oldPos to:position timeDuration:0 targets:obj];
-//        
-//        if ( [self.selection.unit hasActionLeft] ) {
-//            NSLog(@">[MYLOG] Proceed to turn B next");
-//            isTurnC = NO;
-//            isTurnB = YES;
-//        }
-//    } else {
-//        [[[[self selection] unit] sprite] stopActionByTag:IDLETAG];
-//        self.currentSkill = nil;
-//        [self.display setDisplayFor:nil];
-//        [[[self selection] unit] toggleMenu:NO];
-//        
-//        // Go to turn A immediately
-//        NSLog(@">[MYLOG] Proceed to A immediately\n");
-//        isTurnC = NO;
-//        isTurnA = YES;
-//        
-//        [self turnA:position];
-//    }
+    NSLog(@"fireball");
+    SkillAnimation *fireball = [SkillAnimation SkillAnimation:@"fireball" TTL:2];
+    fireball.scale = 0.5;
+    [self addChild:fireball z:EFFECTS];
+    [fireball shootTo:position duration:2];
 }
 
 
