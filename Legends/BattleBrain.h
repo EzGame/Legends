@@ -16,6 +16,10 @@
 #import "cocos2d.h"
 #import "Tile.h"
 #import "Priest.h"
+#import "Warrior.h"
+#import "Witch.h"
+#import "Ranger.h"
+#import "Knight.h"
 
 @class BattleBrain;
 @protocol BattleBrainDelegate <NSObject>

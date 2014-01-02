@@ -6,8 +6,8 @@
 //
 //
 
-#import <Foundation/Foundation.h>
 #import "Defines.h"
+#import "cocos2d.h"
 
 @interface NSMutableArray (WeakReferences)
 
@@ -16,7 +16,7 @@
 
 @end
 
-
+/*
 #pragma mark - Buff
 @class Buff; @class Unit; @class Tile;
 @protocol BuffCasterDelegate <NSObject>
@@ -66,3 +66,4 @@
 @property (nonatomic, weak) id<BuffCasterDelegate>  caster;
 + (id) shieldBuffFromCaster:(id)caster atTarget:(id)target;
 @end
+*/

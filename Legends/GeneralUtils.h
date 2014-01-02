@@ -35,11 +35,14 @@
 + (ccColor3B)   colorFromAction:(Action)action;
 + (ccColor3B)   colorFromHeart:(Heart)heart;
 + (ccColor3B)   colorFromAttribute:(Attribute)attribute;
++ (ccColor3B)   colorFromCombat:(CombatType)type;
 
 /* Algorithms */
 + (NSMutableArray *) getDiamondArea:(int)area;
 + (NSMutableArray *) getDiamondAreaWithMe:(int)area;
 + (NSMutableArray *) getOneArea;
++ (NSMutableArray *) getWitchCast;
++ (NSMutableArray *) getWitchEffect;
 
 /* Animations */
 + (void) tint:(CCSprite *)sprite with:(ccColor3B)color by:(int)factor;

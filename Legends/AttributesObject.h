@@ -12,7 +12,7 @@
 #import "UserSingleton.h"
 /* Data Objects */
 #import "StatObject.h"
-#import "DamageObject.h"
+#import "CombatObject.h"
 
 @interface AttributesObject : NSObject
 {
@@ -36,11 +36,11 @@
 
 + (id) attributesWithObject:(StatObject *)stats
                     augment:(StatObject *) augmentation;
-- (BOOL) strCalculation:(DamageObject *)ret
+- (BOOL) strCalculation:(CombatObject *)ret
                    with:(AttributesObject *)opAttributes;
-- (BOOL) agiCalculation:(DamageObject *)ret
+- (BOOL) agiCalculation:(CombatObject *)ret
                    with:(AttributesObject *)opAttributes;
-- (BOOL) intCalculation:(DamageObject *)ret
+- (BOOL) intCalculation:(CombatObject *)ret
                    with:(AttributesObject *)opAttributes;
 @end
 /*#pragma mark - Attributes

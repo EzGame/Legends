@@ -61,6 +61,16 @@
 
 
 
+
+
+
+
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
 #pragma mark - Init n Shit
 - (id) initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate
 {
@@ -155,7 +165,14 @@
 {
     if ( obj.type == UnitTypePriest ) {
         return [Priest priest:obj isOwned:isOwned];
-        
+    } else if ( obj.type == UnitTypeWarrior ) {
+        return [Warrior warrior:obj isOwned:isOwned];
+    } else if ( obj.type == UnitTypeRanger ) {
+        return [Ranger ranger:obj isOwned:isOwned];
+    } else if ( obj.type == UnitTypeWitch ) {
+        return [Witch witch:obj isOwned:isOwned];
+    } else if ( obj.type == UnitTypeKnight ) {
+        return [Knight knight:obj isOwned:isOwned];
     } else {
         NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDTYPE %d", obj.type);
         return nil;
@@ -164,6 +181,17 @@
 
 
 
+
+
+
+
+
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
 #pragma mark - Turn State Machine
 - (void) turn_driver:(CGPoint)position
 {
@@ -251,6 +279,7 @@
         NSMutableArray *targets = [NSMutableArray array];
         for ( NSValue *v in self.currentHighlightedTiles ) {
             Tile *tilePtr = [self getTileWithPos:[v CGPointValue]];
+            NSLog(@"tilePtr %@",tilePtr);
             CGPoint position = [self getScreenPosFromIso:[v CGPointValue]];
             [targets addObject:(tilePtr.unit) ?
              tilePtr.unit : [NSValue valueWithCGPoint:position]];
@@ -292,20 +321,43 @@
     }
     
     // Switch between modes
-    if ( mode == HighlightModeRange ) {
-        // Normal highlight with path finding option
-        switch (self.currentActionPtr.rangeType) {
-            case RangePathFind:
-                area = [self searchMoveRange:self.currentActionPtr.range at:centerPos];
-                break;
-            case RangeAllied: area = [self allOwnedTiles]; break;
-            case RangeEnemy: area = [self allEnemyTiles]; break;
+    if ( mode == HighlightModeRange || mode == HighlightModeEffect ) {
+        ActionRangeType type = (mode == HighlightModeRange) ?
+            self.currentActionPtr.rangeType : self.currentActionPtr.effectType;
+        int range = (mode == HighlightModeRange) ?
+            self.currentActionPtr.range : self.currentActionPtr.effect;
+        NSMutableArray *unshiftedArea = (mode == HighlightModeRange) ?
+            self.currentActionPtr.areaOfRange : self.currentActionPtr.areaOfEffect;
+        
+        switch (type) {
             case RangeNormal:
-            default: {
-                NSMutableArray *temp = [NSMutableArray arrayWithArray:self.currentActionPtr.areaOfRange];
-                area = [self shiftPoints:temp by:centerPos];
+                area = [self getNormalRange:range at:centerPos flag:NO];
                 break;
-            }
+            case RangeNormalInc:
+                area = [self getNormalRange:range at:centerPos flag:YES];
+                break;
+            case RangeOne:
+                area = [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:centerPos]];
+                break;
+            case RangePathFind:
+                area = [self getPathFindRange:range at:centerPos];
+                break;
+            case RangeLOS:
+                area = [self getLOSRange:range at:centerPos];
+                break;
+            case RangeAllied:
+                area = [self getAllOwnedTiles];
+                break;
+            case RangeEnemy:
+                area = [self getAllEnemyTiles];
+                break;
+            case RangeUnique:
+                area = [self getUniqueArea:unshiftedArea at:centerPos
+                                      flag:(mode == HighlightModeEffect)];
+                break;
+            default:
+                NSLog(@"Unknown range??");
+                break;
         }
         
     } else if ( mode == HighlightModeRangeOff ) {
@@ -313,25 +365,10 @@
         area = [self.currentHighlightedTiles copy];
         self.currentHighlightedTiles = nil;
         
-    } else if ( mode == HighlightModeEffect ) {
-        // Effect highlight that pulsates
-        switch (self.currentActionPtr.rangeType) {
-            case RangeAllied: area = [self allOwnedTiles]; break;
-            case RangeEnemy: area = [self allEnemyTiles]; break;
-            case RangeNormal:
-            case RangePathFind:
-            default: {
-                NSMutableArray *temp = [NSMutableArray arrayWithArray:self.currentActionPtr.areaOfEffect];
-                area = [self shiftPoints:temp by:centerPos];
-                break;
-            }
-        }
-        
     } else if ( mode == HighlightModeEffectOff) {
         // Copy the current highlights and nil the global pointer
         area = [self.currentHighlightedTiles copy];
         self.currentHighlightedTiles = nil;
-    
     }
     
     // Do the highlight
@@ -380,45 +417,17 @@
 
 
 
-#pragma mark - Path finding Algorithms
-- (NSMutableArray *) searchMoveRange:(int)range at:(CGPoint)position
-{
-    // Creating a queue and return set
-    NSMutableArray *queue = [NSMutableArray array];
-    NSMutableArray *ret = [NSMutableArray array];
-    
-    // Adding the root
-    [queue addObject:[NSValue valueWithCGPoint:position]];
-    [queue addObject:[NSValue valueWithCGPoint:CGPointFlag]];
-    Tile *tilePtr = [self getTileWithPos:position];
-    tilePtr.touched = YES;
-    
-    // Depth counter
-    int depth = 1;
-    
-    // Looping
-    while ( [queue count] > 0 ) {
-        // De-queue
-        CGPoint pos = [[queue firstObject] CGPointValue];
-        [queue removeObjectAtIndex:0];
-        
-        // If we de-queued the flag, queue new flag and increase depth
-        if ( CGPointEqualToPoint(pos, CGPointFlag)) {
-            depth++;
-            [queue addObject:[NSValue valueWithCGPoint:CGPointFlag]];
-            if ( depth > range  ) break;
-        }
-        
-        // Find adjacent tiles and loop
-        NSMutableArray *adjacent = [self getEmptyAdjacentPointsAt:pos flag:YES];
-        for ( NSValue *v in adjacent ) {
-            [queue addObject:v];
-            [ret addObject:v];
-        }
-    }
-    return ret;
-}
 
+
+
+
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+#pragma mark - A*
 - (void) createPathTo:(CGPoint)target For:(Unit *)unit
 {
     // Allocate memory
@@ -574,6 +583,16 @@
 
 
 
+
+
+
+
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
 #pragma mark - Helper Functions
 /* Print out the current state of the board by unit type and ownership */
 - (void) printBoard
@@ -616,6 +635,13 @@
     return !([self.tmxLayer tileGIDAt:position] == 0);
 }
 
+/* Returns if position is an occupied board position*/
+- (BOOL) isOccupiedPos:(CGPoint)position
+{
+    Tile *tilePtr = [self getTileWithPos:position];
+    return tilePtr.isOccupied;
+}
+
 /* Returns a tile at the position */
 - (Tile *) getTileWithPos:(CGPoint)position
 {
@@ -651,8 +677,48 @@
     return CGPointMake(LASTMAPWIDTH - floor(position.x), LASTMAPHEIGHT - floor(position.y));
 }
 
+/* Returns the first occupied point from start to end  */
+- (CGPoint) getLineOfSight:(CGPoint)start to:(CGPoint)end
+{
+    // purpose is to print out the path from start to the next occupied tile or the end.
+    int dx = abs(end.x - start.x);
+    int dy = abs(end.y - start.y);
+    int sx = ( start.x < end.x ) ? 1 : -1;
+    int sy = ( start.y < end.y ) ? 1 : -1;
+    int err = dx - dy;
+    do {
+        if ( start.x == end.x && start.y == end.y )
+            return start;
+        int err2 = err * 2;
+        if ( err2 > -dy ) {
+            err = err - dy;
+            start.x = start.x + sx;
+        }
+        if ( start.x == end.x && start.y == end.y )
+            return start;
+        if ( err2 < dx ) {
+            err = err + dx;
+            start.y = start.y + sy;
+        }
+    } while ( ![self isOccupiedPos:start] ) ;
+    return start;
+}
+
+
+
+
+
+
+
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+#pragma mark - Tile set searches
 /* Returns an array of all owned tiles */
-- (NSMutableArray *) allOwnedTiles
+- (NSMutableArray *) getAllOwnedTiles
 {
     NSMutableArray *array = [NSMutableArray array];
     for ( int i = 0 ; i < GAMEMAPWIDTH ; i++ ) {
@@ -666,7 +732,7 @@
 }
 
 /* Returns an array of all non-owned tiles */
-- (NSMutableArray *) allEnemyTiles
+- (NSMutableArray *) getAllEnemyTiles
 {
     NSMutableArray *array = [NSMutableArray array];
     for ( int i = 0 ; i < GAMEMAPWIDTH ; i++ ) {
@@ -680,20 +746,128 @@
 }
 
 /* Returns a shifted arrayOfPnts by shiftValue*/
-- (NSMutableArray *) shiftPoints:(NSMutableArray *)arrayOfPnts by:(CGPoint)shiftValue
+- (NSMutableArray *) getNormalRange:(int)range at:(CGPoint)position flag:(BOOL)flag
 {
-    NSLog(@"Shifted %@ by %@",arrayOfPnts, NSStringFromCGPoint(shiftValue));
-    // Can't use fast enum for this algorithm
-    for ( int i = 0; i < arrayOfPnts.count; i++ ) {
-        NSValue *v = [arrayOfPnts objectAtIndex:i];
-        CGPoint position = [v CGPointValue];
-        NSValue *new = [NSValue valueWithCGPoint:ccpAdd(position, shiftValue)];
-        [arrayOfPnts replaceObjectAtIndex:i withObject:new];
+    int x = position.x;
+    int y = position.y;
+    NSMutableArray *ret = [NSMutableArray array];
+    // Loop through range
+    for ( int i = -range; i <= range; i++ ) {
+        for ( int j = -range; j <= range; j++ ) {
+            if ( abs(i) + abs(j) <= range && flag ^ !(!i && !j) ) {
+                [ret addObject:[NSValue valueWithCGPoint:CGPointMake(i+x, j+y)]];
+            }
+        }
     }
-
-    return arrayOfPnts;
+    return ret;
 }
 
+/* */
+- (NSMutableArray *) getPathFindRange:(int)range at:(CGPoint)position
+{
+    // Creating a queue and return set
+    NSMutableArray *queue = [NSMutableArray array];
+    NSMutableArray *ret = [NSMutableArray array];
+    
+    // Adding the root
+    [queue addObject:[NSValue valueWithCGPoint:position]];
+    [queue addObject:[NSValue valueWithCGPoint:CGPointFlag]];
+    Tile *tilePtr = [self getTileWithPos:position];
+    tilePtr.touched = YES;
+    
+    // Depth counter
+    int depth = 1;
+    
+    // Looping
+    while ( [queue count] > 0 ) {
+        // De-queue
+        CGPoint pos = [[queue firstObject] CGPointValue];
+        [queue removeObjectAtIndex:0];
+        
+        // If we de-queued the flag, queue new flag and increase depth
+        if ( CGPointEqualToPoint(pos, CGPointFlag)) {
+            depth++;
+            [queue addObject:[NSValue valueWithCGPoint:CGPointFlag]];
+            if ( depth > range  ) break;
+        }
+        
+        // Find adjacent tiles and loop
+        NSMutableArray *adjacent = [self getEmptyAdjacentPointsAt:pos flag:YES];
+        for ( NSValue *v in adjacent ) {
+            [queue addObject:v];
+            [ret addObject:v];
+        }
+    }
+    return ret;
+}
+
+- (NSMutableArray *) getLOSRange:(int)range at:(CGPoint)position
+{
+    int x = position.x;
+    int y = position.y;
+    NSMutableArray *ret = [NSMutableArray array];
+    // Loop through range
+    for ( int i = -range; i <= range; i++ ) {
+        for ( int j = -range; j <= range; j++ ) {
+            if ( abs(i) + abs(j) <= range && !(!i && !j)) {
+                CGPoint target = CGPointMake(i+x, j+y);
+                CGPoint LOS = [self getLineOfSight:position to:target];
+                // If (x,y) can reach (i+x),(j+y)
+                if ( CGPointEqualToPoint(LOS, target) ) {
+                    [ret addObject:[NSValue valueWithCGPoint:LOS]];
+                }
+            }
+        }
+    }
+    return ret;
+}
+
+- (NSMutableArray *) getUniqueArea:(NSMutableArray *)area at:(CGPoint)position flag:(BOOL)flag
+{
+    NSMutableArray *array = [NSMutableArray array];
+    Direction dir = [GeneralUtils getDirection:self.currentUnitPtr.boardPos to:position];
+    CGAffineTransform transform;
+    switch ( dir ) {
+        case NW:
+            transform = CGAffineTransformMake(0, 1, 1, 0, 0, 0);
+            break;
+        case SW:
+            transform = CGAffineTransformMake(-1, 0, 0, -1, 0, 0);
+            break;
+        case SE:
+            transform = CGAffineTransformMake(0, -1, -1, 0, 0, 0);
+            break;
+        default:
+            transform = CGAffineTransformIdentity;
+            break;
+    }
+    // Loop through list
+
+    for ( int i = 0; i < area.count; i++ ) {
+        NSValue *v = [area objectAtIndex:i];
+        CGPoint pnt = [v CGPointValue];
+        // Flag means we must rotate the area accordingly
+        if ( flag ) {
+            pnt = ccpAdd(CGPointApplyAffineTransform(pnt, transform),self.currentUnitPtr.boardPos);
+        } else {
+            pnt = ccpAdd(pnt, position);
+        }
+        
+        [array addObject:[NSValue valueWithCGPoint:pnt]];
+    }
+    return array;
+}
+
+
+
+
+
+
+
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
+/****************************************************************************************************/
 #pragma mark - Unit Delegates
 - (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action
 {

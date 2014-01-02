@@ -1,46 +1,41 @@
 //
-//  Priest.m
+//  Witch.m
 //  Legends
 //
-//  Created by David Zhang on 2013-11-06.
+//  Created by David Zhang on 2013-12-30.
 //
 //
 
-#import "Priest.h"
-@interface Priest()
+#import "Witch.h"
+@interface Witch()
 @property (nonatomic, strong)   UnitAction *idle;
 @property (nonatomic, strong)   UnitAction *move;
-@property (nonatomic, strong)   UnitAction *heal;
 @property (nonatomic, strong)   UnitAction *cast;
 @property (nonatomic, strong)   UnitButton *moveButton;
-@property (nonatomic, strong)   UnitButton *healButton;
 @property (nonatomic, strong)   UnitButton *castButton;
 @property (nonatomic, strong) ActionObject *moveAction;
-@property (nonatomic, strong) ActionObject *healAction;
 @property (nonatomic, strong) ActionObject *castAction;
 
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
 
-@implementation Priest
+@implementation Witch
 #pragma mark - Init n shit
-+ (id) priest:(UnitObject *)object isOwned:(BOOL)owned
++ (id) witch:(UnitObject *)object isOwned:(BOOL)owned
 {
-    return [[Priest alloc] initPriest:object isOwned:owned];
+    return [[Witch alloc] initWitch:object isOwned:owned];
 }
 
-- (id) initPriest:(UnitObject *)object isOwned:(BOOL)owned
+- (id) initWitch:(UnitObject *)object isOwned:(BOOL)owned
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
-        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"priest_idle" andFrames:4 delay:0.1];
+        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"witch_idle" andFrames:4 delay:0.1];
         _idle.tag = IDLETAG;
         
-        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"priest_walk" andFrames:4 delay:0.1];
+        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"witch_walk" andFrames:4 delay:0.1];
         
-        _heal = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_pray" andFrames:4 delay:0.15 reverse:NO];
-        
-        _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_cast" andFrames:4 delay:0.1 reverse:NO];
+        _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"witch_cast" andFrames:3 delay:0.1 reverse:NO];
         
         [self initMenu];
         [self initActions];
@@ -54,11 +49,11 @@
     _moveButton.anchorPoint = ccp(0.5, 0.5);
     _moveButton.position = ccp(-50, 60);
     
-    _healButton = [UnitButton UnitButtonWithName:@"cross-coloured" CD:3 MC:100 target:self selector:@selector(healPressed)];
-    _healButton.anchorPoint = ccp(0.5, 0.5);
-    _healButton.position = ccp(50, 60);
+    _castButton = [UnitButton UnitButtonWithName:@"magic" CD:3 MC:100 target:self selector:@selector(castPressed)];
+    _castButton.anchorPoint = ccp(0.5, 0.5);
+    _castButton.position = ccp(50, 60);
     
-    self.menu = [CCMenu menuWithItems:_moveButton, _healButton, nil];
+    self.menu = [CCMenu menuWithItems:_moveButton, _castButton, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
@@ -70,13 +65,16 @@
     _moveAction = [[ActionObject alloc] init];
     _moveAction.type = ActionMove;
     _moveAction.rangeType = RangePathFind;
-    _moveAction.effectType = RangeOne;
     _moveAction.range = 3;
+    _moveAction.effectType = RangeOne;
+
     
-    _healAction = [[ActionObject alloc] init];
-    _healAction.type = ActionSkillOne;
-    _healAction.rangeType = RangeAllied;
-    _healAction.effectType = RangeAllied;
+    _castAction = [[ActionObject alloc] init];
+    _castAction.type = ActionSkillOne;
+    _castAction.rangeType = RangeUnique;
+    _castAction.areaOfRange = [GeneralUtils getWitchCast];
+    _castAction.effectType = RangeUnique;
+    _castAction.areaOfEffect = [GeneralUtils getWitchEffect];
 }
 
 #pragma mark - Action
@@ -97,19 +95,11 @@
         // Save targets
         self.targets = targets;
         
-        // Run our particle effect
-        CCParticleSystemQuad *eff = [[GameObjSingleton get] getParticleSystemForFile:@"priest_heal_effect.plist"];
-        eff.position = ccp(0,25);
-        if ( eff.parent ) {
-            [eff.parent removeChild:eff cleanup:NO];
-        }
-        [self addChild:eff z:1];
-        
         // Get action
-        CCAnimation *animPtr = [self.heal getAnimationFor:self.direction];
+        CCAnimation *animPtr = [self.cast getAnimationFor:self.direction];
         
         // Run action
-        [self playAnimation:animPtr selector:@selector(healFinished)];
+        [self playAnimation:animPtr selector:@selector(castFinished)];
         
     } else if ( action == ActionStop ) {
         // Stop actions
@@ -170,19 +160,19 @@
     }
 }
 
-- (void) healPressed
+- (void) castPressed
 {
-    if ( ![self.healButton isUsed] ) {
+    if ( ![self.castButton isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.healAction];
+        [self.delegate unit:self didPress:self.castAction];
     }
 }
 
-- (void) healFinished
+- (void) castFinished
 {
-    // Send effects??????????????????????????????????????????
+    // Send effects
     for ( int i = 0; i < self.targets.count; i++ ) {
-        CCParticleSystemQuad *effect = [[GameObjSingleton get] getParticleSystemForFile:@"heal_gain_effect.plist"];
+        CCParticleSystemQuad *effect = [[GameObjSingleton get] getParticleSystemForFile:@"witch_wave_effect.plist"];
         if ( effect.parent ) {
             [effect.parent removeChild:effect cleanup:NO];
         }
@@ -196,22 +186,22 @@
             // Type is unit, we can directly communicate with them
             Unit *unit = (Unit *)target;
             effect.position = unit.position;
-            [unit gain:10 from:self];
+            [unit take:10 from:self];
         }
         // Ask our delegate to handle the position and order
         [self.delegate unit:self wantsToPlace:effect];
     }
     
     // Call our finish delegate function
-    [self.delegate unit:self didFinishAction:self.healAction];
+    [self.delegate unit:self didFinishAction:self.castAction];
 }
 
 - (void) reset
 {
     [super reset];
     if ( self.moveButton.isUsed ) self.currentCD += self.moveButton.buttonCD;
-    if ( self.healButton.isUsed ) self.currentCD += self.healButton.buttonCD;
+    if ( self.castButton.isUsed ) self.currentCD += self.castButton.buttonCD;
     self.moveButton.isUsed = NO;
-    self.healButton.isUsed = NO;
+    self.castButton.isUsed = NO;
 }
 @end

@@ -24,14 +24,7 @@
 #import "UnitObject.h"
 #import "UnitAction.h"
 #import "ActionObject.h"
-
-//typedef enum {
-//    NE,
-//    SE,
-//    SW,
-//    NW,
-//}Direction;
-
+#import "BuffObject.h"
 
 #pragma mark - Classes
 @class Unit;
@@ -47,7 +40,7 @@
 - (void) unit:(Unit *)unit wantsToPlace:(CCNode *)child;
 @end
 
-@interface Unit : CCNode
+@interface Unit : CCNode <BuffObjectDelegate>
 /* General Objects */
 @property (nonatomic, strong, readonly)  UnitObject *object;
 @property (nonatomic, strong)      AttributesObject *attributes;
@@ -63,6 +56,7 @@
 @property (nonatomic, assign)                    id delegate;
 
 /* In-game stats */
+@property (nonatomic, strong)        NSMutableArray *buffList;
 @property (nonatomic)                     Direction direction;
 @property (nonatomic)                       CGPoint boardPos;
 @property (nonatomic)                           int currentCD;
@@ -73,18 +67,13 @@
 @property (nonatomic)                          BOOL isBusy;
 
 /* Real time stats */
-
 - (id)      initUnit:(UnitObject *)obj isOwned:(BOOL)owned;
 
 - (void)    action:(Action)action targets:(NSMutableArray *)targets;
 
-- (void)    damage:(NSMutableArray *)units for:(int)amount;
-- (void)    heal:(NSMutableArray *)units for:(int)amount;
-//- (void) buff:(NSMutableArray *)units;
-
-- (void)    take:(int)amount from:(Unit *)unit;
-- (void)    gain:(int)amount from:(Unit *)unit;
-//- (void) buff:(int)amount from:(Unit *)unit;
+- (void)    combatSend:(CombatObject *)obj to:(Unit *)unit;
+- (void)    combatReceive:(CombatObject *)obj;
+- (void)    buffReceive:(BuffObject *)obj;
 
 - (void)    reset;
 - (void)    openMenu;
@@ -94,6 +83,14 @@
 - (void)    playAnimation:(CCAnimation *)animation selector:(SEL)s;
 - (void)    playAction:(CCAction *)action;
 @end
+
+
+
+
+
+
+
+
 
 
 #pragma mark - ShortestPathStep

@@ -54,6 +54,7 @@ static GameObjSingleton* _gameObjSingleton = nil;
     [self getParticleSystemForFile:@"healEffect.plist"];
     [self getParticleSystemForFile:@"priest_heal_effect.plist"];
     [self getParticleSystemForFile:@"fireball.plist"];
+    [self getParticleSystemForFile:@"witch_wave_effect.plist"];
 }
 
 - (CCParticleSystemQuad *) getParticleSystemForFile:(NSString*) plistFile

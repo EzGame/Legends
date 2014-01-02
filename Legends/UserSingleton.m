@@ -39,7 +39,8 @@ static UserSingleton* _sharedUserSingleton = nil;
 {
     if ( !_mySetup ) {
         _mySetup = [SFSArray newInstance];
-        [_mySetup addClass:[self createMaxUnit:UnitTypePriest]];
+        for ( int i = UnitTypeNone+1; i <= UnitTypeLast; i++)
+            [_mySetup addClass:[self createMaxUnit:i]];
     }
     return _mySetup;
 }
@@ -168,6 +169,7 @@ static UserSingleton* _sharedUserSingleton = nil;
 
 - (UnitObject *) createMaxUnit:(int)type
 {
+    NSLog(@"creating %d", type);
     int str = 100;
     int agi = 100;
     int inte = 100;
@@ -185,7 +187,7 @@ static UserSingleton* _sharedUserSingleton = nil;
 //    int secondary = 10;
 //    int tertiary = 10;
     NSString *string = [NSString stringWithFormat:
-                        @"%d/%d/%d/{2,%d}/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d",
+                        @"%d/%d/%d/{%d,2}/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d",
                         type, Common, 4, type,
                         str, agi, inte, spr, hp,
                         aug_str, aug_agi, aug_inte, aug_spr, aug_hp,

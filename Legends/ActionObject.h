@@ -9,18 +9,16 @@
 #import <Foundation/Foundation.h>
 #import "Constants.h"
 
-typedef enum {
-    RangeNormal,
-    RangePathFind,
-    RangeAllied,
-    RangeEnemy,
-} ActionRangeType;
+
 
 @interface ActionObject : NSObject
 @property (nonatomic)                   Action type;
 @property (nonatomic)          ActionRangeType rangeType;
+@property (nonatomic)                      int range;
+@property (nonatomic)          ActionRangeType effectType;
+@property (nonatomic)                      int effect;
+
+// For RangeUnique
 @property (nonatomic, strong)   NSMutableArray *areaOfRange;
 @property (nonatomic, strong)   NSMutableArray *areaOfEffect;
-@property (nonatomic)                      int range;
-
 @end

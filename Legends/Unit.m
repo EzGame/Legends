@@ -11,6 +11,11 @@
 #pragma mark - Unit
 @implementation Unit
 #pragma mark - Setters n Getters
+- (void) setPosition:(CGPoint)position
+{
+    [super setPosition:ccp(floor(position.x), floor(position.y))];
+}
+
 - (void) setDirection:(Direction)direction
 {
     NSString *name = [GeneralUtils stringFromType:self.object.type];
@@ -44,6 +49,15 @@
      }], nil] ];
 }
 
+
+
+
+
+
+
+
+
+
 #pragma mark - Init n shit
 - (id) initUnit:(UnitObject *)obj isOwned:(BOOL)owned;
 {
@@ -71,6 +85,7 @@
         [[CCSpriteFrameCache sharedSpriteFrameCache] addSpriteFramesWithFile:plist];
         _spriteSheet = [CCSpriteBatchNode batchNodeWithFile:png];
         _sprite = [CCSprite spriteWithSpriteFrameName:name];
+        [_sprite.texture setAntiAliasTexParameters];
         _sprite.anchorPoint = ccp(0.5, 0);
         
         _glowSprite = [CCSprite spriteWithSpriteFrameName:glow];
@@ -106,6 +121,7 @@
         _shortestPath = nil;
         
         // Initialize States
+        _buffList = [NSMutableArray array];
         _isOwned = owned;
         _direction = (owned) ? NE : SW;
         _moveSpeed = obj.moveSpeed;
@@ -113,59 +129,92 @@
     return self;
 }
 
+
+
+
+
+
+
+
+
+
 #pragma mark - Actions
 - (void) action:(Action)action targets:(NSMutableArray *)targets{}
 
-#pragma mark - Sender combat
-- (void) damage:(NSMutableArray *)units for:(int)amount{}
-- (void) heal:(NSMutableArray *)units for:(int)amount{}
 
-#pragma mark - Receiver combat
-- (void) take:(int)amount from:(Unit *)unit
+
+
+
+
+
+
+
+
+
+#pragma mark - Combat
+- (void) combatSend:(CombatObject *)obj to:(Unit *)unit
 {
-    // Find damaged frame name
-    NSString *name = [GeneralUtils stringFromType:self.object.type];
-    NSString *face = [GeneralUtils stringFromDirection:self.direction];
-    NSString *frame = [NSString stringWithFormat:@"%@_hurt_%@.png",name,face];
-    [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frame]];
+    // Let attributes modify the damage object
+    switch (obj.type) {
+        case CombatTypeStr:
+            [self.attributes strCalculation:obj with:unit.attributes];
+            break;
+        // TODO: Finish other combat types
+        default:
+            break;
+    }
     
-    // Create scrolling text
-    NSString *message = [NSString stringWithFormat:@"%d", amount];
-    CCLabelBMFont *scrollingText = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
-    scrollingText.color = ccRED;
-    scrollingText.anchorPoint = ccp(0.5, 0.5);
-    scrollingText.position = ccp(0, 25);
-    scrollingText.visible = NO;
-    [self addChild:scrollingText];
+    // Iterate through buff list with event = BuffEventAttack
+    for ( BuffObject *b in self.buffList ) {
+        [b onBuffInvoke:BuffEventAttack obj:obj];
+    }
     
-    // Create scrolling text animations
-    id startAnim = [CCCallBlock actionWithBlock:^{scrollingText.visible = YES;}];
-    id slideUp = [CCMoveBy actionWithDuration:0.5 position:ccp(0,35)];
-    id fadeOut = [CCFadeOut actionWithDuration:0.2];
-    id cleanUp = [CCCallBlock actionWithBlock:^{[self removeChild:scrollingText cleanup:YES];}];
-    
-    // Run animation sequence
-    [self.sprite runAction:
-     [CCSequence actions:
-      [CCCallBlock actionWithBlock:^{
-         [self.sprite setColor:ccRED];
-         self.currentHP -= amount;
-     }],
-      [CCDelayTime actionWithDuration:1],
-      [CCTintTo actionWithDuration:0.5 red:255 green:255 blue:255],
-      [CCCallBlock actionWithBlock:^{
-         self.direction = self.direction;
-         [scrollingText runAction:[CCSequence actions:
-                                   startAnim, slideUp, fadeOut, cleanUp, nil]];
-     }], nil]];
+    // Send message
+    [unit combatReceive:obj];
 }
 
-- (void) gain:(int)amount from:(Unit *)unit
+- (void) combatReceive:(CombatObject *)obj
 {
-    // Create scrolling text
-    NSString *message = [NSString stringWithFormat:@"+%d", amount];
+    NSLog(@"Received combat obj %@", obj);
+    
+    // Iterate through buff list with event = BuffEventDefense
+    for ( BuffObject *b in self.buffList ) {
+        [b onBuffInvoke:BuffEventDefense obj:obj];
+    }
+    
+    // Based on the combat object received/modified by buffs, display information
+    [self combatMessage:obj];
+}
+
+- (void) combatMessage:(CombatObject *)obj
+{
+    NSString *message;
+    ccColor3B spriteColour;
+    
+    // If the object is not a heal, the combat message should be for damage
+    if ( !obj.amount ) {
+        message = @".3.";
+        spriteColour = ccWHITE;
+        
+    } else if ( !obj.type == CombatTypeHeal ) {
+        // Find damaged frame name
+        NSString *name = [GeneralUtils stringFromType:self.object.type];
+        NSString *face = [GeneralUtils stringFromDirection:self.direction];
+        NSString *frame = [NSString stringWithFormat:@"%@_hurt_%@.png",name,face];
+        [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frame]];
+        
+        message = [NSString stringWithFormat:@"%d", obj.amount];
+        spriteColour = ccRED;
+        
+    } else {
+        message = [NSString stringWithFormat:@"+%d", obj.amount];
+        spriteColour = ccGREEN;
+        
+    }
+    
+    // Create the label for the text
     CCLabelBMFont *scrollingText = [CCLabelBMFont labelWithString:message fntFile:COMBATFONTBIG];
-    scrollingText.color = ccGREEN;
+    scrollingText.color = [GeneralUtils colorFromCombat:obj.type];
     scrollingText.anchorPoint = ccp(0.5, 0.5);
     scrollingText.position = ccp(0, 25);
     scrollingText.visible = NO;
@@ -181,28 +230,64 @@
     [self.sprite runAction:
      [CCSequence actions:
       [CCCallBlock actionWithBlock:^{
-         [self.sprite setColor:ccLIGHTGREEN];
-         self.currentHP += amount;
+         [self.sprite setColor:spriteColour];
      }],
-      [CCDelayTime actionWithDuration:1],
+      [CCDelayTime actionWithDuration:0.5],
       [CCTintTo actionWithDuration:0.5 red:255 green:255 blue:255],
       [CCCallBlock actionWithBlock:^{
          self.direction = self.direction;
          [scrollingText runAction:[CCSequence actions:
                                    startAnim, slideUp, fadeOut, cleanUp, nil]];
+         self.currentHP += obj.amount;
      }], nil]];
 }
 
+- (void) buffReceive:(BuffObject *)obj
+{
+    // TODO: Iterate through list and replace if buff already exists.
+    [self.buffList addObject:obj];
+    [obj onBuffAdded:self.attributes];
+}
+
+
+
+
+
+
+
+
+
+
 #pragma mark - Other
-- (void) reset {}
+- (void) reset
+{
+    self.currentCD--;
+    for (BuffObject *b in self.buffList) {
+        [b onReset];
+        if (b.duration == 0) {
+            [b onBuffRemoved:self.attributes];
+        }
+    }
+}
+
 - (void) openMenu
 {
     self.menu.visible = YES;
 }
+
 - (void) closeMenu
 {
     self.menu.visible = NO;
 }
+
+
+
+
+
+
+
+
+
 
 #pragma mark - Subclassing functions
 - (void) playAnimation:(CCAnimation *)animation selector:(SEL)s
@@ -211,6 +296,7 @@
         [self.sprite stopAllActions];
     
     // For a finite animation, we want to call a selector when we're finished.
+    animation.restoreOriginalFrame = YES;
     [self.sprite runAction:
      [CCSequence actions:
       [CCAnimate actionWithAnimation:animation],
@@ -223,7 +309,32 @@
         [self.sprite stopAllActions];
     [self.sprite runAction:action];
 }
+
+
+
+
+
+
+
+
+
+
+#pragma mark - Buff Object Delegate
+- (void) buffToBeRemoved:(BuffObject *)buff
+{
+    NSLog(@"Buff List: %@", self.buffList);
+    [self.buffList removeObject:buff];
+    NSLog(@"Buff List: %@", self.buffList);
+}
 @end
+
+
+
+
+
+
+
+
 
 
 #pragma mark - A*

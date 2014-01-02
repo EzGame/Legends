@@ -69,7 +69,7 @@
 #pragma mark - Math
 + (Direction) getDirection:(CGPoint)start to:(CGPoint)end
 {
-    CGPoint difference = ccpSub(start, end);
+    CGPoint difference = ccpSub(end, start);
     if (difference.x > 0 ) return NW;
     else if (difference.x < 0 ) return SE;
     else if (difference.y > 0 ) return NE;
@@ -179,12 +179,34 @@
     return colour;
 }
 
++ (ccColor3B) colorFromCombat:(CombatType)type
+{
+    ccColor3B colour;
+    switch (type) {
+        case CombatTypeStr: colour = ccRED; break;
+        case CombatTypeAgi: colour = ccGREEN; break;
+        case CombatTypeInt: colour = ccBLUE; break;
+        case CombatTypePure: colour = ccPURPLE; break;
+        case CombatTypeHeal: colour = ccYELLOW; break;
+        default: break;
+    }
+    return colour;
+}
+
 #pragma mark - To String
 + (NSString *) stringFromType:(UnitType)type
 {
     NSString *ret;
     if ( type == UnitTypePriest )
         ret = @"priest";
+    else if ( type == UnitTypeWarrior )
+        ret = @"warrior";
+    else if ( type == UnitTypeRanger )
+        ret = @"ranger";
+    else if ( type == UnitTypeWitch )
+        ret = @"witch";
+    else if ( type == UnitTypeKnight )
+        ret = @"knight";
     else
         ret = @"Invalid type";
     return ret;
@@ -228,6 +250,28 @@
 + (NSMutableArray *) getOneArea
 {
     return [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:CGPointMake(0, 0)]];
+}
+
++ (NSMutableArray *) getWitchCast
+{
+    NSMutableArray *array = [NSMutableArray array];
+    for ( int i = -4; i <= 4; i++ ) {
+        for ( int j = -4; j <= 4; j++ ) {
+            if ( abs(i) + abs(j) <= 4 && (i == 0 || j == 0) && !(!i && !j) ) {
+                [array addObject:[NSValue valueWithCGPoint:CGPointMake(i, j)]];
+            }
+        }
+    }
+    return array;
+}
+
++ (NSMutableArray *) getWitchEffect
+{
+    return [NSMutableArray arrayWithObjects:
+            [NSValue valueWithCGPoint:CGPointMake(0, 1)],
+            [NSValue valueWithCGPoint:CGPointMake(0, 2)],
+            [NSValue valueWithCGPoint:CGPointMake(0, 3)],
+            [NSValue valueWithCGPoint:CGPointMake(0, 4)], nil];
 }
 
 #pragma mark - Animations

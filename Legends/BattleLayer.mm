@@ -52,6 +52,13 @@
         _matchObj = obj;
         
         _gameLayer = [CCLayer node];
+        CCSprite *filter = [CCSprite spriteWithFile:@"blackpixel.png"];
+        filter.opacity = 256*0.25;
+        filter.scale = 1000;
+        filter.position = ccp(500,500);
+        filter.anchorPoint = ccp(0.5,0.5);
+        [_gameLayer addChild:filter z:FILTER];
+        
         [self addChild:_gameLayer z:GAMELAYER];
         
         _hudLayer = [CCLayer node];
@@ -160,8 +167,8 @@
         [self.debug setString:[NSString stringWithFormat:@"%@", NSStringFromCGPoint(position)]];
         //[self.brain lightUp:position];
         
-//        [self.brain turn_driver:position];
-        [self animTest:position];
+        [self.brain turn_driver:position];
+//        [self animTest:position];
     }
 }
 
@@ -208,8 +215,8 @@
 
 - (void) battleBrainWantsToDisplayChild:(CCNode *)child at:(CGPoint)boardPos
 {
-    int pos = boardPos.x + boardPos.y;
-    [self.gameLayer addChild:child z:SPRITES_TOP - pos];
+    //int pos = boardPos.x + boardPos.y;
+    [self.gameLayer addChild:child z:EFFECTS];
 }
 /*
 - (void) createMap

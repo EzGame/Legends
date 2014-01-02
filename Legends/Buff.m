@@ -30,7 +30,7 @@
 
 @end
 
-
+/*
 #pragma mark - Buff
 @implementation Buff
 - (void) setDuration:(int)duration
@@ -154,6 +154,6 @@
     [self.caster buffCasterFinished:self];
 }
 @end
-
+*/
 
 

@@ -1,64 +1,66 @@
 //
-//  Priest.m
+//  Knight.m
 //  Legends
 //
-//  Created by David Zhang on 2013-11-06.
+//  Created by David Zhang on 2013-12-30.
 //
 //
 
-#import "Priest.h"
-@interface Priest()
+#import "Knight.h"
+
+@interface Knight()
 @property (nonatomic, strong)   UnitAction *idle;
 @property (nonatomic, strong)   UnitAction *move;
-@property (nonatomic, strong)   UnitAction *heal;
-@property (nonatomic, strong)   UnitAction *cast;
+@property (nonatomic, strong)   UnitAction *attk;
 @property (nonatomic, strong)   UnitButton *moveButton;
-@property (nonatomic, strong)   UnitButton *healButton;
-@property (nonatomic, strong)   UnitButton *castButton;
+@property (nonatomic, strong)   UnitButton *attkButton;
+@property (nonatomic, strong)   UnitButton *guardButton;
 @property (nonatomic, strong) ActionObject *moveAction;
-@property (nonatomic, strong) ActionObject *healAction;
-@property (nonatomic, strong) ActionObject *castAction;
+@property (nonatomic, strong) ActionObject *attkAction;
+@property (nonatomic, strong) ActionObject *guardAction;
 
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
 
-@implementation Priest
+@implementation Knight
 #pragma mark - Init n shit
-+ (id) priest:(UnitObject *)object isOwned:(BOOL)owned
++ (id) knight:(UnitObject *)object isOwned:(BOOL)owned
 {
-    return [[Priest alloc] initPriest:object isOwned:owned];
+    return [[Knight alloc] initKnight:object isOwned:owned];
 }
 
-- (id) initPriest:(UnitObject *)object isOwned:(BOOL)owned
+- (id) initKnight:(UnitObject *)object isOwned:(BOOL)owned
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
-        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"priest_idle" andFrames:4 delay:0.1];
+        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"knight_idle" andFrames:4 delay:0.1];
         _idle.tag = IDLETAG;
         
-        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"priest_walk" andFrames:4 delay:0.1];
+        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"knight_walk" andFrames:4 delay:0.1];
         
-        _heal = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_pray" andFrames:4 delay:0.15 reverse:NO];
+        _attk = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"knight_swing" andFrames:3 delay:0.15 reverse:NO];
         
-        _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_cast" andFrames:4 delay:0.1 reverse:NO];
-        
-        [self initMenu];
+        [self initButtons];
         [self initActions];
     }
     return self;
 }
 
-- (void) initMenu
+- (void) initButtons
 {
-    _moveButton = [UnitButton UnitButtonWithName:@"move" CD:2 MC:100 target:self selector:@selector(movePressed)];
+    _moveButton = [UnitButton UnitButtonWithName:@"move" CD:0 MC:100 target:self selector:@selector(movePressed)];
     _moveButton.anchorPoint = ccp(0.5, 0.5);
     _moveButton.position = ccp(-50, 60);
     
-    _healButton = [UnitButton UnitButtonWithName:@"cross-coloured" CD:3 MC:100 target:self selector:@selector(healPressed)];
-    _healButton.anchorPoint = ccp(0.5, 0.5);
-    _healButton.position = ccp(50, 60);
+    _attkButton = [UnitButton UnitButtonWithName:@"melee" CD:1 MC:100 target:self selector:@selector(attkPressed)];
+    _attkButton.anchorPoint = ccp(0.5, 0.5);
+    _attkButton.position = ccp(50, 60);
     
-    self.menu = [CCMenu menuWithItems:_moveButton, _healButton, nil];
+    _guardButton = [UnitButton UnitButtonWithName:@"shield" CD:0 MC:100 target:self selector:@selector(guardPressed)];
+    _guardButton.anchorPoint = ccp(0.5, 0.5);
+    _guardButton.position = ccp(0, 120);
+    
+    self.menu = [CCMenu menuWithItems:_moveButton, _attkButton, _guardButton, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
@@ -70,14 +72,23 @@
     _moveAction = [[ActionObject alloc] init];
     _moveAction.type = ActionMove;
     _moveAction.rangeType = RangePathFind;
-    _moveAction.effectType = RangeOne;
     _moveAction.range = 3;
+    _moveAction.effectType = RangeOne;
     
-    _healAction = [[ActionObject alloc] init];
-    _healAction.type = ActionSkillOne;
-    _healAction.rangeType = RangeAllied;
-    _healAction.effectType = RangeAllied;
+    _attkAction = [[ActionObject alloc] init];
+    _attkAction.type = ActionSkillOne;
+    _attkAction.rangeType = RangeNormal;
+    _attkAction.range = 1;
+    _attkAction.effectType = RangeOne;
+    
+    _guardAction = [[ActionObject alloc] init];
+    _guardAction.type = ActionSkillTwo;
+    _guardAction.rangeType = RangeOne;
+    _guardAction.effectType = RangeOne;
 }
+
+
+
 
 #pragma mark - Action
 - (void) action:(Action)action targets:(NSMutableArray *)targets
@@ -94,22 +105,29 @@
         [self actionWalk];
         
     } else if ( action == ActionSkillOne ) {
-        // Save targets
+        // Save target
         self.targets = targets;
         
-        // Run our particle effect
-        CCParticleSystemQuad *eff = [[GameObjSingleton get] getParticleSystemForFile:@"priest_heal_effect.plist"];
-        eff.position = ccp(0,25);
-        if ( eff.parent ) {
-            [eff.parent removeChild:eff cleanup:NO];
-        }
-        [self addChild:eff z:1];
-        
         // Get action
-        CCAnimation *animPtr = [self.heal getAnimationFor:self.direction];
+        id target = [self.targets firstObject];
+        CGPoint targetPos;
+        if ( [target isKindOfClass:[NSValue class]] ) {
+            // Type is NSValue, extract position
+            targetPos = [target CGPointValue];
+        } else {
+            // Type is unit, we can directly communicate with them
+            targetPos = ((Unit *)target).boardPos;
+            
+        }
+        self.direction = [GeneralUtils getDirection:self.boardPos to:targetPos];
+        NSLog(@"%@ %@",NSStringFromCGPoint(self.boardPos), NSStringFromCGPoint(targetPos));
+        CCAnimation *animPtr = [self.attk getAnimationFor:self.direction];
         
         // Run action
-        [self playAnimation:animPtr selector:@selector(healFinished)];
+        [self playAnimation:animPtr selector:@selector(attkFinished)];
+        
+    } else if ( action == ActionSkillTwo ) {
+        // We're the target, make buff for self
         
     } else if ( action == ActionStop ) {
         // Stop actions
@@ -161,6 +179,9 @@
     [self runAction:[CCSequence actions:moveStart, moveAction, moveComplete, moveCallback, nil]];
 }
 
+
+
+
 #pragma mark - Selectors
 - (void) movePressed
 {
@@ -170,48 +191,46 @@
     }
 }
 
-- (void) healPressed
+- (void) attkPressed
 {
-    if ( ![self.healButton isUsed] ) {
+    if ( ![self.attkButton isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.healAction];
+        [self.delegate unit:self didPress:self.attkAction];
     }
 }
 
-- (void) healFinished
+- (void) guardPressed
 {
-    // Send effects??????????????????????????????????????????
+    if ( ![self.guardButton isUsed] ) {
+        self.menu.visible = NO;
+        [self.delegate unit:self didPress:self.guardAction];
+    }
+}
+
+- (void) attkFinished
+{
     for ( int i = 0; i < self.targets.count; i++ ) {
-        CCParticleSystemQuad *effect = [[GameObjSingleton get] getParticleSystemForFile:@"heal_gain_effect.plist"];
-        if ( effect.parent ) {
-            [effect.parent removeChild:effect cleanup:NO];
-        }
-        
         id target = [self.targets objectAtIndex:i];
         if ( [target isKindOfClass:[NSValue class]] ) {
             // Type is NSValue, extract position
-            effect.position = [(NSValue *)target CGPointValue];
             
         } else {
             // Type is unit, we can directly communicate with them
             Unit *unit = (Unit *)target;
-            effect.position = unit.position;
-            [unit gain:10 from:self];
+            [unit take:10 from:self];
         }
-        // Ask our delegate to handle the position and order
-        [self.delegate unit:self wantsToPlace:effect];
     }
     
     // Call our finish delegate function
-    [self.delegate unit:self didFinishAction:self.healAction];
+    [self.delegate unit:self didFinishAction:self.attkAction];
 }
 
 - (void) reset
 {
     [super reset];
     if ( self.moveButton.isUsed ) self.currentCD += self.moveButton.buttonCD;
-    if ( self.healButton.isUsed ) self.currentCD += self.healButton.buttonCD;
+    if ( self.attkButton.isUsed ) self.currentCD += self.attkButton.buttonCD;
     self.moveButton.isUsed = NO;
-    self.healButton.isUsed = NO;
+    self.attkButton.isUsed = NO;
 }
 @end

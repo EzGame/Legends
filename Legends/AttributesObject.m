@@ -84,22 +84,22 @@
     
 }
 
-- (BOOL) strCalculation:(DamageObject *)ret with:(AttributesObject *)opAttributes
+- (BOOL) strCalculation:(CombatObject *)ret with:(AttributesObject *)opAttributes
 {
     float bonus = [self powerBonus:opAttributes.power];
-    ret.crushing = bonus * ret.damage;
+//    ret.crushing = bonus * ret.damage;
     return NO;
 }
 
-- (BOOL) agiCalculation:(DamageObject *)ret with:(AttributesObject *)opAttributes
+- (BOOL) agiCalculation:(CombatObject *)ret with:(AttributesObject *)opAttributes
 {
     float bonus = [self foresightBonus:opAttributes.foresight];
     ret.isMissed = arc4random() % ((int)bonus*100);
-    ret.isCritical = (bonus > 1.25) ? arc4random() % ((int)bonus*100 - 25) : NO;
+//    ret.isCritical = (bonus > 1.25) ? arc4random() % ((int)bonus*100 - 25) : NO;
     return NO;
 }
 
-- (BOOL) intCalculation:(DamageObject *)ret with:(AttributesObject *)opAttributes
+- (BOOL) intCalculation:(CombatObject *)ret with:(AttributesObject *)opAttributes
 {
     return NO;
 }

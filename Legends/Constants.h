@@ -30,9 +30,9 @@ typedef enum {
 
 typedef enum {
     NE,
-    SE,
-    SW,
     NW,
+    SW,
+    SE,
 }Direction;
 
 typedef enum Rarity {
@@ -54,7 +54,14 @@ typedef enum {
 
 typedef enum {
     UnitTypeNone,
+    // uncommon
+    UnitTypeKnight,
+    // common
     UnitTypePriest,
+    UnitTypeWarrior,
+    UnitTypeWitch,
+    UnitTypeRanger,
+    UnitTypeLast = UnitTypeRanger,
 }UnitType;
 
 /* Keep this in alternating on/off */
@@ -85,6 +92,30 @@ typedef enum {
     /*  Other  */
     ActionEndTurn,
 }Action;
+
+typedef enum {
+    RangeNormal,
+    RangeNormalInc,
+    RangeOne,
+    RangePathFind,
+    RangeLOS,
+    RangeAllied,
+    RangeEnemy,
+    RangeUnique,
+} ActionRangeType;
+
+typedef enum {
+    BuffEventAttack,
+    BuffEventDefense,
+} BuffEvent;
+
+typedef enum {
+    CombatTypeStr,
+    CombatTypeAgi,
+    CombatTypeInt,
+    CombatTypePure,
+    CombatTypeHeal,
+} CombatType;
 
 typedef enum Heart {
     VoidHeart,       // nothing
