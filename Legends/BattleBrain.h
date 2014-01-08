@@ -28,8 +28,9 @@
 - (MatchObject *)   battleBrainNeedsMatchObj;
 - (void)            battleBrainWantsToDisplayInfo:(Unit *)unit;
 - (void)            battleBrainWantsToReorder:(Tile *)tile;
-- (void)            battleBrainWantsToDisplayChild:(CCNode *)child
-                                                at:(CGPoint)boardPos;
+- (void)            battleBrainWantsToDisplayChild:(CCNode *)child;
+
+- (BOOL)            battleBrainWishesToPerform:(ActionObject *)obj;
 @end
 
 @interface BattleBrain : NSObject <UnitDelegate>

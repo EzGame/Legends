@@ -196,7 +196,12 @@
             // Type is unit, we can directly communicate with them
             Unit *unit = (Unit *)target;
             effect.position = unit.position;
-            [unit gain:10 from:self];
+            
+            CombatObject *obj = [CombatObject combatObject];
+            obj.type = CombatTypeHeal;
+            obj.amount = 10;
+            
+            [self combatSend:obj to:unit];
         }
         // Ask our delegate to handle the position and order
         [self.delegate unit:self wantsToPlace:effect];

@@ -7,6 +7,11 @@
 ////
 //
 #import "Tile.h"
+#define passByPosition CGPointMake(-10, -10)
+@interface Tile()
+@property (nonatomic, strong) Unit *passby;
+@end
+
 @implementation Tile
 - (void) setUnit:(Unit *)unit
 {
@@ -28,6 +33,26 @@
         _touched = NO;
     }
     return self;
+}
+
+- (void) passByStart:(Unit *)unit
+{
+    // Someone is passing by
+    if ( self.isOccupied ) {
+        self.passby = self.unit;
+        self.passby.position = ccpAdd(self.passby.position, passByPosition);
+    }
+    self.unit = unit;
+}
+
+- (void) passByEnd:(Unit *)unit
+{
+    // Call after unit passed us
+    self.unit = self.passby;
+    if ( self.passby ) {
+        self.passby = nil;
+        self.unit.position = ccpSub(self.unit.position, passByPosition);
+    }
 }
 
 - (NSString *) description

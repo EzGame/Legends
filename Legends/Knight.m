@@ -127,7 +127,11 @@
         [self playAnimation:animPtr selector:@selector(attkFinished)];
         
     } else if ( action == ActionSkillTwo ) {
-        // We're the target, make buff for self
+        // Create the buff
+        BuffObject *buff = [GuardBuff guardBuffTarget:self];
+        [buff start];
+        
+        [self.delegate unit:self didFinishAction:self.guardAction];
         
     } else if ( action == ActionStop ) {
         // Stop actions
@@ -217,7 +221,12 @@
         } else {
             // Type is unit, we can directly communicate with them
             Unit *unit = (Unit *)target;
-            [unit take:10 from:self];
+            
+            CombatObject *obj = [CombatObject combatObject];
+            obj.type = CombatTypeStr;
+            obj.amount = 10;
+            
+            [self combatSend:obj to:unit];
         }
     }
     

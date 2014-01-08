@@ -19,6 +19,7 @@
 #import "UnitDisplay.h"
 #import "Constants.h"
 #import "particle_sprite.h"
+#import "PlayerResources.h"
 
 
 
@@ -38,6 +39,8 @@
 @property (nonatomic, strong)      CCTMXLayer *tmxLayer;
 @property (nonatomic, strong)         CCLayer *gameLayer;
 @property (nonatomic, strong)         CCLayer *hudLayer;
+
+@property (nonatomic, strong) PlayerResources *me;
 
 @property (nonatomic, strong) CCLabelBMFont *debug;
 

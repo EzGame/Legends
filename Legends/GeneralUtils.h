@@ -16,7 +16,6 @@
 /*  To string  */
 + (NSString *) stringFromType:(UnitType)type;
 + (NSString *) stringFromDirection:(Direction)direction;
-
 //+ (NSString *) stringFromAction:(Action)action;
 
 /*  Image Manipulation */
@@ -37,6 +36,9 @@
 + (ccColor3B)   colorFromAttribute:(Attribute)attribute;
 + (ccColor3B)   colorFromCombat:(CombatType)type;
 
+/* Actions */
++ (CCAction *)  actionBuffEffect:(CCAction *)callback;
+
 /* Algorithms */
 + (NSMutableArray *) getDiamondArea:(int)area;
 + (NSMutableArray *) getDiamondAreaWithMe:(int)area;
@@ -46,5 +48,4 @@
 
 /* Animations */
 + (void) tint:(CCSprite *)sprite with:(ccColor3B)color by:(int)factor;
-
 @end

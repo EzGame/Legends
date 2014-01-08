@@ -12,6 +12,8 @@
 
 
 @interface ActionObject : NSObject
+@property (nonatomic)                      int manaCost;
+@property (nonatomic)                      int cmdCost;
 @property (nonatomic)                   Action type;
 @property (nonatomic)          ActionRangeType rangeType;
 @property (nonatomic)                      int range;

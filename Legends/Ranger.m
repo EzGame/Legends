@@ -195,7 +195,12 @@
         } else {
             // Type is unit, we can directly communicate with them
             Unit *unit = (Unit *)target;
-            [unit take:10 from:self];
+            
+            CombatObject *obj = [CombatObject combatObject];
+            obj.type = CombatTypeAgi;
+            obj.amount = 10;
+            
+            [self combatSend:obj to:unit];
         }
     }
     

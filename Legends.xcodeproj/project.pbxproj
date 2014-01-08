@@ -265,6 +265,11 @@
 		56E3E3B2187249130006BB16 /* BuffObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E3E3B1187249130006BB16 /* BuffObject.m */; };
 		56E3E3B51872526C0006BB16 /* icon_guard.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E3E3B41872526C0006BB16 /* icon_guard.png */; };
 		56E3E3B81875E7040006BB16 /* CombatObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E3E3B71875E7040006BB16 /* CombatObject.m */; };
+		56E3E3BB187CD42C0006BB16 /* PlayerResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E3E3BA187CD42C0006BB16 /* PlayerResources.m */; };
+		56E3E3BF187CDD130006BB16 /* ui_resourcebar.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E3E3BC187CDD130006BB16 /* ui_resourcebar.png */; };
+		56E3E3C0187CDD130006BB16 /* ui_cmdbarframe.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E3E3BD187CDD130006BB16 /* ui_cmdbarframe.png */; };
+		56E3E3C1187CDD130006BB16 /* ui_manabarframe.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E3E3BE187CDD130006BB16 /* ui_manabarframe.png */; };
+		56E3E3C4187E14350006BB16 /* UnitSkill.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E3E3C3187E14350006BB16 /* UnitSkill.m */; };
 		56E64815179868A7002BB2B5 /* font_normal_small.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 56E6480F179868A7002BB2B5 /* font_normal_small.fnt */; };
 		56E64816179868A7002BB2B5 /* font_normal_mid.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 56E64810179868A7002BB2B5 /* font_normal_mid.fnt */; };
 		56E64817179868A7002BB2B5 /* font_normal_mid.png in Resources */ = {isa = PBXBuildFile; fileRef = 56E64811179868A7002BB2B5 /* font_normal_mid.png */; };
@@ -739,6 +744,13 @@
 		56E3E3B41872526C0006BB16 /* icon_guard.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_guard.png; sourceTree = "<group>"; };
 		56E3E3B61875E7040006BB16 /* CombatObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CombatObject.h; sourceTree = "<group>"; };
 		56E3E3B71875E7040006BB16 /* CombatObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CombatObject.m; sourceTree = "<group>"; };
+		56E3E3B9187CD42C0006BB16 /* PlayerResources.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PlayerResources.h; sourceTree = "<group>"; };
+		56E3E3BA187CD42C0006BB16 /* PlayerResources.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerResources.m; sourceTree = "<group>"; };
+		56E3E3BC187CDD130006BB16 /* ui_resourcebar.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_resourcebar.png; sourceTree = "<group>"; };
+		56E3E3BD187CDD130006BB16 /* ui_cmdbarframe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_cmdbarframe.png; sourceTree = "<group>"; };
+		56E3E3BE187CDD130006BB16 /* ui_manabarframe.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ui_manabarframe.png; sourceTree = "<group>"; };
+		56E3E3C2187E14350006BB16 /* UnitSkill.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UnitSkill.h; sourceTree = "<group>"; };
+		56E3E3C3187E14350006BB16 /* UnitSkill.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnitSkill.m; sourceTree = "<group>"; };
 		56E6480F179868A7002BB2B5 /* font_normal_small.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = font_normal_small.fnt; sourceTree = "<group>"; };
 		56E64810179868A7002BB2B5 /* font_normal_mid.fnt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = font_normal_mid.fnt; sourceTree = "<group>"; };
 		56E64811179868A7002BB2B5 /* font_normal_mid.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = font_normal_mid.png; sourceTree = "<group>"; };
@@ -868,6 +880,9 @@
 				5634FF281785F55B009B86CC /* ui_vagrant.png */,
 				5634FF291785F55B009B86CC /* ui_common.png */,
 				5634FF2A1785F55B009B86CC /* ui_hp_bar.png */,
+				56E3E3BC187CDD130006BB16 /* ui_resourcebar.png */,
+				56E3E3BD187CDD130006BB16 /* ui_cmdbarframe.png */,
+				56E3E3BE187CDD130006BB16 /* ui_manabarframe.png */,
 			);
 			name = UI;
 			sourceTree = "<group>";
@@ -909,6 +924,8 @@
 				56D9F9C71811E9F900CA235B /* StatObject.m */,
 				56E71FEF182C696A00646EC5 /* UnitAction.h */,
 				56E71FF0182C696A00646EC5 /* UnitAction.m */,
+				56E3E3C2187E14350006BB16 /* UnitSkill.h */,
+				56E3E3C3187E14350006BB16 /* UnitSkill.m */,
 				56E71FE6182C0CF100646EC5 /* UnitButton.h */,
 				56E71FE7182C0CF100646EC5 /* UnitButton.m */,
 				56D9F9C01811DFE500CA235B /* UnitObject.h */,
@@ -1420,6 +1437,8 @@
 			children = (
 				56C9F84B1743D9860016BB3B /* Tile.h */,
 				56C9F84C1743D9860016BB3B /* Tile.m */,
+				56E3E3B9187CD42C0006BB16 /* PlayerResources.h */,
+				56E3E3BA187CD42C0006BB16 /* PlayerResources.m */,
 				56C9F8291743D9040016BB3B /* BattleBrain.h */,
 				56C9F82A1743D9040016BB3B /* BattleBrain.m */,
 				56C9F82B1743D9040016BB3B /* BattleLayer.h */,
@@ -1744,6 +1763,7 @@
 				5693D343178789830034F846 /* button_overlay_2.png in Resources */,
 				5693D344178789830034F846 /* button_overlay_3.png in Resources */,
 				5693D345178789830034F846 /* button_overlay_4.png in Resources */,
+				56E3E3BF187CDD130006BB16 /* ui_resourcebar.png in Resources */,
 				5693D346178789830034F846 /* button_overlay_5.png in Resources */,
 				5693D347178789830034F846 /* button_overlay_6.png in Resources */,
 				5693D348178789830034F846 /* button_overlay_7.png in Resources */,
@@ -1752,6 +1772,7 @@
 				5693D34B178789830034F846 /* button_overlay_10.png in Resources */,
 				56F0984618568EE000E56E6F /* priest.png in Resources */,
 				5693D3951795D48D0034F846 /* turn_NW_temp.png in Resources */,
+				56E3E3C0187CDD130006BB16 /* ui_cmdbarframe.png in Resources */,
 				5693D3961795D48D0034F846 /* turn_SE_selected.png in Resources */,
 				5693D3971795D48D0034F846 /* turn_SW_selected.png in Resources */,
 				5693D3981795D48D0034F846 /* turn_SE_temp.png in Resources */,
@@ -1773,6 +1794,7 @@
 				56E648241798776C002BB2B5 /* font_combat_big.png in Resources */,
 				56DF137D1859CA760071BC94 /* fireball.plist in Resources */,
 				56E648251798776C002BB2B5 /* font_combat_mid.png in Resources */,
+				56E3E3C1187CDD130006BB16 /* ui_manabarframe.png in Resources */,
 				56E648261798776C002BB2B5 /* font_combat_small.fnt in Resources */,
 				56E6482D17988179002BB2B5 /* sidebar_gm_border.png in Resources */,
 				56E6482E17988179002BB2B5 /* sidebar_gm_divider.png in Resources */,
@@ -1867,6 +1889,8 @@
 				56E7D49417C68F55005E8010 /* GeneralUtils.m in Sources */,
 				5629814417F3867900E2C719 /* SkillObj.m in Sources */,
 				56378CD6183D79DD00FD175A /* ActionObject.m in Sources */,
+				56E3E3C4187E14350006BB16 /* UnitSkill.m in Sources */,
+				56E3E3BB187CD42C0006BB16 /* PlayerResources.m in Sources */,
 				56E71FE8182C0CF100646EC5 /* UnitButton.m in Sources */,
 				56D9F9C21811DFE500CA235B /* UnitObject.m in Sources */,
 				56D9F9C81811E9F900CA235B /* StatObject.m in Sources */,

@@ -38,6 +38,7 @@
 - (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action;
 - (void) unit:(Unit *)unit didPress:(ActionObject *)action;
 - (void) unit:(Unit *)unit wantsToPlace:(CCNode *)child;
+- (void) unit:(Unit *)unit wantsUnitEffect:(CCNode *)child;
 @end
 
 @interface Unit : CCNode <BuffObjectDelegate>
@@ -73,11 +74,11 @@
 
 - (void)    combatSend:(CombatObject *)obj to:(Unit *)unit;
 - (void)    combatReceive:(CombatObject *)obj;
-- (void)    buffReceive:(BuffObject *)obj;
 
 - (void)    reset;
 - (void)    openMenu;
 - (void)    closeMenu;
+- (int)     mana;
 
 /* Sub classing functions */
 - (void)    playAnimation:(CCAnimation *)animation selector:(SEL)s;

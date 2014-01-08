@@ -193,6 +193,23 @@
     return colour;
 }
 
+#pragma mark - Actions
++ (CCAction *) actionBuffEffect:(CCAction *)callback
+{
+    // Spawn animation
+    id fadein = [CCFadeIn actionWithDuration:0.5];
+    id scalein = [CCScaleBy actionWithDuration:0.5 scale:0.8];
+    id spawn = [CCSpawn actions:fadein, scalein, nil];
+    
+    // Delay animation
+    id delay = [CCDelayTime actionWithDuration:1.0];
+    
+    // Destory animation
+    id fadeout = [CCFadeOut actionWithDuration:1.0];
+    
+    return [CCSequence actions:spawn, delay, fadeout, callback, nil];
+}
+
 #pragma mark - To String
 + (NSString *) stringFromType:(UnitType)type
 {

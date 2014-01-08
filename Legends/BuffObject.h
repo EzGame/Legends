@@ -11,13 +11,27 @@
 #import "AttributesObject.h"
 #import "CombatObject.h"
 
+/* 
+ * Buff object run sequence:
+ * Caster creates buff object with a <target>
+ * Caster calls [start]
+ * [start] calls [self.target add:self];
+ * <target> addes buff to buff list
+ * <target> calls [buff added];
+ * [buff added] calls [self.target addedAnimation];
+ */
+
 @class BuffObject;
 @protocol BuffObjectDelegate <NSObject>
-- (void) buffToBeRemoved:(BuffObject *)buff;
+- (void) buffNeedsToBeAdded:(BuffObject *)buff;
+- (void) buffNeedsToBeRemoved:(BuffObject *)buff;
+- (void) buffAnimationAdded:(BuffObject *)buff;
+- (void) buffAnimationInvoked:(BuffObject *)buff;
+- (void) buffAnimationRemoved:(BuffObject *)buff;
 @end
 
 @interface BuffObject : NSObject
-@property (nonatomic)               id target;
+@property (nonatomic, assign)       id target;
 @property (nonatomic, strong) CCSprite *icon;
 @property (nonatomic)              int duration;
 
@@ -25,9 +39,11 @@
 - (void) onBuffRemoved:(AttributesObject *)obj;
 - (void) onBuffInvoke:(BuffEvent)event obj:(CombatObject *)obj;
 - (void) onReset;
+
+- (void) start;
 @end
 
 @interface GuardBuff : BuffObject
-+ (id) guardBuff;
++ (id) guardBuffTarget:(id)target;
 
 @end
