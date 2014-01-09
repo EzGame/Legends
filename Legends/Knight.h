@@ -9,8 +9,6 @@
 #import "GameObjSingleton.h"
 
 #import "Unit.h"
-#import "UnitAction.h"
-#import "UnitButton.h"
 
 @interface Knight : Unit
 

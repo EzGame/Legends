@@ -208,13 +208,12 @@
 
 - (void) battleBrainWantsToDisplayChild:(CCNode *)child
 {
-    //int pos = boardPos.x + boardPos.y;
     [self.gameLayer addChild:child z:EFFECTS];
 }
 
-- (BOOL) battleBrainWishesToPerform:(ActionObject *)obj
+- (BOOL) battleBrainWishesToPerform:(UnitSkill *)obj
 {
-    return [self.me canCastMana:obj. cmd:<#(int)#>]
+    return [self.me canCastMana:obj.manaCost cmd:obj.cpCost];
 }
 
 /*

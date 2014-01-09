@@ -11,10 +11,8 @@
 @property (nonatomic, strong)   UnitAction *idle;
 @property (nonatomic, strong)   UnitAction *move;
 @property (nonatomic, strong)   UnitAction *cast;
-@property (nonatomic, strong)   UnitButton *moveButton;
-@property (nonatomic, strong)   UnitButton *castButton;
-@property (nonatomic, strong) ActionObject *moveAction;
-@property (nonatomic, strong) ActionObject *castAction;
+@property (nonatomic, strong)    UnitSkill *moveSkill;
+@property (nonatomic, strong)    UnitSkill *castSkill;
 
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
@@ -30,52 +28,79 @@
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
-        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"witch_idle" andFrames:4 delay:0.1];
-        _idle.tag = IDLETAG;
-        
-        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"witch_walk" andFrames:4 delay:0.1];
-        
-        _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"witch_cast" andFrames:3 delay:0.1 reverse:NO];
-        
-        [self initMenu];
         [self initActions];
+        [self initSkills];
     }
     return self;
 }
-
-- (void) initMenu
+- (void) initActions
 {
-    _moveButton = [UnitButton UnitButtonWithName:@"move" CD:2 MC:100 target:self selector:@selector(movePressed)];
-    _moveButton.anchorPoint = ccp(0.5, 0.5);
-    _moveButton.position = ccp(-50, 60);
+    _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
+                                               forName:@"witch_idle"
+                                             andFrames:4
+                                                 delay:0.1];
+    _idle.tag = IDLETAG;
     
-    _castButton = [UnitButton UnitButtonWithName:@"magic" CD:3 MC:100 target:self selector:@selector(castPressed)];
-    _castButton.anchorPoint = ccp(0.5, 0.5);
-    _castButton.position = ccp(50, 60);
+    _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
+                                               forName:@"witch_walk"
+                                             andFrames:4
+                                                 delay:0.1];
     
-    self.menu = [CCMenu menuWithItems:_moveButton, _castButton, nil];
+    _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet
+                                       forName:@"witch_cast"
+                                     andFrames:3
+                                         delay:0.1
+                                       reverse:NO];
+}
+
+- (void) initSkills
+{
+    
+    
+    _moveSkill = [UnitSkill unitSkill:@"move"
+                               target:self
+                             selector:@selector(movePressed)
+                                   CD:1
+                                   MC:10
+                                   CP:1];
+    
+    _moveSkill.anchorPoint = ccp(0.5, 0.5);
+    _moveSkill.position = ccp(-60, 60);
+    _moveSkill.type = ActionMove;
+    _moveSkill.rangeType = RangePathFind;
+    _moveSkill.range = 3;
+    _moveSkill.effectType = RangeOne;
+    
+    _castSkill = [UnitSkill unitSkill:@"magic"
+                               target:self
+                             selector:@selector(castPressed)
+                                   CD:2
+                                   MC:20
+                                   CP:3];
+    
+    _castSkill.anchorPoint = ccp(0.5, 0.5);
+    _castSkill.position = ccp(60, 60);
+    _castSkill.type = ActionSkillOne;
+    _castSkill.rangeType = RangeUnique;
+    _castSkill.areaOfRange = [GeneralUtils getWitchCast];
+    _castSkill.effectType = RangeUnique;
+    _castSkill.areaOfEffect = [GeneralUtils getWitchEffect];
+    
+    self.menu = [CCMenu menuWithItems:_moveSkill, _castSkill, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
     [self addChild:self.menu];
 }
 
-- (void) initActions
-{
-    _moveAction = [[ActionObject alloc] init];
-    _moveAction.type = ActionMove;
-    _moveAction.rangeType = RangePathFind;
-    _moveAction.range = 3;
-    _moveAction.effectType = RangeOne;
 
-    
-    _castAction = [[ActionObject alloc] init];
-    _castAction.type = ActionSkillOne;
-    _castAction.rangeType = RangeUnique;
-    _castAction.areaOfRange = [GeneralUtils getWitchCast];
-    _castAction.effectType = RangeUnique;
-    _castAction.areaOfEffect = [GeneralUtils getWitchEffect];
-}
+
+
+
+
+
+
+
 
 #pragma mark - Action
 - (void) action:(Action)action targets:(NSMutableArray *)targets
@@ -112,7 +137,7 @@
     // Final check
     if ( self.shortestPath.count == 0 ) {
         [self action:ActionStop targets:nil];
-        [self.delegate unit:self didFinishAction:self.moveAction];
+        [self.delegate unit:self didFinishAction:self.moveSkill];
         self.shortestPath = nil;
         return;
     }
@@ -141,30 +166,39 @@
     id moveStart = [CCCallBlock actionWithBlock:^{
         [self playAction:actPtr];
     }];
-    id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
-    id moveComplete = [CCCallBlock actionWithBlock:^{
+    id moveCallBack = [CCCallBlock actionWithBlock:^{
         [self.delegate unit:self didMoveTo:s.boardPos];
     }];
+    id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
     id moveCallback = [CCCallFunc actionWithTarget:self selector:@selector(actionWalk)];
     
     // Play actions
-    [self runAction:[CCSequence actions:moveStart, moveAction, moveComplete, moveCallback, nil]];
+    [self runAction:[CCSequence actions:moveStart, moveCallBack, moveAction, moveCallback, nil]];
 }
+
+
+
+
+
+
+
+
+
 
 #pragma mark - Selectors
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] ) {
+    if ( ![self.moveSkill isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.moveAction];
+        [self.delegate unit:self didPress:self.moveSkill];
     }
 }
 
 - (void) castPressed
 {
-    if ( ![self.castButton isUsed] ) {
+    if ( ![self.castSkill isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.castAction];
+        [self.delegate unit:self didPress:self.castSkill];
     }
 }
 
@@ -198,15 +232,15 @@
     }
     
     // Call our finish delegate function
-    [self.delegate unit:self didFinishAction:self.castAction];
+    [self.delegate unit:self didFinishAction:self.castSkill];
 }
 
 - (void) reset
 {
     [super reset];
-    if ( self.moveButton.isUsed ) self.currentCD += self.moveButton.buttonCD;
-    if ( self.castButton.isUsed ) self.currentCD += self.castButton.buttonCD;
-    self.moveButton.isUsed = NO;
-    self.castButton.isUsed = NO;
+    if ( self.moveSkill.isUsed ) self.currentCD += self.moveSkill.cdCost;
+    if ( self.castSkill.isUsed ) self.currentCD += self.castSkill.cdCost;
+    self.moveSkill.isUsed = NO;
+    self.castSkill.isUsed = NO;
 }
 @end

@@ -9,7 +9,7 @@
 #import "BattleBrain.h"
 @interface BattleBrain()
 @property (nonatomic, weak)             Unit *currentUnitPtr;
-@property (nonatomic, weak)     ActionObject *currentActionPtr;
+@property (nonatomic, weak)        UnitSkill *currentActionPtr;
 @property (nonatomic)                CGPoint currentHighlightPos;
 @property (nonatomic, strong) NSMutableArray *currentHighlightedTiles;
 @property (nonatomic)              TurnState turnState;
@@ -402,7 +402,7 @@
     }
 }
 
-- (void) performAction:(ActionObject *)action to:(NSMutableArray *)targets by:(Unit *)unit
+- (void) performAction:(UnitSkill *)action to:(NSMutableArray *)targets by:(Unit *)unit
 {
     // Specific handler for move action for path finding
     if ( action.type == ActionMove ) {
@@ -864,7 +864,7 @@
 /**********************************************************************/
 /**********************************************************************/
 #pragma mark - Unit Delegates
-- (void) unit:(Unit *)unit didFinishAction:(ActionObject *)action
+- (void) unit:(Unit *)unit didFinishAction:(UnitSkill *)action
 {
     [self printBoard];
 }
@@ -878,7 +878,7 @@
     [self.delegate battleBrainWantsToReorder:newTilePtr];
 }
 
-- (void) unit:(Unit *)unit didPress:(ActionObject *)action
+- (void) unit:(Unit *)unit didPress:(UnitSkill *)action
 {
     if ( [self.delegate battleBrainWishesToPerform:action] ) {
         // Store all these info

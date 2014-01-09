@@ -29,8 +29,7 @@
 - (void)            battleBrainWantsToDisplayInfo:(Unit *)unit;
 - (void)            battleBrainWantsToReorder:(Tile *)tile;
 - (void)            battleBrainWantsToDisplayChild:(CCNode *)child;
-
-- (BOOL)            battleBrainWishesToPerform:(ActionObject *)obj;
+- (BOOL)            battleBrainWishesToPerform:(UnitSkill *)obj;
 @end
 
 @interface BattleBrain : NSObject <UnitDelegate>

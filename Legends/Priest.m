@@ -12,13 +12,9 @@
 @property (nonatomic, strong)   UnitAction *move;
 @property (nonatomic, strong)   UnitAction *heal;
 @property (nonatomic, strong)   UnitAction *cast;
-@property (nonatomic, strong)   UnitButton *moveButton;
-@property (nonatomic, strong)   UnitButton *healButton;
-@property (nonatomic, strong)   UnitButton *castButton;
-@property (nonatomic, strong) ActionObject *moveAction;
-@property (nonatomic, strong) ActionObject *healAction;
-@property (nonatomic, strong) ActionObject *castAction;
-
+@property (nonatomic, strong)    UnitSkill *moveSkill;
+@property (nonatomic, strong)    UnitSkill *healSkill;
+@property (nonatomic, strong)    UnitSkill *castSkill;
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
 
@@ -33,51 +29,81 @@
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
-        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"priest_idle" andFrames:4 delay:0.1];
-        _idle.tag = IDLETAG;
+
         
-        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"priest_walk" andFrames:4 delay:0.1];
-        
-        _heal = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_pray" andFrames:4 delay:0.15 reverse:NO];
-        
-        _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"priest_cast" andFrames:4 delay:0.1 reverse:NO];
-        
-        [self initMenu];
         [self initActions];
+        [self initSkills];
     }
     return self;
 }
-
-- (void) initMenu
+- (void) initActions
 {
-    _moveButton = [UnitButton UnitButtonWithName:@"move" CD:2 MC:100 target:self selector:@selector(movePressed)];
-    _moveButton.anchorPoint = ccp(0.5, 0.5);
-    _moveButton.position = ccp(-50, 60);
+    _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
+                                               forName:@"priest_idle"
+                                             andFrames:4
+                                                 delay:0.1];
+    _idle.tag = IDLETAG;
     
-    _healButton = [UnitButton UnitButtonWithName:@"cross-coloured" CD:3 MC:100 target:self selector:@selector(healPressed)];
-    _healButton.anchorPoint = ccp(0.5, 0.5);
-    _healButton.position = ccp(50, 60);
+    _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
+                                               forName:@"priest_walk"
+                                             andFrames:4
+                                                 delay:0.1];
     
-    self.menu = [CCMenu menuWithItems:_moveButton, _healButton, nil];
+    _heal = [UnitAction actionsWithSpriteSheet:self.spriteSheet
+                                       forName:@"priest_pray"
+                                     andFrames:4
+                                         delay:0.15
+                                       reverse:NO];
+    
+    _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet
+                                       forName:@"priest_cast"
+                                     andFrames:4
+                                         delay:0.1
+                                       reverse:NO];
+}
+
+- (void) initSkills
+{
+    _moveSkill = [UnitSkill unitSkill:@"move"
+                               target:self
+                             selector:@selector(movePressed)
+                                   CD:2
+                                   MC:10
+                                   CP:2];
+    _moveSkill.anchorPoint = ccp(0.5, 0.5);
+    _moveSkill.position = ccp(-50, 60);
+    _moveSkill.type = ActionMove;
+    _moveSkill.rangeType = RangePathFind;
+    _moveSkill.effectType = RangeOne;
+    _moveSkill.range = 3;
+    
+    _healSkill = [UnitSkill unitSkill:@"cross-coloured"
+                               target:self
+                             selector:@selector(healPressed)
+                                   CD:3
+                                   MC:10
+                                   CP:1];
+    _healSkill.anchorPoint = ccp(0.5, 0.5);
+    _healSkill.position = ccp(50, 60);
+    _healSkill.type = ActionSkillOne;
+    _healSkill.rangeType = RangeAllied;
+    _healSkill.effectType = RangeAllied;
+    
+    self.menu = [CCMenu menuWithItems:_moveSkill, _healSkill, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
     [self addChild:self.menu];
 }
 
-- (void) initActions
-{
-    _moveAction = [[ActionObject alloc] init];
-    _moveAction.type = ActionMove;
-    _moveAction.rangeType = RangePathFind;
-    _moveAction.effectType = RangeOne;
-    _moveAction.range = 3;
-    
-    _healAction = [[ActionObject alloc] init];
-    _healAction.type = ActionSkillOne;
-    _healAction.rangeType = RangeAllied;
-    _healAction.effectType = RangeAllied;
-}
+
+
+
+
+
+
+
+
 
 #pragma mark - Action
 - (void) action:(Action)action targets:(NSMutableArray *)targets
@@ -122,7 +148,7 @@
     // Final check
     if ( self.shortestPath.count == 0 ) {
         [self action:ActionStop targets:nil];
-        [self.delegate unit:self didFinishAction:self.moveAction];
+        [self.delegate unit:self didFinishAction:self.moveSkill];
         self.shortestPath = nil;
         return;
     }
@@ -151,30 +177,30 @@
     id moveStart = [CCCallBlock actionWithBlock:^{
         [self playAction:actPtr];
     }];
-    id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
-    id moveComplete = [CCCallBlock actionWithBlock:^{
+    id moveCallBack = [CCCallBlock actionWithBlock:^{
         [self.delegate unit:self didMoveTo:s.boardPos];
     }];
+    id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
     id moveCallback = [CCCallFunc actionWithTarget:self selector:@selector(actionWalk)];
     
     // Play actions
-    [self runAction:[CCSequence actions:moveStart, moveAction, moveComplete, moveCallback, nil]];
+    [self runAction:[CCSequence actions:moveStart, moveCallBack, moveAction, moveCallback, nil]];
 }
 
 #pragma mark - Selectors
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] ) {
+    if ( ![self.moveSkill isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.moveAction];
+        [self.delegate unit:self didPress:self.moveSkill];
     }
 }
 
 - (void) healPressed
 {
-    if ( ![self.healButton isUsed] ) {
+    if ( ![self.healSkill isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.healAction];
+        [self.delegate unit:self didPress:self.healSkill];
     }
 }
 
@@ -208,15 +234,15 @@
     }
     
     // Call our finish delegate function
-    [self.delegate unit:self didFinishAction:self.healAction];
+    [self.delegate unit:self didFinishAction:self.healSkill];
 }
 
 - (void) reset
 {
     [super reset];
-    if ( self.moveButton.isUsed ) self.currentCD += self.moveButton.buttonCD;
-    if ( self.healButton.isUsed ) self.currentCD += self.healButton.buttonCD;
-    self.moveButton.isUsed = NO;
-    self.healButton.isUsed = NO;
+    if ( self.moveSkill.isUsed ) self.currentCD += self.moveSkill.cdCost;
+    if ( self.healSkill.isUsed ) self.currentCD += self.healSkill.cdCost;
+    self.moveSkill.isUsed = NO;
+    self.healSkill.isUsed = NO;
 }
 @end

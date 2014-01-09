@@ -10,8 +10,7 @@
 #import "GameObjSingleton.h"
 
 #import "Unit.h"
-#import "UnitAction.h"
-#import "UnitButton.h"
+#import "UnitSkill.h"
 
 @interface Witch : Unit
 

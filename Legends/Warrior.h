@@ -9,8 +9,7 @@
 #import "GameObjSingleton.h"
 
 #import "Unit.h"
-#import "UnitAction.h"
-#import "UnitButton.h"
+#import "UnitSkill.h"
 
 @interface Warrior : Unit
 

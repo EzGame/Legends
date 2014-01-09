@@ -11,10 +11,8 @@
 @property (nonatomic, strong)   UnitAction *idle;
 @property (nonatomic, strong)   UnitAction *move;
 @property (nonatomic, strong)   UnitAction *attk;
-@property (nonatomic, strong)   UnitButton *moveButton;
-@property (nonatomic, strong)   UnitButton *attkButton;
-@property (nonatomic, strong) ActionObject *moveAction;
-@property (nonatomic, strong) ActionObject *attkAction;
+@property (nonatomic, strong)    UnitSkill *moveSkill;
+@property (nonatomic, strong)    UnitSkill *attkSkill;
 
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
@@ -30,51 +28,72 @@
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
-        _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"warrior_idle" andFrames:4 delay:0.1];
-        _idle.tag = IDLETAG;
-        
-        _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet forName:@"warrior_walk" andFrames:4 delay:0.1];
-        
-        _attk = [UnitAction actionsWithSpriteSheet:self.spriteSheet forName:@"warrior_slice" andFrames:3 delay:0.15 reverse:NO];
-        
-        [self initButtons];
         [self initActions];
+        [self initSkills];
     }
     return self;
 }
 
-- (void) initButtons
+- (void) initActions
 {
-    _moveButton = [UnitButton UnitButtonWithName:@"move" CD:0 MC:100 target:self selector:@selector(movePressed)];
-    _moveButton.anchorPoint = ccp(0.5, 0.5);
-    _moveButton.position = ccp(-50, 60);
+    _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
+                                               forName:@"warrior_idle"
+                                             andFrames:4
+                                                 delay:0.1];
+    _idle.tag = IDLETAG;
     
-    _attkButton = [UnitButton UnitButtonWithName:@"melee" CD:1 MC:100 target:self selector:@selector(attkPressed)];
-    _attkButton.anchorPoint = ccp(0.5, 0.5);
-    _attkButton.position = ccp(50, 60);
+    _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
+                                               forName:@"warrior_walk"
+                                             andFrames:4
+                                                 delay:0.1];
     
-    self.menu = [CCMenu menuWithItems:_moveButton, _attkButton, nil];
+    _attk = [UnitAction actionsWithSpriteSheet:self.spriteSheet
+                                       forName:@"warrior_slice"
+                                     andFrames:3
+                                         delay:0.15
+                                       reverse:NO];
+}
+
+- (void) initSkills
+{
+    _moveSkill = [UnitSkill unitSkill:@"move"
+                               target:self
+                             selector:@selector(movePressed)
+                                   CD:0
+                                   MC:10
+                                   CP:1];
+    _moveSkill.anchorPoint = ccp(0.5, 0.5);
+    _moveSkill.position = ccp(-60, 60);
+    _moveSkill.type = ActionMove;
+    _moveSkill.rangeType = RangePathFind;
+    _moveSkill.range = 3;
+    _moveSkill.effectType = RangeOne;
+    
+    _attkSkill = [UnitSkill unitSkill:@"melee"
+                               target:self
+                             selector:@selector(attkPressed)
+                                   CD:1
+                                   MC:10
+                                   CP:1];
+    _attkSkill.anchorPoint = ccp(0.5, 0.5);
+    _attkSkill.position = ccp(60, 60);
+    _attkSkill.type = ActionSkillOne;
+    _attkSkill.rangeType = RangeNormal;
+    _attkSkill.range = 1;
+    _attkSkill.effectType = RangeOne;
+    
+    self.menu = [CCMenu menuWithItems:_moveSkill, _attkSkill, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
     [self addChild:self.menu];
 }
 
-- (void) initActions
-{
-    _moveAction = [[ActionObject alloc] init];
-    _moveAction.type = ActionMove;
-    _moveAction.rangeType = RangePathFind;
-    _moveAction.range = 3;
-    _moveAction.effectType = RangeOne;
 
-    
-    _attkAction = [[ActionObject alloc] init];
-    _attkAction.type = ActionSkillOne;
-    _attkAction.rangeType = RangeNormal;
-    _attkAction.range = 1;
-    _attkAction.effectType = RangeOne;
-}
+
+
+
+
 
 
 
@@ -126,7 +145,7 @@
     // Final check
     if ( self.shortestPath.count == 0 ) {
         [self action:ActionStop targets:nil];
-        [self.delegate unit:self didFinishAction:self.moveAction];
+        [self.delegate unit:self didFinishAction:self.moveSkill];
         self.shortestPath = nil;
         return;
     }
@@ -155,15 +174,20 @@
     id moveStart = [CCCallBlock actionWithBlock:^{
         [self playAction:actPtr];
     }];
-    id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
-    id moveComplete = [CCCallBlock actionWithBlock:^{
+    id moveCallBack = [CCCallBlock actionWithBlock:^{
         [self.delegate unit:self didMoveTo:s.boardPos];
     }];
+    id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
     id moveCallback = [CCCallFunc actionWithTarget:self selector:@selector(actionWalk)];
     
     // Play actions
-    [self runAction:[CCSequence actions:moveStart, moveAction, moveComplete, moveCallback, nil]];
+    [self runAction:[CCSequence actions:moveStart, moveCallBack, moveAction, moveCallback, nil]];
 }
+
+
+
+
+
 
 
 
@@ -171,17 +195,17 @@
 #pragma mark - Selectors
 - (void) movePressed
 {
-    if ( ![self.moveButton isUsed] ) {
+    if ( ![self.moveSkill isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.moveAction];
+        [self.delegate unit:self didPress:self.moveSkill];
     }
 }
 
 - (void) attkPressed
 {
-    if ( ![self.attkButton isUsed] ) {
+    if ( ![self.attkSkill isUsed] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.attkAction];
+        [self.delegate unit:self didPress:self.attkSkill];
     }
 }
 
@@ -205,15 +229,15 @@
     }
     
     // Call our finish delegate function
-    [self.delegate unit:self didFinishAction:self.attkAction];
+    [self.delegate unit:self didFinishAction:self.attkSkill];
 }
 
 - (void) reset
 {
     [super reset];
-    if ( self.moveButton.isUsed ) self.currentCD += self.moveButton.buttonCD;
-    if ( self.attkButton.isUsed ) self.currentCD += self.attkButton.buttonCD;
-    self.moveButton.isUsed = NO;
-    self.attkButton.isUsed = NO;
+    if ( self.moveSkill.isUsed ) self.currentCD += self.moveSkill.cdCost;
+    if ( self.attkSkill.isUsed ) self.currentCD += self.attkSkill.cdCost;
+    self.moveSkill.isUsed = NO;
+    self.attkSkill.isUsed = NO;
 }
 @end
