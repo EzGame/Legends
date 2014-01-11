@@ -35,9 +35,9 @@
 @optional
 - (void) unit:(Unit *)unit didMoveTo:(CGPoint)position;
 - (void) unit:(Unit *)unit didFinishAction:(UnitSkill *)action;
-- (void) unit:(Unit *)unit didPress:(UnitSkill *)action;
 - (void) unit:(Unit *)unit wantsToPlace:(CCNode *)child;
 - (void) unit:(Unit *)unit wantsUnitEffect:(CCNode *)child;
+- (BOOL) unit:(Unit *)unit wishesToUse:(UnitSkill *)action;
 @end
 
 @interface Unit : CCNode <BuffObjectDelegate>

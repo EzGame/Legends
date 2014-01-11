@@ -56,6 +56,8 @@ typedef enum {
     UnitTypeNone,
     // uncommon
     UnitTypeKnight,
+    UnitTypeBerserker,
+    UnitTypePaladin,
     // common
     UnitTypePriest,
     UnitTypeWarrior,
@@ -83,6 +85,7 @@ typedef enum {
 typedef enum {
     ActionUnknown,
     ActionIdle,
+    ActionDie,
     ActionSkillOne,
     ActionSkillTwo,
     ActionSkillThree,
@@ -96,6 +99,8 @@ typedef enum {
 typedef enum {
     RangeNormal,
     RangeNormalInc,
+    RangeNormalForce,
+    RangeNormalIncForce,
     RangeOne,
     RangePathFind,
     RangeLOS,

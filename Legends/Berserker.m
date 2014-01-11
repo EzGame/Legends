@@ -1,30 +1,31 @@
 //
-//  Warrior.m
+//  Berserker.m
 //  Legends
 //
-//  Created by David Zhang on 2013-12-23.
+//  Created by David Zhang on 2014-01-11.
 //
 //
 
-#import "Warrior.h"
-@interface Warrior()
+#import "Berserker.h"
+@interface Berserker()
 @property (nonatomic, strong)   UnitAction *idle;
 @property (nonatomic, strong)   UnitAction *move;
 @property (nonatomic, strong)   UnitAction *attk;
+@property (nonatomic, strong)   UnitAction *rage;
 @property (nonatomic, strong)    UnitSkill *moveSkill;
 @property (nonatomic, strong)    UnitSkill *attkSkill;
-
+@property (nonatomic, strong)    UnitSkill *rageSkill;
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
 
-@implementation Warrior
+@implementation Berserker
 #pragma mark - Init n shit
-+ (id) warrior:(UnitObject *)object isOwned:(BOOL)owned
++ (id) berserker:(UnitObject *)object isOwned:(BOOL)owned
 {
-    return [[Warrior alloc] initWarrior:object isOwned:owned];
+    return [[Berserker alloc] initBerserker:object isOwned:owned];
 }
 
-- (id) initWarrior:(UnitObject *)object isOwned:(BOOL)owned
+- (id) initBerserker:(UnitObject *)object isOwned:(BOOL)owned
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
@@ -37,20 +38,26 @@
 - (void) initActions
 {
     _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
-                                               forName:@"warrior_idle"
+                                               forName:@"berserker_idle"
                                              andFrames:4
                                                  delay:0.1];
     _idle.tag = IDLETAG;
     
     _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
-                                               forName:@"warrior_walk"
+                                               forName:@"berserker_walk"
                                              andFrames:4
                                                  delay:0.1];
     
     _attk = [UnitAction actionsWithSpriteSheet:self.spriteSheet
-                                       forName:@"warrior_slice"
+                                       forName:@"berserker_swing"
                                      andFrames:3
                                          delay:0.15
+                                       reverse:NO];
+    
+    _rage = [UnitAction actionsWithSpriteSheet:self.spriteSheet
+                                       forName:@"berserker_cast"
+                                     andFrames:3
+                                         delay:0.1
                                        reverse:NO];
 }
 
@@ -63,7 +70,7 @@
                                    MC:10
                                    CP:1];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
-    _moveSkill.position = ccp(-60, 60);
+    _moveSkill.position = ccp(-50, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
     _moveSkill.range = 3;
@@ -74,21 +81,32 @@
                              selector:@selector(attkPressed)
                                    CD:1
                                    MC:10
-                                   CP:1];
+                                   CP:0];
     _attkSkill.anchorPoint = ccp(0.5, 0.5);
-    _attkSkill.position = ccp(60, 60);
+    _attkSkill.position = ccp(50, 60);
     _attkSkill.type = ActionSkillOne;
     _attkSkill.rangeType = RangeNormal;
     _attkSkill.range = 1;
     _attkSkill.effectType = RangeOne;
     
-    self.menu = [CCMenu menuWithItems:_moveSkill, _attkSkill, nil];
+    _rageSkill = [UnitSkill unitSkill:@"cross"
+                                target:self
+                              selector:@selector(ragePressed)
+                                    CD:0
+                                    MC:10
+                                    CP:1];
+    _rageSkill.anchorPoint = ccp(0.5, 0.5);
+    _rageSkill.position = ccp(0, 120);
+    _rageSkill.type = ActionSkillTwo;
+    _rageSkill.rangeType = RangeOne;
+    _rageSkill.effectType = RangeOne;
+    
+    self.menu = [CCMenu menuWithItems:_moveSkill, _attkSkill, _rageSkill, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
     [self addChild:self.menu];
 }
-
 
 
 
@@ -130,9 +148,16 @@
         self.direction = [GeneralUtils getDirection:self.boardPos to:targetPos];
         NSLog(@"%@ %@",NSStringFromCGPoint(self.boardPos), NSStringFromCGPoint(targetPos));
         CCAnimation *animPtr = [self.attk getAnimationFor:self.direction];
-        
+        NSLog(@"animation %@", animPtr);
         // Run action
         [self playAnimation:animPtr selector:@selector(attkFinished)];
+        
+    } else if ( action == ActionSkillTwo ) {
+        // Create the buff
+        BuffObject *buff = [RageBuff rageBuffTarget:self];
+        [buff start];
+        
+        [self.delegate unit:self didFinishAction:self.rageSkill];
         
     } else if ( action == ActionStop ) {
         // Stop actions
@@ -197,7 +222,7 @@
 {
     if ( ![self.moveSkill isUsed] &&
         [self.delegate unit:self wishesToUse:self.moveSkill] ) {
-        self.menu.visible = NO;
+        [self closeMenu];
     }
 }
 
@@ -205,7 +230,15 @@
 {
     if ( ![self.attkSkill isUsed] &&
         [self.delegate unit:self wishesToUse:self.attkSkill] ) {
-        self.menu.visible = NO;
+        [self closeMenu];
+    }
+}
+
+- (void) ragePressed
+{
+    if ( ![self.rageSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.rageSkill] ) {
+        [self closeMenu];
     }
 }
 
@@ -214,10 +247,9 @@
     for ( int i = 0; i < self.targets.count; i++ ) {
         id target = [self.targets objectAtIndex:i];
         if ( [target isKindOfClass:[NSValue class]] ) {
-            // Type is NSValue, extract position
-            
+            // Type is NSValue
         } else {
-            // Type is unit, we can directly communicate with them
+            // Type is unit
             Unit *unit = (Unit *)target;
             
             CombatObject *obj = [CombatObject combatObject];
@@ -227,8 +259,6 @@
             [self combatSend:obj to:unit];
         }
     }
-    
-    // Call our finish delegate function
     [self.delegate unit:self didFinishAction:self.attkSkill];
 }
 
@@ -237,7 +267,10 @@
     [super reset];
     if ( self.moveSkill.isUsed ) self.currentCD += self.moveSkill.cdCost;
     if ( self.attkSkill.isUsed ) self.currentCD += self.attkSkill.cdCost;
+    if ( self.rageSkill.isUsed ) self.currentCD += self.rageSkill.cdCost;
     self.moveSkill.isUsed = NO;
     self.attkSkill.isUsed = NO;
+    self.rageSkill.isUsed = NO;
 }
+
 @end

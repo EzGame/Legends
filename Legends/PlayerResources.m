@@ -41,8 +41,8 @@
         _totalMana = 1000;
         _currMana = 500;
         _manaRegen = 250;
-        _totalCP = 1;
-        _currCP = 1;
+        _totalCP = 10;
+        _currCP = 10;
         
         // Default bar sprite
         CCSprite *bar1 = [CCSprite spriteWithFile:@"ui_resourcebar.png"];
@@ -60,8 +60,7 @@
         _manaBar.color = ccBLUE;
         _manaBar.midpoint = ccp(0.0, 0.5f);
         _manaBar.barChangeRate = ccp(1,0);
-        _manaBar.percentage = 50;
-
+        _manaBar.percentage = 100;
         
         [self addChild:_manaBarFrame z:1];
         [self addChild:_manaBar z:0];
@@ -75,7 +74,7 @@
         _cpBar.color = ccYELLOW;
         _cpBar.midpoint = ccp(0.0, 0.5f);
         _cpBar.barChangeRate = ccp(1,0);
-        _cpBar.percentage = 10;
+        _cpBar.percentage = 100;
         _cpBar.anchorPoint = ccp(0.0,0.5);
         _cpBar.position = ccp(0, -16);
         

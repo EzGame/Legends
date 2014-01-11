@@ -174,14 +174,14 @@
     id moveStart = [CCCallBlock actionWithBlock:^{
         [self playAction:actPtr];
     }];
-    id moveCallBack = [CCCallBlock actionWithBlock:^{
+    id moveDelegate = [CCCallBlock actionWithBlock:^{
         [self.delegate unit:self didMoveTo:s.boardPos];
     }];
     id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
     id moveCallback = [CCCallFunc actionWithTarget:self selector:@selector(actionWalk)];
     
     // Play actions
-    [self runAction:[CCSequence actions:moveStart, moveCallBack, moveAction, moveCallback, nil]];
+    [self runAction:[CCSequence actions:moveStart, moveDelegate, moveAction, moveCallback, nil]];
 }
 
 
@@ -190,17 +190,17 @@
 #pragma mark - Selectors
 - (void) movePressed
 {
-    if ( ![self.moveSkill isUsed] ) {
+    if ( ![self.moveSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.moveSkill] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.moveSkill];
     }
 }
 
 - (void) shootPressed
 {
-    if ( ![self.shootSkill isUsed] ) {
+    if ( ![self.shootSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.shootSkill] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.moveSkill];
     }
 }
 

@@ -93,3 +93,108 @@
     [super onReset];
 }
 @end
+
+
+
+
+
+
+
+
+
+@implementation RageBuff
+
++ (id) rageBuffTarget:(id)target
+{
+    return [[RageBuff alloc] initRageBuffTarget:target];
+}
+
+- (id) initRageBuffTarget:(id)target
+{
+    self = [super initWithTarget:target];
+    if ( self ) {
+        self.icon = [CCSprite spriteWithFile:@"icon_rage.png"];
+        self.duration = 2;
+    }
+    return self;
+}
+
+- (void) onBuffAdded:(AttributesObject *)obj
+{
+    // change crit
+    [self.target buffAnimationAdded:self];
+}
+
+- (void) onBuffInvoke:(BuffEvent)event obj:(CombatObject *)obj
+{
+    // ?
+}
+
+- (void) onBuffRemoved:(AttributesObject *)obj
+{
+    // remove crit change
+    [self.target buffAnimationRemoved:self];
+}
+
+- (void) onReset
+{
+    [super onReset];
+}
+
+@end
+
+
+
+
+
+
+
+
+
+
+@implementation ShieldBuff
+
++ (id) shieldBuffTarget:(id)target amount:(int)amount
+{
+    return [[ShieldBuff alloc] initShieldBuffTarget:target amount:amount];
+}
+
+- (id) initShieldBuffTarget:(id)target amount:(int)amount
+{
+    self = [super initWithTarget:target];
+    if ( self ) {
+        self.icon = [CCSprite spriteWithFile:@"icon-holyshield.png"];
+        self.duration = -1;
+        _amount = amount;
+    }
+    return self;
+}
+
+- (void) onBuffAdded:(AttributesObject *)obj
+{
+    [self.target buffAnimationAdded:self];
+}
+
+- (void) onBuffInvoke:(BuffEvent)event obj:(CombatObject *)obj
+{
+    if ( event == BuffEventDefense ) {
+        if ( obj.type != CombatTypeHeal || obj.type != CombatTypePure ) {
+            obj.amount = MAX(0, obj.amount - self.amount);
+            self.amount -= obj.amount;
+            if ( self.amount <= 0 ) {
+                [self end];
+            }
+        }
+    }
+}
+
+- (void) onBuffRemoved:(AttributesObject *)obj
+{
+    [self.target buffAnimationRemoved:self];
+}
+
+- (void) onReset
+{
+    [super onReset];
+}
+@end

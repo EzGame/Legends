@@ -36,17 +36,8 @@
 {
     _currentHP = MIN(_maximumHP, MAX(0, currentHP));
     int newPercentage = 100 * ( (float)_currentHP / (float)_maximumHP );
-
-    [_healthBar runAction:
-     [CCSequence actions:
-      [CCActionTween actionWithDuration:0.25
-                                    key:@"percentage"
-                                   from:_healthBar.percentage
-                                     to:newPercentage],
-    //[CCDelayTime actionWithDuration:0.25],
-      [CCCallBlock actionWithBlock:^{
-         //if ( _currentHP < 1 ) [self secondaryAction:ActionDie at:CGPointZero];
-     }], nil] ];
+    self.healthBar.percentage = newPercentage;
+    if (_currentHP < 1) [self action:ActionDie targets:nil];
 }
 
 
@@ -202,7 +193,7 @@
         NSString *frame = [NSString stringWithFormat:@"%@_hurt_%@.png",name,face];
         [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frame]];
         
-        message = [NSString stringWithFormat:@"%d", obj.amount];
+        message = [NSString stringWithFormat:@"-%d", obj.amount];
         spriteColour = ccRED;
         
     } else {
@@ -237,7 +228,8 @@
          self.direction = self.direction;
          [scrollingText runAction:[CCSequence actions:
                                    startAnim, slideUp, fadeOut, cleanUp, nil]];
-         self.currentHP += obj.amount;
+         self.currentHP += ((obj.type == CombatTypeHeal)? 1 : -1 ) * obj.amount;
+         
      }], nil]];
 }
 
@@ -298,12 +290,14 @@
     if ( [self.sprite numberOfRunningActions] )
         [self.sprite stopAllActions];
     
+    NSLog(@"%d", [self.sprite numberOfRunningActions] );
     // For a finite animation, we want to call a selector when we're finished.
     animation.restoreOriginalFrame = YES;
     [self.sprite runAction:
      [CCSequence actions:
       [CCAnimate actionWithAnimation:animation],
       [CCCallFunc actionWithTarget:self selector:s], nil]];
+        NSLog(@"%d", [self.sprite numberOfRunningActions] );
 }
 
 - (void) playAction:(CCAction *)action

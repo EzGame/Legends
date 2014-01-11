@@ -224,6 +224,10 @@
         ret = @"witch";
     else if ( type == UnitTypeKnight )
         ret = @"knight";
+    else if ( type == UnitTypeBerserker )
+        ret = @"berserker";
+    else if ( type == UnitTypePaladin )
+        ret = @"paladin";
     else
         ret = @"Invalid type";
     return ret;

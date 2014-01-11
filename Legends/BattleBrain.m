@@ -37,6 +37,7 @@
     } else if ( turnState == TurnStateB ) {
         NSLog(@"==================TURN STATE B: Highlight action==================");
         [self.currentUnitPtr openMenu];
+        self.currentActionPtr = nil;
     } else if ( turnState == TurnStateC ) {
         NSLog(@"==================TURN STATE C: Confirm the action================");
         
@@ -54,8 +55,8 @@
 {
     if ( currentUnitPtr )
         [currentUnitPtr action:ActionIdle targets:nil];
-//    else
-//        [_currentUnitPtr action:ActionStop targets:nil];
+    else
+        [_currentUnitPtr action:ActionStop targets:nil];
     
     _currentUnitPtr = currentUnitPtr;
 }
@@ -173,6 +174,10 @@
         return [Witch witch:obj isOwned:isOwned];
     } else if ( obj.type == UnitTypeKnight ) {
         return [Knight knight:obj isOwned:isOwned];
+    } else if ( obj.type == UnitTypeBerserker ) {
+        return [Berserker berserker:obj isOwned:isOwned];
+    } else if ( obj.type == UnitTypePaladin ) {
+        return [Paladin paladin:obj isOwned:isOwned];
     } else {
         NSAssert(false, @">[FATAL]    NONSUPPORTED TYPE IN BATTLEBRAIN:FINDTYPE %d", obj.type);
         return nil;
@@ -212,7 +217,7 @@
 
         // If unit is not owned or nil, return to state A
         if ( ![tilePtr.unit isOwned] ) {
-            NSLog(@"Regress to state A");
+            NSLog(@"<Regress to state A>");
             self.turnState = TurnStateA;
             return;
         }
@@ -220,34 +225,34 @@
         // set Current Unit Pointer
         self.currentUnitPtr = tilePtr.unit;
         // Advance turn state
-        NSLog(@"Moving to state B");
+        NSLog(@"<Moving to state B>");
         self.turnState = TurnStateB;
 
     } else if ( self.turnState == TurnStateB ) {
         // If current action was not set, return to state A
         if ( self.currentActionPtr == nil ) {
-            NSLog(@"Regress to state A");
+            NSLog(@"<Regress to state A>");
             self.turnState = TurnStateA;
             return;
         }
 
         // Save highlight pos and highlight with mode HighlightModeRange
         self.currentHighlightPos = self.currentUnitPtr.boardPos;
-        NSLog(@"B set currentHighlightPos to %@",NSStringFromCGPoint(self.currentHighlightPos));
+        //NSLog(@"B set currentHighlightPos to %@",NSStringFromCGPoint(self.currentHighlightPos));
         [self highlightTilesWithMode:HighlightModeRange];
         
         // Advance turn state
-        NSLog(@"Moving to state C");
+        NSLog(@"<Moving to state C>");
         self.turnState = TurnStateC;
         
     } else if ( self.turnState == TurnStateC ) {
         // If selection is white, return to state B
         if ( [GeneralUtils ccColor3BCompare:tilePtr.sprite.color :ccWHITE] ) {
-            NSLog(@"Regress to state B");
-            self.turnState = TurnStateB;
-            
             // Turn off highlight
             [self highlightTilesWithMode:HighlightModeRangeOff];
+            
+            NSLog(@"<Regress to state B>");
+            self.turnState = TurnStateB;
             return;
         }
         
@@ -256,21 +261,21 @@
         
         // Save highlight pos and highlight with mode HighlightModeEffect
         self.currentHighlightPos = brdPos;
-        NSLog(@"C set currentHighlightPos to %@",NSStringFromCGPoint(self.currentHighlightPos));
+        //NSLog(@"C set currentHighlightPos to %@",NSStringFromCGPoint(self.currentHighlightPos));
         [self highlightTilesWithMode:HighlightModeEffect];
         
         // Advance turn state
-        NSLog(@"Moving to state D");
+        NSLog(@"<Moving to state D>");
         self.turnState = TurnStateD;
         
     } else if ( self.turnState == TurnStateD ) {
         // If selection is not animated, return to state B
         if ( ![tilePtr.sprite numberOfRunningActions] ) {
-            NSLog(@"Regress to state B");
-            self.turnState = TurnStateB;
-            
             // Turn off highlight
             [self highlightTilesWithMode:HighlightModeEffectOff];
+            
+            NSLog(@"<Regress to state B>");
+            self.turnState = TurnStateB;
             return;
         }
 
@@ -278,12 +283,10 @@
         NSMutableArray *targets = [NSMutableArray array];
         for ( NSValue *v in self.currentHighlightedTiles ) {
             Tile *tilePtr = [self getTileWithPos:[v CGPointValue]];
-            NSLog(@"tilePtr %@",tilePtr);
             CGPoint position = [self getScreenPosFromIso:[v CGPointValue]];
             [targets addObject:(tilePtr.unit) ?
              tilePtr.unit : [NSValue valueWithCGPoint:position]];
         }
-//        [targets addObject:[NSValue valueWithCGPoint:ccp(200,200)]];
         
         // Turn off highlight
         [self highlightTilesWithMode:HighlightModeEffectOff];
@@ -293,9 +296,7 @@
                          to:targets
                          by:self.currentUnitPtr];
         
-        // Reset turn state
-        NSLog(@"Moving to state A");
-        self.turnState = TurnStateA;
+        // Wait till action is finished
         
     } else if ( self.turnState == TurnStateX ) {
         // display information and stop
@@ -334,6 +335,12 @@
                 break;
             case RangeNormalInc:
                 area = [self getNormalRange:range at:centerPos flag:YES];
+                break;
+            case RangeNormalForce:
+                area = [self getNormalForcedRange:range at:centerPos flag:NO];
+                break;
+            case RangeNormalIncForce:
+                area = [self getNormalForcedRange:range at:centerPos flag:YES];
                 break;
             case RangeOne:
                 area = [NSMutableArray arrayWithObject:[NSValue valueWithCGPoint:centerPos]];
@@ -412,6 +419,7 @@
     } else {
         [unit action:action.type targets:targets];
     }
+    [self.delegate battleBrainDidPerform:action];
 }
 
 
@@ -758,6 +766,26 @@
     return ret;
 }
 
+- (NSMutableArray *) getNormalForcedRange:(int)range at:(CGPoint)position flag:(BOOL)flag
+{
+    int x = position.x;
+    int y = position.y;
+    NSMutableArray *ret = [NSMutableArray array];
+    // Loop through range
+    for ( int i = -range; i <= range; i++ ) {
+        for ( int j = -range; j <= range; j++ ) {
+            CGPoint pos = CGPointMake(i+x, j+y);
+            Tile *tilePtr = [self getTileWithPos:pos];
+            if ( tilePtr.unit != nil ) {
+                if ( abs(i) + abs(j) <= range && flag ^ !(!i && !j) ) {
+                    [ret addObject:[NSValue valueWithCGPoint:pos]];
+                }
+            }
+        }
+    }
+    return ret;
+}
+
 /* */
 - (NSMutableArray *) getPathFindRange:(int)range at:(CGPoint)position
 {
@@ -866,6 +894,10 @@
 #pragma mark - Unit Delegates
 - (void) unit:(Unit *)unit didFinishAction:(UnitSkill *)action
 {
+    // Reset turn state
+    NSLog(@"<Moving to state A>");
+    self.turnState = TurnStateA;
+    
     [self printBoard];
 }
 
@@ -873,17 +905,21 @@
 {
     Tile *oldTilePtr = [self getTileWithPos:unit.boardPos];
     Tile *newTilePtr = [self getTileWithPos:position];
-    [newTilePtr passByStart:unit];
     [oldTilePtr passByEnd:unit];
+    [newTilePtr passByStart:unit];
+
     [self.delegate battleBrainWantsToReorder:newTilePtr];
 }
 
-- (void) unit:(Unit *)unit didPress:(UnitSkill *)action
+- (BOOL) unit:(Unit *)unit wishesToUse:(UnitSkill *)action
 {
     if ( [self.delegate battleBrainWishesToPerform:action] ) {
         // Store all these info
         self.currentActionPtr = action;
         [self turn_driver:CGPointFlag];
+        return true;
+    } else {
+        return false;
     }
 }
 

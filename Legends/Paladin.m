@@ -1,30 +1,33 @@
 //
-//  Warrior.m
+//  Paladin.m
 //  Legends
 //
-//  Created by David Zhang on 2013-12-23.
+//  Created by David Zhang on 2014-01-11.
 //
 //
+#import "cocos2d.h"
+#import "GameObjSingleton.h"
 
-#import "Warrior.h"
-@interface Warrior()
-@property (nonatomic, strong)   UnitAction *idle;
-@property (nonatomic, strong)   UnitAction *move;
-@property (nonatomic, strong)   UnitAction *attk;
-@property (nonatomic, strong)    UnitSkill *moveSkill;
-@property (nonatomic, strong)    UnitSkill *attkSkill;
+#import "Paladin.h"
+
+@interface Paladin ()
+@property (nonatomic, strong) UnitAction *idle;
+@property (nonatomic, strong) UnitAction *move;
+@property (nonatomic, strong) UnitAction *cast;
+@property (nonatomic, strong) UnitSkill *moveSkill;
+@property (nonatomic, strong) UnitSkill *smiteSkill;
+@property (nonatomic, strong) UnitSkill *shieldSkill;
 
 @property (nonatomic, strong) NSMutableArray *targets;
 @end
 
-@implementation Warrior
-#pragma mark - Init n shit
-+ (id) warrior:(UnitObject *)object isOwned:(BOOL)owned
+@implementation Paladin
++ (id) paladin:(UnitObject *)object isOwned:(BOOL)owned
 {
-    return [[Warrior alloc] initWarrior:object isOwned:owned];
+    return [[Paladin alloc] initPaladin:object isOwned:owned];
 }
 
-- (id) initWarrior:(UnitObject *)object isOwned:(BOOL)owned
+- (id) initPaladin:(UnitObject *)object isOwned:(BOOL)owned
 {
     self = [super initUnit:object isOwned:owned];
     if ( self ) {
@@ -37,18 +40,18 @@
 - (void) initActions
 {
     _idle = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
-                                               forName:@"warrior_idle"
+                                               forName:@"paladin_idle"
                                              andFrames:4
                                                  delay:0.1];
     _idle.tag = IDLETAG;
     
     _move = [UnitAction actionsInfiniteWithSpriteSheet:self.spriteSheet
-                                               forName:@"warrior_walk"
+                                               forName:@"paladin_walk"
                                              andFrames:4
                                                  delay:0.1];
     
-    _attk = [UnitAction actionsWithSpriteSheet:self.spriteSheet
-                                       forName:@"warrior_slice"
+    _cast = [UnitAction actionsWithSpriteSheet:self.spriteSheet
+                                       forName:@"paladin_cast"
                                      andFrames:3
                                          delay:0.15
                                        reverse:NO];
@@ -63,26 +66,39 @@
                                    MC:10
                                    CP:1];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
-    _moveSkill.position = ccp(-60, 60);
+    _moveSkill.position = ccp(-50, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
     _moveSkill.range = 3;
     _moveSkill.effectType = RangeOne;
     
-    _attkSkill = [UnitSkill unitSkill:@"melee"
+    _smiteSkill = [UnitSkill unitSkill:@"flamebreath"
                                target:self
-                             selector:@selector(attkPressed)
+                             selector:@selector(smitePressed)
                                    CD:1
                                    MC:10
-                                   CP:1];
-    _attkSkill.anchorPoint = ccp(0.5, 0.5);
-    _attkSkill.position = ccp(60, 60);
-    _attkSkill.type = ActionSkillOne;
-    _attkSkill.rangeType = RangeNormal;
-    _attkSkill.range = 1;
-    _attkSkill.effectType = RangeOne;
+                                   CP:0];
+    _smiteSkill.anchorPoint = ccp(0.5, 0.5);
+    _smiteSkill.position = ccp(50, 60);
+    _smiteSkill.type = ActionSkillOne;
+    _smiteSkill.rangeType = RangeNormal;
+    _smiteSkill.range = 2;
+    _smiteSkill.effectType = RangeOne;
     
-    self.menu = [CCMenu menuWithItems:_moveSkill, _attkSkill, nil];
+    _shieldSkill = [UnitSkill unitSkill:@"shield"
+                                target:self
+                              selector:@selector(shieldPressed)
+                                    CD:0
+                                    MC:10
+                                    CP:1];
+    _shieldSkill.anchorPoint = ccp(0.5, 0.5);
+    _shieldSkill.position = ccp(0, 120);
+    _shieldSkill.type = ActionSkillTwo;
+    _shieldSkill.rangeType = RangeNormalIncForce;
+    _shieldSkill.range = 3;
+    _shieldSkill.effectType = RangeOne;
+    
+    self.menu = [CCMenu menuWithItems:_moveSkill, _smiteSkill, _shieldSkill, nil];
     self.menu.visible = NO;
     self.menu.position = CGPointZero;
     self.menu.anchorPoint = ccp(0.5, 0.5);
@@ -128,11 +144,31 @@
             
         }
         self.direction = [GeneralUtils getDirection:self.boardPos to:targetPos];
-        NSLog(@"%@ %@",NSStringFromCGPoint(self.boardPos), NSStringFromCGPoint(targetPos));
-        CCAnimation *animPtr = [self.attk getAnimationFor:self.direction];
+        CCAnimation *animPtr = [self.cast getAnimationFor:self.direction];
         
         // Run action
-        [self playAnimation:animPtr selector:@selector(attkFinished)];
+        [self playAnimation:animPtr selector:@selector(smiteFinished)];
+        
+    } else if ( action == ActionSkillTwo ) {
+        // Save target
+        self.targets = targets;
+        
+        // Get action
+        id target = [self.targets firstObject];
+        CGPoint targetPos;
+        if ( [target isKindOfClass:[NSValue class]] ) {
+            // Type is NSValue, extract position
+            targetPos = [target CGPointValue];
+        } else {
+            // Type is unit, we can directly communicate with them
+            targetPos = ((Unit *)target).boardPos;
+            
+        }
+        self.direction = [GeneralUtils getDirection:self.boardPos to:targetPos];
+        CCAnimation *animPtr = [self.cast getAnimationFor:self.direction];
+        
+        // Run action
+        [self playAnimation:animPtr selector:@selector(shieldFinished)];
         
     } else if ( action == ActionStop ) {
         // Stop actions
@@ -192,6 +228,7 @@
 
 
 
+
 #pragma mark - Selectors
 - (void) movePressed
 {
@@ -201,15 +238,23 @@
     }
 }
 
-- (void) attkPressed
+- (void) smitePressed
 {
-    if ( ![self.attkSkill isUsed] &&
-        [self.delegate unit:self wishesToUse:self.attkSkill] ) {
+    if ( ![self.smiteSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.smiteSkill] ) {
         self.menu.visible = NO;
     }
 }
 
-- (void) attkFinished
+- (void) shieldPressed
+{
+    if ( ![self.shieldSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.shieldSkill] ) {
+        self.menu.visible = NO;
+    }
+}
+
+- (void) smiteFinished
 {
     for ( int i = 0; i < self.targets.count; i++ ) {
         id target = [self.targets objectAtIndex:i];
@@ -221,7 +266,7 @@
             Unit *unit = (Unit *)target;
             
             CombatObject *obj = [CombatObject combatObject];
-            obj.type = CombatTypeStr;
+            obj.type = CombatTypePure;
             obj.amount = 10;
             
             [self combatSend:obj to:unit];
@@ -229,15 +274,26 @@
     }
     
     // Call our finish delegate function
-    [self.delegate unit:self didFinishAction:self.attkSkill];
+    [self.delegate unit:self didFinishAction:self.smiteSkill];
 }
 
-- (void) reset
+- (void) shieldFinished
 {
-    [super reset];
-    if ( self.moveSkill.isUsed ) self.currentCD += self.moveSkill.cdCost;
-    if ( self.attkSkill.isUsed ) self.currentCD += self.attkSkill.cdCost;
-    self.moveSkill.isUsed = NO;
-    self.attkSkill.isUsed = NO;
+    for ( int i = 0; i < self.targets.count; i++ ) {
+        id target = [self.targets objectAtIndex:i];
+        if ( [target isKindOfClass:[NSValue class]] ) {
+            // Type is NSValue, extract position
+            
+        } else {
+            // Type is unit, we can directly communicate with them
+            Unit *unit = (Unit *)target;
+
+            ShieldBuff *buff = [ShieldBuff shieldBuffTarget:unit amount:5];
+            [buff start];
+        }
+    }
+    
+    // Call our finish delegate function
+    [self.delegate unit:self didFinishAction:self.shieldSkill];
 }
 @end

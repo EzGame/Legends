@@ -216,6 +216,11 @@
     return [self.me canCastMana:obj.manaCost cmd:obj.cpCost];
 }
 
+- (void) battleBrainDidPerform:(UnitSkill *)obj
+{
+    [self.me castMana:obj.manaCost cmd:obj.cpCost];
+}
+
 /*
 - (void) passPressed
 {

@@ -243,6 +243,14 @@
 		56C9FA7917440C3A0016BB3B /* emulator.fnt in Resources */ = {isa = PBXBuildFile; fileRef = 56C9FA7817440C3A0016BB3B /* emulator.fnt */; };
 		56D9F9C21811DFE500CA235B /* UnitObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 56D9F9C11811DFE500CA235B /* UnitObject.m */; };
 		56D9F9C81811E9F900CA235B /* StatObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 56D9F9C71811E9F900CA235B /* StatObject.m */; };
+		56DC52D81881B4080022003D /* berserker.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56DC52D61881B4080022003D /* berserker.plist */; };
+		56DC52D91881B4080022003D /* berserker.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DC52D71881B4080022003D /* berserker.png */; };
+		56DC52DC1881B4210022003D /* Berserker.m in Sources */ = {isa = PBXBuildFile; fileRef = 56DC52DB1881B4210022003D /* Berserker.m */; };
+		56DC52DE1881BC830022003D /* icon_rage.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DC52DD1881BC830022003D /* icon_rage.png */; };
+		56DC52E11881E9FE0022003D /* Paladin.m in Sources */ = {isa = PBXBuildFile; fileRef = 56DC52E01881E9FE0022003D /* Paladin.m */; };
+		56DC52E31881EE910022003D /* icon-holyshield.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DC52E21881EE910022003D /* icon-holyshield.png */; };
+		56DC52EB1881F2B40022003D /* paladin.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56DC52E91881F2B40022003D /* paladin.plist */; };
+		56DC52EC1881F2B40022003D /* paladin.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DC52EA1881F2B40022003D /* paladin.png */; };
 		56DF13701859B6730071BC94 /* particle_sprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 56DF136F1859B6730071BC94 /* particle_sprite.m */; };
 		56DF137B1859C6800071BC94 /* fireball.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DF137A1859C6800071BC94 /* fireball.png */; };
 		56DF137D1859CA760071BC94 /* fireball.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56DF137C1859CA760071BC94 /* fireball.plist */; };
@@ -713,6 +721,16 @@
 		56D9F9C11811DFE500CA235B /* UnitObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UnitObject.m; sourceTree = "<group>"; };
 		56D9F9C61811E9F900CA235B /* StatObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StatObject.h; sourceTree = "<group>"; };
 		56D9F9C71811E9F900CA235B /* StatObject.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = StatObject.m; sourceTree = "<group>"; };
+		56DC52D61881B4080022003D /* berserker.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = berserker.plist; sourceTree = "<group>"; };
+		56DC52D71881B4080022003D /* berserker.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = berserker.png; sourceTree = "<group>"; };
+		56DC52DA1881B4210022003D /* Berserker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Berserker.h; sourceTree = "<group>"; };
+		56DC52DB1881B4210022003D /* Berserker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Berserker.m; sourceTree = "<group>"; };
+		56DC52DD1881BC830022003D /* icon_rage.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = icon_rage.png; sourceTree = "<group>"; };
+		56DC52DF1881E9FE0022003D /* Paladin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Paladin.h; sourceTree = "<group>"; };
+		56DC52E01881E9FE0022003D /* Paladin.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Paladin.m; sourceTree = "<group>"; };
+		56DC52E21881EE910022003D /* icon-holyshield.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "icon-holyshield.png"; sourceTree = "<group>"; };
+		56DC52E91881F2B40022003D /* paladin.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = paladin.plist; sourceTree = "<group>"; };
+		56DC52EA1881F2B40022003D /* paladin.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = paladin.png; sourceTree = "<group>"; };
 		56DF136E1859B6730071BC94 /* particle_sprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = particle_sprite.h; sourceTree = "<group>"; };
 		56DF136F1859B6730071BC94 /* particle_sprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = particle_sprite.m; sourceTree = "<group>"; };
 		56DF137A1859C6800071BC94 /* fireball.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fireball.png; sourceTree = "<group>"; };
@@ -1528,6 +1546,24 @@
 			name = Graphics;
 			sourceTree = "<group>";
 		};
+		56DC52D51881B3FE0022003D /* Berserker */ = {
+			isa = PBXGroup;
+			children = (
+				56DC52D61881B4080022003D /* berserker.plist */,
+				56DC52D71881B4080022003D /* berserker.png */,
+			);
+			name = Berserker;
+			sourceTree = "<group>";
+		};
+		56DC52E41881F2150022003D /* Paladin */ = {
+			isa = PBXGroup;
+			children = (
+				56DC52E91881F2B40022003D /* paladin.plist */,
+				56DC52EA1881F2B40022003D /* paladin.png */,
+			);
+			name = Paladin;
+			sourceTree = "<group>";
+		};
 		56DF13711859C3F00071BC94 /* Test */ = {
 			isa = PBXGroup;
 			children = (
@@ -1560,6 +1596,8 @@
 		56E3E3A118723BD50006BB16 /* Uncommon units */ = {
 			isa = PBXGroup;
 			children = (
+				56DC52E41881F2150022003D /* Paladin */,
+				56DC52D51881B3FE0022003D /* Berserker */,
 				56E3E3A218723BDC0006BB16 /* Knight */,
 			);
 			name = "Uncommon units";
@@ -1578,6 +1616,8 @@
 			isa = PBXGroup;
 			children = (
 				56E3E3B41872526C0006BB16 /* icon_guard.png */,
+				56DC52DD1881BC830022003D /* icon_rage.png */,
+				56DC52E21881EE910022003D /* icon-holyshield.png */,
 			);
 			name = "Buff Icons";
 			sourceTree = "<group>";
@@ -1604,6 +1644,10 @@
 		56E71FE9182C0D0700646EC5 /* Sub classes */ = {
 			isa = PBXGroup;
 			children = (
+				56DC52DA1881B4210022003D /* Berserker.h */,
+				56DC52DB1881B4210022003D /* Berserker.m */,
+				56DC52DF1881E9FE0022003D /* Paladin.h */,
+				56DC52E01881E9FE0022003D /* Paladin.m */,
 				56E3E3941871F7C70006BB16 /* Witch.h */,
 				56E3E3951871F7C70006BB16 /* Witch.m */,
 				56E3E3A718723BFE0006BB16 /* Knight.h */,
@@ -1749,6 +1793,7 @@
 				5679AE1A17875925005A9B23 /* button_cross.png in Resources */,
 				56F0984518568EE000E56E6F /* priest.plist in Resources */,
 				5679AE1B17875925005A9B23 /* button_cross-coloured.png in Resources */,
+				56DC52E31881EE910022003D /* icon-holyshield.png in Resources */,
 				5693D342178789830034F846 /* button_overlay_1.png in Resources */,
 				5693D343178789830034F846 /* button_overlay_2.png in Resources */,
 				5693D344178789830034F846 /* button_overlay_3.png in Resources */,
@@ -1767,6 +1812,7 @@
 				5693D3971795D48D0034F846 /* turn_SW_selected.png in Resources */,
 				5693D3981795D48D0034F846 /* turn_SE_temp.png in Resources */,
 				5693D3991795D48D0034F846 /* turn_NW_selected.png in Resources */,
+				56DC52D91881B4080022003D /* berserker.png in Resources */,
 				5693D39A1795D48D0034F846 /* turn_NE_selected.png in Resources */,
 				5693D39B1795D48D0034F846 /* turn_NE_temp.png in Resources */,
 				5693D39C1795D48D0034F846 /* turn_SW_temp.png in Resources */,
@@ -1774,6 +1820,7 @@
 				56E64816179868A7002BB2B5 /* font_normal_mid.fnt in Resources */,
 				56E64817179868A7002BB2B5 /* font_normal_mid.png in Resources */,
 				56E64818179868A7002BB2B5 /* font_normal_small.png in Resources */,
+				56DC52EB1881F2B40022003D /* paladin.plist in Resources */,
 				56E64819179868A7002BB2B5 /* font_normal_big.fnt in Resources */,
 				56E6481A179868A7002BB2B5 /* font_normal_big.png in Resources */,
 				567FBBB5185BD6DE00D9FC33 /* halfringparticle.png in Resources */,
@@ -1809,14 +1856,17 @@
 				56272C8017A862BF0022F3C2 /* inventory_misc_page.png in Resources */,
 				56272C8117A862BF0022F3C2 /* inventory_consummables_page.png in Resources */,
 				56E3E3B51872526C0006BB16 /* icon_guard.png in Resources */,
+				56DC52D81881B4080022003D /* berserker.plist in Resources */,
 				56272C8517AB16390022F3C2 /* inventory_units@2x.png in Resources */,
 				56272C8617AB16390022F3C2 /* inventory_consummables_page@2x.png in Resources */,
 				56272C8717AB16390022F3C2 /* inventory_misc_page@2x.png in Resources */,
 				56378CCC183C0DAF00FD175A /* GameMapTileSet-hd.png in Resources */,
+				56DC52EC1881F2B40022003D /* paladin.png in Resources */,
 				56E3E3A01872074E0006BB16 /* witch_wave_effect.plist in Resources */,
 				56378CCB183C0DAF00FD175A /* GameMap.tmx in Resources */,
 				56E3E3A618723BE70006BB16 /* knight.plist in Resources */,
 				56E3E39C187205890006BB16 /* witch.png in Resources */,
+				56DC52DE1881BC830022003D /* icon_rage.png in Resources */,
 				56272CBC17AC67CE0022F3C2 /* inventory_tile.png in Resources */,
 				56272CBE17AC67E80022F3C2 /* inventory_tile@2x.png in Resources */,
 				56272CD517BC22990022F3C2 /* general_default.plist in Resources */,
@@ -1841,6 +1891,7 @@
 				56E71FE2182B1ECD00646EC5 /* Priest.m in Sources */,
 				56C9F8311743D9040016BB3B /* SetupLayer.mm in Sources */,
 				5662638C1868D07500B701EA /* Warrior.m in Sources */,
+				56DC52E11881E9FE0022003D /* Paladin.m in Sources */,
 				56C9F83F1743D9430016BB3B /* LoginViewController.m in Sources */,
 				56F6046A18566A8900E26518 /* AttributesObject.m in Sources */,
 				56C9F8411743D9430016BB3B /* MainMenuViewController.m in Sources */,
@@ -1871,6 +1922,7 @@
 				56520BEE179F0CD4002AB688 /* HTCustomAutoCompleteTextField.m in Sources */,
 				56520BF717A1D574002AB688 /* Scale9Sprite.m in Sources */,
 				56272CC317B1712C0022F3C2 /* DisplayUnitView.m in Sources */,
+				56DC52DC1881B4210022003D /* Berserker.m in Sources */,
 				56E3E38E1868E2890006BB16 /* Ranger.m in Sources */,
 				56E71FF1182C696A00646EC5 /* UnitAction.m in Sources */,
 				56272CCC17B3EFC30022F3C2 /* AUIAnimatableLabel.m in Sources */,

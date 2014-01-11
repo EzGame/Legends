@@ -45,5 +45,13 @@
 
 @interface GuardBuff : BuffObject
 + (id) guardBuffTarget:(id)target;
+@end
 
+@interface RageBuff : BuffObject
++ (id) rageBuffTarget:(id)target;
+@end
+
+@interface ShieldBuff : BuffObject
+@property (nonatomic) int amount;
++ (id) shieldBuffTarget:(id)target amount:(int)amount;
 @end

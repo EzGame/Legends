@@ -142,7 +142,6 @@
             
         }
         self.direction = [GeneralUtils getDirection:self.boardPos to:targetPos];
-        NSLog(@"%@ %@",NSStringFromCGPoint(self.boardPos), NSStringFromCGPoint(targetPos));
         CCAnimation *animPtr = [self.attk getAnimationFor:self.direction];
         
         // Run action
@@ -195,14 +194,14 @@
     id moveStart = [CCCallBlock actionWithBlock:^{
         [self playAction:actPtr];
     }];
-    id moveCallBack = [CCCallBlock actionWithBlock:^{
+    id moveDelegate = [CCCallBlock actionWithBlock:^{
         [self.delegate unit:self didMoveTo:s.boardPos];
     }];
     id moveAction = [CCMoveTo actionWithDuration:duration position:s.position];
     id moveCallback = [CCCallFunc actionWithTarget:self selector:@selector(actionWalk)];
     
     // Play actions
-    [self runAction:[CCSequence actions:moveStart, moveCallBack, moveAction, moveCallback, nil]];
+    [self runAction:[CCSequence actions:moveStart, moveDelegate, moveAction, moveCallback, nil]];
 }
 
 
@@ -217,25 +216,25 @@
 #pragma mark - Selectors
 - (void) movePressed
 {
-    if ( ![self.moveSkill isUsed] ) {
+    if ( ![self.moveSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.moveSkill] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.moveSkill];
     }
 }
 
 - (void) attkPressed
 {
-    if ( ![self.attkSkill isUsed] ) {
+    if ( ![self.attkSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.attkSkill] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.attkSkill];
     }
 }
 
 - (void) guardPressed
 {
-    if ( ![self.guardSkill isUsed] ) {
+    if ( ![self.guardSkill isUsed] &&
+        [self.delegate unit:self wishesToUse:self.guardSkill] ) {
         self.menu.visible = NO;
-        [self.delegate unit:self didPress:self.guardSkill];
     }
 }
 
@@ -267,7 +266,9 @@
     [super reset];
     if ( self.moveSkill.isUsed ) self.currentCD += self.moveSkill.cdCost;
     if ( self.attkSkill.isUsed ) self.currentCD += self.attkSkill.cdCost;
+    if ( self.guardSkill.isUsed ) self.currentCD += self.guardSkill.cdCost;
     self.moveSkill.isUsed = NO;
     self.attkSkill.isUsed = NO;
+    self.guardSkill.isUsed = NO;
 }
 @end

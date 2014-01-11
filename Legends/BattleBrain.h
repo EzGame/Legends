@@ -20,6 +20,8 @@
 #import "Witch.h"
 #import "Ranger.h"
 #import "Knight.h"
+#import "Berserker.h"
+#import "Paladin.h"
 
 @class BattleBrain;
 @protocol BattleBrainDelegate <NSObject>
@@ -30,6 +32,7 @@
 - (void)            battleBrainWantsToReorder:(Tile *)tile;
 - (void)            battleBrainWantsToDisplayChild:(CCNode *)child;
 - (BOOL)            battleBrainWishesToPerform:(UnitSkill *)obj;
+- (void)            battleBrainDidPerform:(UnitSkill *)obj;
 @end
 
 @interface BattleBrain : NSObject <UnitDelegate>

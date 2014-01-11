@@ -7,7 +7,7 @@
 ////
 //
 #import "Tile.h"
-#define passByPosition CGPointMake(-16, 0)
+#define passByPosition CGPointMake(-20, 5)
 @interface Tile()
 @property (nonatomic, strong) Unit *passby;
 @end
