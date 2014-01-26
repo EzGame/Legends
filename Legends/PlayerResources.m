@@ -108,7 +108,7 @@
 
 - (void) deathTo:(Unit *)unit
 {
-    self.totalMana-= [unit mana];
+    self.totalMana -= unit.attributes.mana;
 }
 
 - (void) reset

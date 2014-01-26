@@ -11,8 +11,8 @@
 @implementation StatObject
 - (NSString *) description
 {
-    return [NSString stringWithFormat:@"%d/%d/%d/%d/%d",
-            _strength, _agility, _intellect, _spirit, _health];
+    return [NSString stringWithFormat:@"%d/%d/%d",
+            _strength, _agility, _intellect];
 }
 
 - (int) getStat:(Attribute)stat
@@ -21,12 +21,8 @@
         return self.strength;
     } else if ( stat == Agility ) {
         return self.agility;
-    } else if ( stat == Intellect ) {
-        return self.intellect;
-    } else if ( stat == Spirit ) {
-        return self.spirit;
     } else {
-        return self.health;
+        return self.intellect;
     }
 }
 @end

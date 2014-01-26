@@ -12,8 +12,5 @@
 @property (nonatomic) int strength;
 @property (nonatomic) int agility;
 @property (nonatomic) int intellect;
-@property (nonatomic) int spirit;
-@property (nonatomic) int health;
-
 - (int) getStat:(Attribute)stat;
 @end

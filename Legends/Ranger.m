@@ -59,9 +59,9 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:1
-                                   MC:10
-                                   CP:1];
+                                   CD:UNITSTATS[RANGERMOVE][0]
+                                   MC:UNITSTATS[RANGERMOVE][1]
+                                   CP:UNITSTATS[RANGERMOVE][2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-60, 60);
     _moveSkill.type = ActionMove;
@@ -72,9 +72,9 @@
     _shootSkill = [UnitSkill unitSkill:@"ranged"
                                 target:self
                               selector:@selector(shootPressed)
-                                    CD:1
-                                    MC:10
-                                    CP:1];
+                                    CD:UNITSTATS[RANGERSHOOT][0]
+                                    MC:UNITSTATS[RANGERSHOOT][1]
+                                    CP:UNITSTATS[RANGERSHOOT][2]];
     _shootSkill.anchorPoint = ccp(0.5, 0.5);
     _shootSkill.position = ccp(60, 60);
     _shootSkill.type = ActionSkillOne;
@@ -217,7 +217,7 @@
             
             CombatObject *obj = [CombatObject combatObject];
             obj.type = CombatTypeAgi;
-            obj.amount = 10;
+            obj.amount = self.attributes.agility;
             
             [self combatSend:obj to:unit];
         }

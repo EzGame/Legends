@@ -51,9 +51,11 @@ static GameObjSingleton* _gameObjSingleton = nil;
 - (void) initParticles
 {
     _particles = [NSMutableDictionary dictionary];
-    [self getParticleSystemForFile:@"healEffect.plist"];
-    [self getParticleSystemForFile:@"priest_heal_effect.plist"];
+    [self getParticleSystemForFile:@"heal_gain_effect.plist"];
+    [self getParticleSystemForFile:@"priest_cast_effect.plist"];
+    [self getParticleSystemForFile:@"bleed_effect.plist"];
     [self getParticleSystemForFile:@"fireball.plist"];
+    
     [self getParticleSystemForFile:@"witch_wave_effect.plist"];
 }
 
@@ -66,6 +68,9 @@ static GameObjSingleton* _gameObjSingleton = nil;
         for(CCParticleSystemQuad * psq in arr) {
             if( !psq.active ) {
                 [psq resetSystem];
+                if ( psq.parent ) {
+                    [psq.parent removeChild:psq cleanup:NO];
+                }
                 return psq;
             }
         }

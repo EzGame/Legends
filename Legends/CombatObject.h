@@ -11,12 +11,8 @@
 @interface CombatObject : NSObject
 @property (nonatomic) CombatType type;
 @property (nonatomic)        int amount;
-
-// unused yet
-@property (nonatomic) int crushingAmount;
-@property (nonatomic) int critAmount;
-@property (nonatomic) BOOL isMissed;
-@property (nonatomic) BOOL isResisted;
+@property (nonatomic)       BOOL isCrit;
+@property (nonatomic)       BOOL isResist;
 
 + (id) combatObject;
 @end

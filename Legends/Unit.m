@@ -54,10 +54,8 @@
 {
     self = [super init];
     if ( self ) {
-        // Save pointer to UnitObject
+        // Save pointer to UnitObject and stats
         _object = obj;
-        
-        // Initialize Attributes
         _attributes = [AttributesObject attributesWithObject:obj.stats
                                                      augment:obj.augmentedStats];
         
@@ -111,11 +109,15 @@
         _spClosedSteps = nil;
         _shortestPath = nil;
         
-        // Initialize States
+        // Initialize Stats
         _buffList = [NSMutableArray array];
-        _isOwned = owned;
         _direction = (owned) ? NE : SW;
+        _boardPos = obj.position;
+        _currentHP = _attributes.health;
+        _maximumHP = _attributes.health;
         _moveSpeed = obj.moveSpeed;
+        _isOwned = owned;
+        _isBusy = NO;
     }
     return self;
 }
@@ -132,28 +134,12 @@
 #pragma mark - Actions
 - (void) action:(Action)action targets:(NSMutableArray *)targets{}
 
-
-
-
-
-
-
-
-
-
-
 #pragma mark - Combat
 - (void) combatSend:(CombatObject *)obj to:(Unit *)unit
 {
     // Let attributes modify the damage object
-    switch (obj.type) {
-        case CombatTypeStr:
-            [self.attributes strCalculation:obj with:unit.attributes];
-            break;
-        // TODO: Finish other combat types
-        default:
-            break;
-    }
+    if ( obj.type != CombatTypeHeal || obj.type != CombatTypePure )
+        [self.attributes attackerCalculation:obj];
     
     // Iterate through buff list with event = BuffEventAttack
     for ( BuffObject *b in self.buffList ) {
@@ -167,6 +153,9 @@
 - (void) combatReceive:(CombatObject *)obj
 {
     NSLog(@"Received combat obj %@", obj);
+    // Let attributes modify the damage object
+    if ( obj.type != CombatTypeHeal || obj.type != CombatTypePure )
+        [self.attributes defenderCalculation:obj];
     
     // Iterate through buff list with event = BuffEventDefense
     for ( BuffObject *b in self.buffList ) {
@@ -179,27 +168,26 @@
 
 - (void) combatMessage:(CombatObject *)obj
 {
-    NSString *message;
+    NSMutableString *message;
     ccColor3B spriteColour;
     
     // If the object is not a heal, the combat message should be for damage
     if ( !obj.amount ) {
         return;
         
-    } else if ( !obj.type == CombatTypeHeal ) {
+    } else if ( obj.type != CombatTypeHeal ) {
         // Find damaged frame name
         NSString *name = [GeneralUtils stringFromType:self.object.type];
         NSString *face = [GeneralUtils stringFromDirection:self.direction];
         NSString *frame = [NSString stringWithFormat:@"%@_hurt_%@.png",name,face];
         [self.sprite setDisplayFrame:[[CCSpriteFrameCache sharedSpriteFrameCache] spriteFrameByName:frame]];
-        
-        message = [NSString stringWithFormat:@"-%d", obj.amount];
         spriteColour = ccRED;
-        
     } else {
-        message = [NSString stringWithFormat:@"+%d", obj.amount];
         spriteColour = ccGREEN;
-        
+    }
+    message = [NSMutableString stringWithFormat:@"%d", obj.amount];
+    if ( obj.isCrit && !obj.isResist ) {
+        [message appendString:@"!!"];
     }
     
     // Create the label for the text
@@ -229,7 +217,6 @@
          [scrollingText runAction:[CCSequence actions:
                                    startAnim, slideUp, fadeOut, cleanUp, nil]];
          self.currentHP += ((obj.type == CombatTypeHeal)? 1 : -1 ) * obj.amount;
-         
      }], nil]];
 }
 
@@ -262,11 +249,6 @@
 - (void) closeMenu
 {
     self.menu.visible = NO;
-}
-
-- (int) mana
-{
-    return self.attributes.spirit * 2;
 }
 
 - (NSString *) description

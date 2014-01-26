@@ -130,7 +130,7 @@ typedef enum Heart {
     VindictiveHeart, // +str -spr        [done]
     BraveHeart,      // +str -hp         [done]
     
-    NimbleHeart,     // +agi -str        [done]
+    NimbleHeart,     // +agi -str        [done] stats
     JesterHeart,     // +agi -int        [done]
     SilentHeart,     // +agi -spr
     SavageHeart,     // +agi -hp         [done]
@@ -152,8 +152,21 @@ typedef enum Heart {
 }Heart;
 
 
-
 #pragma mark - Unit Constants
-#define UNIT_MAXAUGMENTATION_COUNT 20
+#define UNIT_MAXAUGMENTATION_COUNT 10
+#define UNITSTR 0 #define UNITAGI 1 #define UNITINT 2
+#define SKILLCD 0 #define SKILLMANA 1 #define SKILLCP 2
 
+#define PRIEST          0
+#define PRIESTMOVE      1
+#define PRIESTHEAL      2
+#define RANGER          3
+#define RANGERMOVE      4
+#define RANGERSHOOT     5
+#define WARRIOR         6
+#define WARRIORMOVE     7
+#define WARRIORSLASH    8
+#define WITCH           9
+#define WITCHMOVE       10
+#define WITCHWAVE       11
 #endif

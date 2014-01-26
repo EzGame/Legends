@@ -63,6 +63,9 @@
 		56678734176F79E60042EE4F /* TestLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678733176F79E50042EE4F /* TestLayer.m */; };
 		56678737177147600042EE4F /* Defines.m in Sources */ = {isa = PBXBuildFile; fileRef = 566787361771475E0042EE4F /* Defines.m */; };
 		56678742177240DB0042EE4F /* dev_map.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 5667873C177240DB0042EE4F /* dev_map.tmx */; };
+		5675983D188612E600D938AA /* heal_gain_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983C188612E600D938AA /* heal_gain_effect.plist */; };
+		567598401886176600D938AA /* priest_cast_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983E1886176600D938AA /* priest_cast_effect.plist */; };
+		567598411886176600D938AA /* bleed_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983F1886176600D938AA /* bleed_effect.plist */; };
 		5679AE0E178758F9005A9B23 /* button_move.png in Resources */ = {isa = PBXBuildFile; fileRef = 5679AE04178758F9005A9B23 /* button_move.png */; };
 		5679AE0F178758F9005A9B23 /* button_melee.png in Resources */ = {isa = PBXBuildFile; fileRef = 5679AE05178758F9005A9B23 /* button_melee.png */; };
 		5679AE10178758F9005A9B23 /* button_fly.png in Resources */ = {isa = PBXBuildFile; fileRef = 5679AE06178758F9005A9B23 /* button_fly.png */; };
@@ -254,7 +257,6 @@
 		56DF13701859B6730071BC94 /* particle_sprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 56DF136F1859B6730071BC94 /* particle_sprite.m */; };
 		56DF137B1859C6800071BC94 /* fireball.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DF137A1859C6800071BC94 /* fireball.png */; };
 		56DF137D1859CA760071BC94 /* fireball.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56DF137C1859CA760071BC94 /* fireball.plist */; };
-		56DF1385185A6A1A0071BC94 /* heal_gain_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56DF1383185A6A1A0071BC94 /* heal_gain_effect.plist */; };
 		56DF1387185A6ADA0071BC94 /* blackpixel.png in Resources */ = {isa = PBXBuildFile; fileRef = 56DF1386185A6ADA0071BC94 /* blackpixel.png */; };
 		56DF138D185BA7280071BC94 /* priest_heal_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56DF138C185BA7280071BC94 /* priest_heal_effect.plist */; };
 		56E3E3851868DACF0006BB16 /* warrior.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56E3E3831868DACF0006BB16 /* warrior.plist */; };
@@ -393,6 +395,9 @@
 		56678733176F79E50042EE4F /* TestLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestLayer.m; sourceTree = "<group>"; };
 		566787361771475E0042EE4F /* Defines.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Defines.m; sourceTree = "<group>"; };
 		5667873C177240DB0042EE4F /* dev_map.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = dev_map.tmx; sourceTree = "<group>"; };
+		5675983C188612E600D938AA /* heal_gain_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = heal_gain_effect.plist; sourceTree = "<group>"; };
+		5675983E1886176600D938AA /* priest_cast_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = priest_cast_effect.plist; sourceTree = "<group>"; };
+		5675983F1886176600D938AA /* bleed_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = bleed_effect.plist; sourceTree = "<group>"; };
 		5679AE04178758F9005A9B23 /* button_move.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_move.png; sourceTree = "<group>"; };
 		5679AE05178758F9005A9B23 /* button_melee.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_melee.png; sourceTree = "<group>"; };
 		5679AE06178758F9005A9B23 /* button_fly.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_fly.png; sourceTree = "<group>"; };
@@ -735,7 +740,6 @@
 		56DF136F1859B6730071BC94 /* particle_sprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = particle_sprite.m; sourceTree = "<group>"; };
 		56DF137A1859C6800071BC94 /* fireball.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = fireball.png; sourceTree = "<group>"; };
 		56DF137C1859CA760071BC94 /* fireball.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = fireball.plist; sourceTree = "<group>"; };
-		56DF1383185A6A1A0071BC94 /* heal_gain_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = heal_gain_effect.plist; sourceTree = "<group>"; };
 		56DF1386185A6ADA0071BC94 /* blackpixel.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = blackpixel.png; sourceTree = "<group>"; };
 		56DF138C185BA7280071BC94 /* priest_heal_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = priest_heal_effect.plist; sourceTree = "<group>"; };
 		56E3E3831868DACF0006BB16 /* warrior.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = warrior.plist; sourceTree = "<group>"; };
@@ -968,6 +972,16 @@
 			);
 			name = Testing;
 			path = Legends;
+			sourceTree = "<group>";
+		};
+		56759839188611F100D938AA /* Effects */ = {
+			isa = PBXGroup;
+			children = (
+				5675983C188612E600D938AA /* heal_gain_effect.plist */,
+				5675983E1886176600D938AA /* priest_cast_effect.plist */,
+				5675983F1886176600D938AA /* bleed_effect.plist */,
+			);
+			name = Effects;
 			sourceTree = "<group>";
 		};
 		5693D34E178DCE6F0034F846 /* Communal */ = {
@@ -1532,6 +1546,7 @@
 		56C9F8621743D9BB0016BB3B /* Graphics */ = {
 			isa = PBXGroup;
 			children = (
+				56759839188611F100D938AA /* Effects */,
 				56E3E3B3187252000006BB16 /* Buff Icons */,
 				56E3E3A118723BD50006BB16 /* Uncommon units */,
 				566263851868D01B00B701EA /* Common units */,
@@ -1648,10 +1663,10 @@
 				56DC52DB1881B4210022003D /* Berserker.m */,
 				56DC52DF1881E9FE0022003D /* Paladin.h */,
 				56DC52E01881E9FE0022003D /* Paladin.m */,
-				56E3E3941871F7C70006BB16 /* Witch.h */,
-				56E3E3951871F7C70006BB16 /* Witch.m */,
 				56E3E3A718723BFE0006BB16 /* Knight.h */,
 				56E3E3A818723BFE0006BB16 /* Knight.m */,
+				56E3E3941871F7C70006BB16 /* Witch.h */,
+				56E3E3951871F7C70006BB16 /* Witch.m */,
 				5662638A1868D07500B701EA /* Warrior.h */,
 				5662638B1868D07500B701EA /* Warrior.m */,
 				56E3E38C1868E2890006BB16 /* Ranger.h */,
@@ -1665,7 +1680,6 @@
 		56E71FEA182C686A00646EC5 /* Priest */ = {
 			isa = PBXGroup;
 			children = (
-				56DF1383185A6A1A0071BC94 /* heal_gain_effect.plist */,
 				56DF138C185BA7280071BC94 /* priest_heal_effect.plist */,
 				567FBBB4185BD6DE00D9FC33 /* halfringparticle.png */,
 				56F0984318568EE000E56E6F /* priest.plist */,
@@ -1770,6 +1784,7 @@
 				56678742177240DB0042EE4F /* dev_map.tmx in Resources */,
 				56378CCD183C0DAF00FD175A /* GameMapTileSet.png in Resources */,
 				5634FF2B1785F55B009B86CC /* ui_epic.png in Resources */,
+				5675983D188612E600D938AA /* heal_gain_effect.plist in Resources */,
 				5634FF2C1785F55B009B86CC /* ui_legendary.png in Resources */,
 				5634FF2D1785F55B009B86CC /* ui_rare.png in Resources */,
 				5634FF2E1785F55B009B86CC /* ui_uncommon.png in Resources */,
@@ -1786,7 +1801,6 @@
 				5679AE12178758F9005A9B23 /* button_ranged.png in Resources */,
 				5679AE14178758F9005A9B23 /* button_flamebreath.png in Resources */,
 				5679AE15178758F9005A9B23 /* button_shield.png in Resources */,
-				56DF1385185A6A1A0071BC94 /* heal_gain_effect.plist in Resources */,
 				5679AE16178758F9005A9B23 /* button_phase.png in Resources */,
 				56DF1387185A6ADA0071BC94 /* blackpixel.png in Resources */,
 				5679AE17178758F9005A9B23 /* button_earthquake.png in Resources */,
@@ -1806,6 +1820,7 @@
 				5693D34A178789830034F846 /* button_overlay_9.png in Resources */,
 				5693D34B178789830034F846 /* button_overlay_10.png in Resources */,
 				56F0984618568EE000E56E6F /* priest.png in Resources */,
+				567598401886176600D938AA /* priest_cast_effect.plist in Resources */,
 				5693D3951795D48D0034F846 /* turn_NW_temp.png in Resources */,
 				56E3E3C0187CDD130006BB16 /* ui_cmdbarframe.png in Resources */,
 				5693D3961795D48D0034F846 /* turn_SE_selected.png in Resources */,
@@ -1839,6 +1854,7 @@
 				56E6483017988179002BB2B5 /* sidebar_master_divider.png in Resources */,
 				56E6483117988179002BB2B5 /* sidebar_gm_bg.png in Resources */,
 				56E6483217988179002BB2B5 /* sidebar_master_bg.png in Resources */,
+				567598411886176600D938AA /* bleed_effect.plist in Resources */,
 				56DF138D185BA7280071BC94 /* priest_heal_effect.plist in Resources */,
 				56520C0017A2D903002AB688 /* test_epic.fnt in Resources */,
 				56520C0117A2D903002AB688 /* test_com.fnt in Resources */,

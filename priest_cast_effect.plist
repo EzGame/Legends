@@ -5,7 +5,7 @@
 	<key>angle</key>
 	<real>90</real>
 	<key>angleVariance</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>blendFuncDestination</key>
 	<integer>1</integer>
 	<key>blendFuncSource</key>
@@ -17,49 +17,49 @@
 	<key>finishColorAlpha</key>
 	<real>1</real>
 	<key>finishColorBlue</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishColorGreen</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishColorRed</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishColorVarianceAlpha</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishColorVarianceBlue</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishColorVarianceGreen</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishColorVarianceRed</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>finishParticleSize</key>
-	<real>-1</real>
+	<real>5</real>
 	<key>finishParticleSizeVariance</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>gravityx</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>gravityy</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>maxParticles</key>
-	<integer>75</integer>
+	<integer>50</integer>
 	<key>particleLifespan</key>
-	<integer>1</integer>
+	<real>2</real>
 	<key>particleLifespanVariance</key>
-	<real>0</real>
+	<real>0.25</real>
 	<key>radialAccelVariance</key>
 	<string>0.000000</string>
 	<key>radialAcceleration</key>
 	<string>0.000000</string>
 	<key>rotationEnd</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>rotationEndVariance</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>rotationStart</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>rotationStartVariance</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>sourcePositionVariancex</key>
 	<real>24</real>
 	<key>sourcePositionVariancey</key>
-	<real>12</real>
+	<real>24</real>
 	<key>sourcePositionx</key>
 	<real>240</real>
 	<key>sourcePositiony</key>
@@ -67,27 +67,27 @@
 	<key>speed</key>
 	<real>45</real>
 	<key>speedVariance</key>
-	<real>30</real>
+	<real>15</real>
 	<key>startColorAlpha</key>
 	<real>1</real>
 	<key>startColorBlue</key>
-	<real>0.09241615980863571</real>
+	<real>0.41430166363716125</real>
 	<key>startColorGreen</key>
-	<real>0.7599999904632568</real>
+	<real>0.84051626920700073</real>
 	<key>startColorRed</key>
-	<real>0.3701017200946808</real>
+	<real>1</real>
 	<key>startColorVarianceAlpha</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>startColorVarianceBlue</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>startColorVarianceGreen</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>startColorVarianceRed</key>
-	<real>0</real>
+	<real>0.0</real>
 	<key>startParticleSize</key>
-	<real>50</real>
+	<real>30</real>
 	<key>startParticleSizeVariance</key>
-	<real>20</real>
+	<real>10</real>
 	<key>tangentialAccelVariance</key>
 	<string>0.000000</string>
 	<key>tangentialAcceleration</key>

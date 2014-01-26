@@ -59,9 +59,9 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:0
-                                   MC:10
-                                   CP:1];
+                                   CD:UNITSTATS[WARRIORMOVE][0]
+                                   MC:UNITSTATS[WARRIORMOVE][1]
+                                   CP:UNITSTATS[WARRIORMOVE][2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-60, 60);
     _moveSkill.type = ActionMove;
@@ -72,9 +72,9 @@
     _attkSkill = [UnitSkill unitSkill:@"melee"
                                target:self
                              selector:@selector(attkPressed)
-                                   CD:1
-                                   MC:10
-                                   CP:1];
+                                   CD:UNITSTATS[WARRIORSLASH][0]
+                                   MC:UNITSTATS[WARRIORSLASH][1]
+                                   CP:UNITSTATS[WARRIORSLASH][2]];
     _attkSkill.anchorPoint = ccp(0.5, 0.5);
     _attkSkill.position = ccp(60, 60);
     _attkSkill.type = ActionSkillOne;
@@ -222,7 +222,7 @@
             
             CombatObject *obj = [CombatObject combatObject];
             obj.type = CombatTypeStr;
-            obj.amount = 10;
+            obj.amount = self.attributes.strength;
             
             [self combatSend:obj to:unit];
         }

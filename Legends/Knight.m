@@ -251,7 +251,7 @@
             
             CombatObject *obj = [CombatObject combatObject];
             obj.type = CombatTypeStr;
-            obj.amount = 10;
+            obj.amount = self.attributes.strength;
             
             [self combatSend:obj to:unit];
         }

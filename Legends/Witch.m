@@ -61,9 +61,9 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:1
-                                   MC:10
-                                   CP:1];
+                                   CD:UNITSTATS[WITCHMOVE][0]
+                                   MC:UNITSTATS[WITCHMOVE][1]
+                                   CP:UNITSTATS[WITCHMOVE][2]];
     
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-60, 60);
@@ -75,9 +75,9 @@
     _castSkill = [UnitSkill unitSkill:@"magic"
                                target:self
                              selector:@selector(castPressed)
-                                   CD:2
-                                   MC:20
-                                   CP:3];
+                                   CD:UNITSTATS[WITCHWAVE][0]
+                                   MC:UNITSTATS[WITCHWAVE][1]
+                                   CP:UNITSTATS[WITCHWAVE][2]];
     
     _castSkill.anchorPoint = ccp(0.5, 0.5);
     _castSkill.position = ccp(60, 60);
@@ -224,7 +224,7 @@
             
             CombatObject *obj = [CombatObject combatObject];
             obj.type = CombatTypeInt;
-            obj.amount = 10;
+            obj.amount = self.attributes.intellect;
             [unit combatSend:obj to:unit];
         }
         // Ask our delegate to handle the position and order

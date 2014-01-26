@@ -170,16 +170,12 @@ static UserSingleton* _sharedUserSingleton = nil;
 - (UnitObject *) createMaxUnit:(int)type
 {
     NSLog(@"creating %d", type);
-    int str = 100;
-    int agi = 100;
-    int inte = 100;
-    int spr = 100;
-    int hp = 100;
+    int str = 9;
+    int agi = 9;
+    int inte = 9;
     int aug_str = 0;
     int aug_agi = 0;
-    int aug_inte = 25;
-    int aug_spr = 50;
-    int aug_hp = 0;
+    int aug_inte = 0;
     Heart heart = (arc4random() % UnholyHeart) + 1;
     
     
@@ -187,10 +183,10 @@ static UserSingleton* _sharedUserSingleton = nil;
 //    int secondary = 10;
 //    int tertiary = 10;
     NSString *string = [NSString stringWithFormat:
-                        @"%d/%d/%d/{%d,2}/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d/%d",
+                        @"%d/%d/%d/{%d,2}/%d/%d/%d/%d/%d/%d/%d/%d",
                         type, Common, 4, type,
-                        str, agi, inte, spr, hp,
-                        aug_str, aug_agi, aug_inte, aug_spr, aug_hp,
+                        str, agi, inte,
+                        aug_str, aug_agi, aug_inte,
                         heart, 15 ];
     UnitObject *unit = [[UnitObject alloc] initWithString:string];
     return unit;

@@ -67,9 +67,9 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:2
-                                   MC:10
-                                   CP:2];
+                                   CD:UNITSTATS[PRIESTMOVE][0]
+                                   MC:UNITSTATS[PRIESTMOVE][1]
+                                   CP:UNITSTATS[PRIESTMOVE][2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-50, 60);
     _moveSkill.type = ActionMove;
@@ -80,9 +80,9 @@
     _healSkill = [UnitSkill unitSkill:@"cross-coloured"
                                target:self
                              selector:@selector(healPressed)
-                                   CD:3
-                                   MC:10
-                                   CP:1];
+                                   CD:UNITSTATS[PRIESTHEAL][0]
+                                   MC:UNITSTATS[PRIESTHEAL][1]
+                                   CP:UNITSTATS[PRIESTHEAL][2]];
     _healSkill.anchorPoint = ccp(0.5, 0.5);
     _healSkill.position = ccp(50, 60);
     _healSkill.type = ActionSkillOne;
@@ -124,7 +124,7 @@
         self.targets = targets;
         
         // Run our particle effect
-        CCParticleSystemQuad *eff = [[GameObjSingleton get] getParticleSystemForFile:@"priest_heal_effect.plist"];
+        CCParticleSystemQuad *eff = [[GameObjSingleton get] getParticleSystemForFile:@"priest_cast_effect.plist"];
         eff.position = ccp(0,25);
         if ( eff.parent ) {
             [eff.parent removeChild:eff cleanup:NO];
@@ -218,10 +218,7 @@
     // Send effects??????????????????????????????????????????
     for ( int i = 0; i < self.targets.count; i++ ) {
         CCParticleSystemQuad *effect = [[GameObjSingleton get] getParticleSystemForFile:@"heal_gain_effect.plist"];
-        if ( effect.parent ) {
-            [effect.parent removeChild:effect cleanup:NO];
-        }
-        
+
         id target = [self.targets objectAtIndex:i];
         if ( [target isKindOfClass:[NSValue class]] ) {
             // Type is NSValue, extract position
@@ -234,7 +231,7 @@
             
             CombatObject *obj = [CombatObject combatObject];
             obj.type = CombatTypeHeal;
-            obj.amount = 10;
+            obj.amount = self.attributes.intellect;
             
             [self combatSend:obj to:unit];
         }

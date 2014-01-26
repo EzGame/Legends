@@ -59,15 +59,11 @@ const int dragon_stats[NUM_STATS]     = {6, Rare};
         _stats.strength = [[tokens objectAtIndex:tokenIndex++] integerValue];
         _stats.agility = [[tokens objectAtIndex:tokenIndex++] integerValue];
         _stats.intellect = [[tokens objectAtIndex:tokenIndex++] integerValue];
-        _stats.spirit = [[tokens objectAtIndex:tokenIndex++] integerValue];
-        _stats.health = [[tokens objectAtIndex:tokenIndex++] integerValue];
         
         _augmentedStats = [[StatObject alloc] init];
         _augmentedStats.strength = [[tokens objectAtIndex:tokenIndex++] integerValue];
         _augmentedStats.agility = [[tokens objectAtIndex:tokenIndex++] integerValue];
         _augmentedStats.intellect = [[tokens objectAtIndex:tokenIndex++] integerValue];
-        _augmentedStats.spirit = [[tokens objectAtIndex:tokenIndex++] integerValue];
-        _augmentedStats.health = [[tokens objectAtIndex:tokenIndex++] integerValue];
         
         _heart = [[tokens objectAtIndex:tokenIndex++] integerValue];
         _augmentationCount = [[tokens objectAtIndex:tokenIndex++] integerValue];
@@ -87,10 +83,6 @@ const int dragon_stats[NUM_STATS]     = {6, Rare};
         self.augmentedStats.agility += amount;
     } else if ( attribute == Intellect ) {
         self.augmentedStats.intellect += amount;
-    } else if ( attribute == Spirit ) {
-        self.augmentedStats.spirit += amount;
-    } else if ( attribute == Health ) {
-        self.augmentedStats.health += amount;
     } else {
         NSLog(@"UnitObject Augment: what the fuck?");
     }
