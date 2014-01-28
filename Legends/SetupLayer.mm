@@ -1,32 +1,157 @@
-////
-////  SetupLayer.m
-////  myFirstApp
-////
-////  Created by David Zhang on 2012-12-16.
-////
-////
-//#define DRAG_SCROLL_MULTIPLIER 0.75
-//#define MAX_SCROLL_X 0
-//#define MAX_SCROLL_Y 0
-//#define MIN_SCROLL_X 0
-//#define MIN_SCROLL_Y -75
 //
-//#import "SetupLayer.h"
-//#import "MainMenuViewController.h"
+//  SetupLayer.m
+//  myFirstApp
 //
-//@interface SetupLayer()
+//  Created by David Zhang on 2012-12-16.
+//
+//
+#define DRAG_SCROLL_MULTIPLIER 0.50
+#define MAX_SCROLL_X 0
+#define MAX_SCROLL_Y 0
+#define MIN_SCROLL_X 0
+#define MIN_SCROLL_Y -75
+
+#import "SetupLayer.h"
+
+@interface SetupLayer()
 //@property (nonatomic, strong) SetupBrain *brain;
-//@property (nonatomic, strong) CCMenuItem *saveButton;
-//@end
-//
+@end
+
 @implementation SetupLayer
-//@synthesize map = _map;
-//@synthesize tmxLayer = _tmxLayer, setupLayer = _setupLayer, hudLayer = _hudLayer;
-//@synthesize selection = _selection, display = _display, menu = _menu, search = _search;
-//// private
-//@synthesize brain = _brain, saveButton = _saveButton;
-//
-//
+#pragma mark - Setters n Getters
+
+#pragma mark - Init n Class
++ (CCScene *) scene
+{
+    CCLOG(@"=========================<ENTERING SetupLayer>=========================");
+	// 'scene' is an autorelease object.
+	CCScene *scene = [CCScene node];
+	
+	// 'layer' is an autorelease object.
+	SetupLayer *layer = [[SetupLayer alloc] init];
+    layer.tag = kTagSetupLayer;
+	
+	// add layer as a child to scene
+	[scene addChild: layer];
+	
+	// return the scene
+	return scene;
+}
+
+- (id) init
+{
+    self = [super init];
+    if ( self ) {
+        isTouchEnabled_ = YES;
+        winSize = [[CCDirector sharedDirector] winSize];
+        appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
+        smartFox = appDelegate.smartFox;
+        
+        _setupLayer = [CCLayer node];
+        [self addChild:_setupLayer z:GAMELAYER];
+        _hudLayer = [CCLayer node];
+        [self addChild:_hudLayer z:HUDLAYER];
+        
+        [self initMap];
+        [self initSide];
+    }
+    return self;
+}
+
+- (void) initMap
+{
+    _map = [CCTMXTiledMap tiledMapWithTMXFile:@"SetupMap.tmx"];
+    
+    _tmxLayer = [_map layerNamed:@"tiles"];
+    [_setupLayer addChild:_map z:MAP];
+    
+    // Do random tile
+    gid_t gid = (arc4random()%4) + [_tmxLayer.tileset firstGid];
+    for ( int i = 0 ; i < SETUPMAPWIDTH ; i++ ) {
+        for ( int k = 0 ; k < SETUPMAPHEIGHT ; k++ ) {
+            CGPoint pos = CGPointMake(i, k);
+            if ( [_tmxLayer tileGIDAt:pos] != 0 )
+                [_tmxLayer setTileGID:gid at:pos];
+        }
+    }
+}
+
+- (void) initSide
+{
+    
+}
+
+- (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    //	if ([touches count] == 1) {
+    //        CGPoint position;
+    //        UITouch *touch = [touches anyObject];
+    //        position = [touch locationInView: [touch view]];
+    //        position = [[CCDirector sharedDirector] convertToGL: position];
+    //        position = [self convertToNodeSpace:position];
+    //        position = ccpAdd(position, ccp(0,-5));
+    //
+    //        // Tile pointers
+    //        SetupTile *tile = [self.brain findTile:position absPos:YES];
+    //
+    //        if( tile == nil || tile.unit == nil ) {
+    //            scrolled = YES;
+    //
+    //        } else {
+    //            scrolled = NO;
+    //            // Selected
+    //            self.selection = tile;
+    //            self.previous = [self.brain findAbsPos:tile.boardPos];
+    //            [self reorderChild:self.selection.unit z:SPRITES_TOP];
+    //            [self.display setDisplayFor:nil];
+    //        }
+    //    }
+}
+
+- (void) ccTouchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ([touches count] == 1) {
+        scrolled = YES;
+        
+        UITouch *touch = [touches anyObject];
+        CGPoint touchLocation = [touch locationInView: [touch view]];
+        CGPoint previousLocation = [touch previousLocationInView: [touch view]];
+        CGPoint difference = ccpSub(touchLocation, previousLocation);
+        
+        CGPoint change = ccp(difference.x * DRAG_SCROLL_MULTIPLIER,
+                             -difference.y * DRAG_SCROLL_MULTIPLIER);
+        
+        CGPoint pos = ccpAdd(self.setupLayer.position, change);
+        if ( pos.x > MAX_SCROLL_X )
+            pos = ccp(MAX_SCROLL_X, pos.y);
+        if ( pos.y > MAX_SCROLL_Y )
+            pos = ccp(pos.x, MAX_SCROLL_Y);
+        if ( pos.x < MIN_SCROLL_X )
+            pos = ccp(MIN_SCROLL_X, pos.y);
+        if ( pos.y < MIN_SCROLL_Y )
+            pos = ccp(pos.x, MIN_SCROLL_Y);
+        
+        self.setupLayer.position = pos;
+        //self.brain.currentLayerPosition = pos;
+	}
+}
+
+- (void) ccTouchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    if ( scrolled ) {
+        scrolled = NO;
+        
+    } else if ([touches count] == 1) {
+        CGPoint position;
+        UITouch *touch = [touches anyObject];
+        position = [touch locationInView: [touch view]];
+        position = [[CCDirector sharedDirector] convertToGL: position];
+        position = [self convertToNodeSpace:position];
+        
+        //[self.brain turn_driver:position];
+    }
+}
+@end
 //+(CCScene *) scene
 //{
 //    CCLOG(@"=========================<ENTERING SetupLayer>=========================");
@@ -261,7 +386,7 @@
 //    {
 //        //[appDelegate switchToView:@"MainMenuViewController" uiViewController:[MainMenuViewController alloc]];
 //        [_search removeFromSuperview];
-//        [appDelegate switchToScene:[BattleLayer scene]];
+//        [appDelegate switchToScene:[SetupLayer scene]];
 //    }
 //}
 //
@@ -318,4 +443,3 @@
 //    [self.setupLayer runAction:[CCMoveBy actionWithDuration:0.25 position:ccp(0,50)]];
 //    return YES;
 //}
-@end

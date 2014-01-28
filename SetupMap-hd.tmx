@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="isometric" width="11" height="11" tilewidth="128" tileheight="64">
+<map version="1.0" orientation="isometric" width="11" height="5" tilewidth="128" tileheight="64">
  <tileset firstgid="1" name="GameMapTileSet-hd" tilewidth="128" tileheight="96">
   <tileoffset x="0" y="32"/>
   <image source="GameMapTileSet-hd.png" width="256" height="288"/>
  </tileset>
- <layer name="tiles" width="11" height="11">
+ <layer name="tiles" width="11" height="5">
   <data encoding="base64" compression="zlib">
-   eJxjYIAARjwYGeBTh6yeGHWjmLxwIzY+YAAAacgAbg==
+   eJxjZGBgYBxgzECCOgYi1MMAABgEADI=
   </data>
  </layer>
 </map>

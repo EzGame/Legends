@@ -7,19 +7,18 @@
 //
 
 // Auto includes
+#import "Constants.h"
 #import "cocos2d.h"
-#import "Defines.h"
 #import "AppDelegate.h"
 #import "UserSingleton.h"
-// Layers
-#import "SetupLayer.h"
+#import "MatchObject.h"
+
 // Others
 #import "BattleBrain.h"
-#import "MatchObject.h"
-#import "UnitDisplay.h"
-#import "Constants.h"
-#import "particle_sprite.h"
 #import "PlayerResources.h"
+#import "UnitDisplay.h"
+#import "SetupLayer.h"
+
 
 
 
@@ -27,11 +26,14 @@
 {
     // Turn variables
     BOOL isMyTurn;
-    TurnState turnState;
 
     // Variables
     BOOL scroll;
     CGSize winSize;
+    
+    // Others
+    AppDelegate *appDelegate;
+    SmartFox2XClient *smartFox;
 }
 
 @property (nonatomic, strong)   CCTMXTiledMap *map;

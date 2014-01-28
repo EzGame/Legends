@@ -63,6 +63,8 @@
 		56678734176F79E60042EE4F /* TestLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678733176F79E50042EE4F /* TestLayer.m */; };
 		56678737177147600042EE4F /* Defines.m in Sources */ = {isa = PBXBuildFile; fileRef = 566787361771475E0042EE4F /* Defines.m */; };
 		56678742177240DB0042EE4F /* dev_map.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 5667873C177240DB0042EE4F /* dev_map.tmx */; };
+		566DD2871897449600AF1402 /* SetupMap-hd.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 566DD2851897449600AF1402 /* SetupMap-hd.tmx */; };
+		566DD2881897449600AF1402 /* SetupMap.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 566DD2861897449600AF1402 /* SetupMap.tmx */; };
 		5675983D188612E600D938AA /* heal_gain_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983C188612E600D938AA /* heal_gain_effect.plist */; };
 		567598401886176600D938AA /* priest_cast_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983E1886176600D938AA /* priest_cast_effect.plist */; };
 		567598411886176600D938AA /* bleed_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983F1886176600D938AA /* bleed_effect.plist */; };
@@ -78,16 +80,6 @@
 		5679AE1A17875925005A9B23 /* button_cross.png in Resources */ = {isa = PBXBuildFile; fileRef = 5679AE1817875925005A9B23 /* button_cross.png */; };
 		5679AE1B17875925005A9B23 /* button_cross-coloured.png in Resources */ = {isa = PBXBuildFile; fileRef = 5679AE1917875925005A9B23 /* button_cross-coloured.png */; };
 		567FBBB5185BD6DE00D9FC33 /* halfringparticle.png in Resources */ = {isa = PBXBuildFile; fileRef = 567FBBB4185BD6DE00D9FC33 /* halfringparticle.png */; };
-		5693D342178789830034F846 /* button_overlay_1.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D338178789830034F846 /* button_overlay_1.png */; };
-		5693D343178789830034F846 /* button_overlay_2.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D339178789830034F846 /* button_overlay_2.png */; };
-		5693D344178789830034F846 /* button_overlay_3.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D33A178789830034F846 /* button_overlay_3.png */; };
-		5693D345178789830034F846 /* button_overlay_4.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D33B178789830034F846 /* button_overlay_4.png */; };
-		5693D346178789830034F846 /* button_overlay_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D33C178789830034F846 /* button_overlay_5.png */; };
-		5693D347178789830034F846 /* button_overlay_6.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D33D178789830034F846 /* button_overlay_6.png */; };
-		5693D348178789830034F846 /* button_overlay_7.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D33E178789830034F846 /* button_overlay_7.png */; };
-		5693D349178789830034F846 /* button_overlay_8.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D33F178789830034F846 /* button_overlay_8.png */; };
-		5693D34A178789830034F846 /* button_overlay_9.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D340178789830034F846 /* button_overlay_9.png */; };
-		5693D34B178789830034F846 /* button_overlay_10.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D341178789830034F846 /* button_overlay_10.png */; };
 		5693D3951795D48D0034F846 /* turn_NW_temp.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D38D1795D48D0034F846 /* turn_NW_temp.png */; };
 		5693D3961795D48D0034F846 /* turn_SE_selected.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D38E1795D48D0034F846 /* turn_SE_selected.png */; };
 		5693D3971795D48D0034F846 /* turn_SW_selected.png in Resources */ = {isa = PBXBuildFile; fileRef = 5693D38F1795D48D0034F846 /* turn_SW_selected.png */; };
@@ -395,6 +387,8 @@
 		56678733176F79E50042EE4F /* TestLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestLayer.m; sourceTree = "<group>"; };
 		566787361771475E0042EE4F /* Defines.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Defines.m; sourceTree = "<group>"; };
 		5667873C177240DB0042EE4F /* dev_map.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = dev_map.tmx; sourceTree = "<group>"; };
+		566DD2851897449600AF1402 /* SetupMap-hd.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "SetupMap-hd.tmx"; sourceTree = "<group>"; };
+		566DD2861897449600AF1402 /* SetupMap.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = SetupMap.tmx; sourceTree = "<group>"; };
 		5675983C188612E600D938AA /* heal_gain_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = heal_gain_effect.plist; sourceTree = "<group>"; };
 		5675983E1886176600D938AA /* priest_cast_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = priest_cast_effect.plist; sourceTree = "<group>"; };
 		5675983F1886176600D938AA /* bleed_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = bleed_effect.plist; sourceTree = "<group>"; };
@@ -410,16 +404,6 @@
 		5679AE1817875925005A9B23 /* button_cross.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_cross.png; sourceTree = "<group>"; };
 		5679AE1917875925005A9B23 /* button_cross-coloured.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "button_cross-coloured.png"; sourceTree = "<group>"; };
 		567FBBB4185BD6DE00D9FC33 /* halfringparticle.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = halfringparticle.png; sourceTree = "<group>"; };
-		5693D338178789830034F846 /* button_overlay_1.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_1.png; sourceTree = "<group>"; };
-		5693D339178789830034F846 /* button_overlay_2.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_2.png; sourceTree = "<group>"; };
-		5693D33A178789830034F846 /* button_overlay_3.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_3.png; sourceTree = "<group>"; };
-		5693D33B178789830034F846 /* button_overlay_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_4.png; sourceTree = "<group>"; };
-		5693D33C178789830034F846 /* button_overlay_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_5.png; sourceTree = "<group>"; };
-		5693D33D178789830034F846 /* button_overlay_6.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_6.png; sourceTree = "<group>"; };
-		5693D33E178789830034F846 /* button_overlay_7.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_7.png; sourceTree = "<group>"; };
-		5693D33F178789830034F846 /* button_overlay_8.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_8.png; sourceTree = "<group>"; };
-		5693D340178789830034F846 /* button_overlay_9.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_9.png; sourceTree = "<group>"; };
-		5693D341178789830034F846 /* button_overlay_10.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = button_overlay_10.png; sourceTree = "<group>"; };
 		5693D38D1795D48D0034F846 /* turn_NW_temp.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = turn_NW_temp.png; sourceTree = "<group>"; };
 		5693D38E1795D48D0034F846 /* turn_SE_selected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = turn_SE_selected.png; sourceTree = "<group>"; };
 		5693D38F1795D48D0034F846 /* turn_SW_selected.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = turn_SW_selected.png; sourceTree = "<group>"; };
@@ -1000,16 +984,6 @@
 				5679AE0B178758F9005A9B23 /* button_shield.png */,
 				5679AE0C178758F9005A9B23 /* button_phase.png */,
 				5679AE0D178758F9005A9B23 /* button_earthquake.png */,
-				5693D338178789830034F846 /* button_overlay_1.png */,
-				5693D339178789830034F846 /* button_overlay_2.png */,
-				5693D33A178789830034F846 /* button_overlay_3.png */,
-				5693D33B178789830034F846 /* button_overlay_4.png */,
-				5693D33C178789830034F846 /* button_overlay_5.png */,
-				5693D33D178789830034F846 /* button_overlay_6.png */,
-				5693D33E178789830034F846 /* button_overlay_7.png */,
-				5693D33F178789830034F846 /* button_overlay_8.png */,
-				5693D340178789830034F846 /* button_overlay_9.png */,
-				5693D341178789830034F846 /* button_overlay_10.png */,
 			);
 			name = Communal;
 			sourceTree = "<group>";
@@ -1018,7 +992,9 @@
 			isa = PBXGroup;
 			children = (
 				56378CC6183C0DAF00FD175A /* GameMap-hd.tmx */,
+				566DD2851897449600AF1402 /* SetupMap-hd.tmx */,
 				56378CC7183C0DAF00FD175A /* GameMap.tmx */,
+				566DD2861897449600AF1402 /* SetupMap.tmx */,
 				56378CC8183C0DAF00FD175A /* GameMapTileSet-hd.png */,
 				56378CC9183C0DAF00FD175A /* GameMapTileSet.png */,
 			);
@@ -1798,6 +1774,7 @@
 				56E3E39B187205890006BB16 /* witch.plist in Resources */,
 				5679AE10178758F9005A9B23 /* button_fly.png in Resources */,
 				5679AE11178758F9005A9B23 /* button_magic.png in Resources */,
+				566DD2871897449600AF1402 /* SetupMap-hd.tmx in Resources */,
 				5679AE12178758F9005A9B23 /* button_ranged.png in Resources */,
 				5679AE14178758F9005A9B23 /* button_flamebreath.png in Resources */,
 				5679AE15178758F9005A9B23 /* button_shield.png in Resources */,
@@ -1808,17 +1785,7 @@
 				56F0984518568EE000E56E6F /* priest.plist in Resources */,
 				5679AE1B17875925005A9B23 /* button_cross-coloured.png in Resources */,
 				56DC52E31881EE910022003D /* icon-holyshield.png in Resources */,
-				5693D342178789830034F846 /* button_overlay_1.png in Resources */,
-				5693D343178789830034F846 /* button_overlay_2.png in Resources */,
-				5693D344178789830034F846 /* button_overlay_3.png in Resources */,
-				5693D345178789830034F846 /* button_overlay_4.png in Resources */,
 				56E3E3BF187CDD130006BB16 /* ui_resourcebar.png in Resources */,
-				5693D346178789830034F846 /* button_overlay_5.png in Resources */,
-				5693D347178789830034F846 /* button_overlay_6.png in Resources */,
-				5693D348178789830034F846 /* button_overlay_7.png in Resources */,
-				5693D349178789830034F846 /* button_overlay_8.png in Resources */,
-				5693D34A178789830034F846 /* button_overlay_9.png in Resources */,
-				5693D34B178789830034F846 /* button_overlay_10.png in Resources */,
 				56F0984618568EE000E56E6F /* priest.png in Resources */,
 				567598401886176600D938AA /* priest_cast_effect.plist in Resources */,
 				5693D3951795D48D0034F846 /* turn_NW_temp.png in Resources */,
@@ -1853,6 +1820,7 @@
 				56E6482F17988179002BB2B5 /* sidebar_master_border.png in Resources */,
 				56E6483017988179002BB2B5 /* sidebar_master_divider.png in Resources */,
 				56E6483117988179002BB2B5 /* sidebar_gm_bg.png in Resources */,
+				566DD2881897449600AF1402 /* SetupMap.tmx in Resources */,
 				56E6483217988179002BB2B5 /* sidebar_master_bg.png in Resources */,
 				567598411886176600D938AA /* bleed_effect.plist in Resources */,
 				56DF138D185BA7280071BC94 /* priest_heal_effect.plist in Resources */,

@@ -45,7 +45,6 @@
     [self.loginView endEditing:YES];
     [self.labelStatus setText:@"Logging in"];
     [appDelegate login:self.username.text pass:self.password.text];
-    //[appDelegate switchToScene:[BattleLayer sceneWithMatch:nil]];
 }
 
 - (IBAction)createTouched:(id)sender

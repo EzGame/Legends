@@ -7,39 +7,38 @@
 //
 
 // Auto includes
+#import "Constants.h"
 #import "cocos2d.h"
-#import "Defines.h"
-// Layers
-#import "BattleLayer.h"
-// Other
-#import "SetupBrain.h"
-#import "Tile.h"
-#import "UnitDisplay.h"
-#import "HTCustomAutocompleteTextField.h"
+#import "AppDelegate.h"
+#import "UserSingleton.h"
+#import "MatchObject.h"
 
-@interface SetupLayer : CCLayer <SetupBrainDelegate,UITextFieldDelegate>
+// Others
+#import "BattleBrain.h"
+#import "PlayerResources.h"
+#import "UnitDisplay.h"
+
+
+
+
+@interface SetupLayer : CCLayer
 {    
-    // Camera variables
+    // IVars
     BOOL scrolled;
-    CGPoint prevPos;
+    CGSize winSize;
     
     // Others
     AppDelegate *appDelegate;
     SmartFox2XClient *smartFox;
 }
 
-@property (nonatomic, strong) CCTMXTiledMap *map;
-@property (nonatomic, strong) CCTMXLayer *tmxLayer;
-@property (nonatomic, strong) CCLayer *setupLayer;
-@property (nonatomic, strong) CCLayer *hudLayer;
-
-//@property (nonatomic, weak) SetupTile *selection;
+@property (nonatomic, strong)   CCTMXTiledMap *map;
+@property (nonatomic, strong)      CCTMXLayer *tmxLayer;
+@property (nonatomic, strong)         CCLayer *setupLayer;
+@property (nonatomic, strong)         CCLayer *hudLayer;
+@property (nonatomic, strong)          CCMenu *menu;
+//@property (nonatomic, strong) SetupUnitDisplay *display;
 @property (nonatomic)       CGPoint previous;
-
-@property (nonatomic, strong) CCMenu *menu;
-@property (nonatomic, strong) SetupUnitDisplay *display;
-
-@property (nonatomic, strong) HTUnitTagAutocompleteTextField *search;
 
 + (CCScene *) scene;
 @end

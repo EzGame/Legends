@@ -48,7 +48,8 @@
     if ( self ) {
         isTouchEnabled_ = YES;
         winSize = [[CCDirector sharedDirector] winSize];
-        
+        appDelegate = ((AppDelegate *)[[UIApplication sharedApplication] delegate]);
+        smartFox = appDelegate.smartFox;
         _matchObj = obj;
         
         _gameLayer = [CCLayer node];
@@ -58,7 +59,6 @@
         filter.position = ccp(500,500);
         filter.anchorPoint = ccp(0.5,0.5);
         [_gameLayer addChild:filter z:FILTER];
-        
         [self addChild:_gameLayer z:GAMELAYER];
         
         _hudLayer = [CCLayer node];
@@ -69,10 +69,6 @@
         [self initResource];
         
         _brain = [[BattleBrain alloc] initWithMap:_tmxLayer delegate:self];
-        
-        if ( [_matchObj.myUser isItMe] ) {
-            turnState = TurnStateA;
-        }
     }
     return self;
 }
@@ -161,19 +157,8 @@
         //[self.brain lightUp:position];
         
         [self.brain turn_driver:position];
-//        [self animTest:position];
     }
 }
-
-- (void) animTest:(CGPoint)position;
-{
-    NSLog(@"fireball");
-    SkillAnimation *fireball = [SkillAnimation SkillAnimation:@"fireball" TTL:2];
-    fireball.scale = 0.5;
-    [self addChild:fireball z:EFFECTS];
-    [fireball shootTo:position duration:2];
-}
-
 
 #pragma mark - Helper Functions
 - (void) reorderTile:(Tile *)tile
