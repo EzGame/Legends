@@ -6,10 +6,10 @@
 //
 //
 #define DRAG_SCROLL_MULTIPLIER 0.50
-#define MAX_SCROLL_X 0
+#define MAX_SCROLL_X 50
 #define MAX_SCROLL_Y 0
-#define MIN_SCROLL_X 0
-#define MIN_SCROLL_Y -75
+#define MIN_SCROLL_X -50
+#define MIN_SCROLL_Y -50
 
 #import "SetupLayer.h"
 
@@ -53,7 +53,8 @@
         [self addChild:_hudLayer z:HUDLAYER];
         
         [self initMap];
-        [self initSide];
+        [self initSaves];
+        [self initTemp];
     }
     return self;
 }
@@ -61,7 +62,8 @@
 - (void) initMap
 {
     _map = [CCTMXTiledMap tiledMapWithTMXFile:@"SetupMap.tmx"];
-    
+    _map.position = ccp(100, 200);
+    _map.anchorPoint = ccp(0.5, 0.5);
     _tmxLayer = [_map layerNamed:@"tiles"];
     [_setupLayer addChild:_map z:MAP];
     
@@ -76,9 +78,18 @@
     }
 }
 
-- (void) initSide
+- (void) initSaves
 {
-    
+    _savedSetups = [SetupMenuLayer createWithView:CGRectMake(winSize.height - 120, 0, 120, winSize.width)];
+    [_hudLayer addChild:_savedSetups z:HUDLAYER];
+}
+
+- (void) initTemp
+{
+    _debug = [CCLabelBMFont labelWithString:@"" fntFile:@"emulator.fnt"];
+    _debug.position = ccp(440,25);
+    _debug.scale = 0.65;
+    [_hudLayer addChild:_debug];
 }
 
 - (void) ccTouchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -148,6 +159,7 @@
         position = [[CCDirector sharedDirector] convertToGL: position];
         position = [self convertToNodeSpace:position];
         
+        [self.debug setString:[NSString stringWithFormat:@"%@", NSStringFromCGPoint(position)]];
         //[self.brain turn_driver:position];
     }
 }

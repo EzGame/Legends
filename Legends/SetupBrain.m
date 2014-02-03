@@ -1,17 +1,110 @@
-////
-////  SetupBrain.m
-////  Legends
-////
-////  Created by David Zhang on 2013-02-08.
-////
-////
 //
-//#import "SetupBrain.h"
-//#import "LionMage.h"
-//#import "Gorgon.h"
-//#import "MudGolem.h"
-//#import "Dragon.h"
+//  SetupBrain.m
+//  Legends
 //
+//  Created by David Zhang on 2013-02-08.
+//
+//
+
+#import "SetupBrain.h"
+
+@implementation SetupBrain
+#pragma mark - Setters n Getters
+- (void) setCurrentLayerPosition:(CGPoint)currentLayerPosition
+{
+    self.toScn = CGAffineTransformMake(-GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+                                       GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+                                       GAMETILEOFFSETX + currentLayerPosition.x,
+                                       GAMETILEOFFSETY + currentLayerPosition.y);
+    self.toIso = CGAffineTransformInvert(self.toScn);
+    _currentLayerPosition = currentLayerPosition;
+}
+
+
+
+
+
+
+
+
+
+
+/**********************************************************************/
+/**********************************************************************/
+/**********************************************************************/
+#pragma mark - Init n shit
+- (id) initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate
+{
+    self = [super init];
+    if ( self ) {
+        // Set delegate
+        _delegate = delegate;
+        
+        // Create setup board
+        _setupBoard = [[NSArray alloc] initWithObjects:
+                       [NSMutableArray array],       // 0
+                       [NSMutableArray array],       // 1
+                       [NSMutableArray array],       // 2
+                       [NSMutableArray array],       // 3
+                       [NSMutableArray array],       // 4
+                       [NSMutableArray array],       // 5
+                       [NSMutableArray array],       // 6
+                       [NSMutableArray array],       // 7
+                       [NSMutableArray array],       // 8
+                       [NSMutableArray array],       // 9
+                       [NSMutableArray array], nil]; // 10
+        
+        // Save weak pointer to tmxLayer
+        _tmxLayer = tmxLayer;
+        
+        // Populating board with tiles
+        for ( int i = 0; i < SETUPMAPWIDTH; i++ ) {
+            for ( int k = 0; k < SETUPMAPHEIGHT; k++ ) {
+                CGPoint pos = CGPointMake(i, k);
+                Tile *tile = [[Tile alloc] init];
+                if ( [self isValidPos:pos] ) {
+                    tile.boardPos = pos;
+                    tile.sprite = [tmxLayer tileAt:[self getInvertedPos:pos]];
+                }
+                [[_setupBoard objectAtIndex:i] addObject:tile];
+            }
+        }
+        
+        // Setting isometric - world transforms
+        _toWld = CGAffineTransformMake( -GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+                                       GAMETILEWIDTH/2, GAMETILEHEIGHT/2,
+                                       GAMETILEOFFSETX, GAMETILEOFFSETY);
+        _toScn = _toWld;
+        _toIso = CGAffineTransformInvert(_toWld);
+        
+        // Fill board with player owned units
+        [self initSetup];
+    }
+    return self;
+}
+
+- (void) initSetup
+{
+    
+}
+
+- (BOOL) isValidPos:(CGPoint)position
+{
+    int i = position.x;
+    int j = position.y;
+    if ( i < 0 || i >= SETUPMAPWIDTH || j < 0 || j >= SETUPMAPHEIGHT )
+        return false;
+    return !([self.tmxLayer tileGIDAt:position] == 0);
+}
+
+/* Returns a inverted board position */
+- (CGPoint) getInvertedPos:(CGPoint)position
+{
+    return CGPointMake(SETUPMAPWIDTH - 1 - floor(position.x),
+                       SETUPMAPHEIGHT - 1 - floor(position.y));
+}
+@end
+
 //@implementation SetupBrain
 //@synthesize board = _board;
 //@synthesize sideBoard = _sideBoard;

@@ -11,13 +11,12 @@
 #import "cocos2d.h"
 #import "AppDelegate.h"
 #import "UserSingleton.h"
-#import "MatchObject.h"
 
 // Others
 #import "BattleBrain.h"
 #import "PlayerResources.h"
 #import "UnitDisplay.h"
-
+#import "SetupMenuLayer.h"
 
 
 
@@ -32,13 +31,16 @@
     SmartFox2XClient *smartFox;
 }
 
-@property (nonatomic, strong)   CCTMXTiledMap *map;
-@property (nonatomic, strong)      CCTMXLayer *tmxLayer;
-@property (nonatomic, strong)         CCLayer *setupLayer;
-@property (nonatomic, strong)         CCLayer *hudLayer;
-@property (nonatomic, strong)          CCMenu *menu;
-//@property (nonatomic, strong) SetupUnitDisplay *display;
-@property (nonatomic)       CGPoint previous;
+@property (nonatomic, strong)           CCTMXTiledMap *map;
+@property (nonatomic, strong)              CCTMXLayer *tmxLayer;
+@property (nonatomic, strong)                 CCLayer *setupLayer;
+@property (nonatomic, strong)                 CCLayer *hudLayer;
+@property (nonatomic, strong)                  CCMenu *menu;
+@property (nonatomic, strong)          SetupMenuLayer *savedSetups;
+
+@property (nonatomic)                         CGPoint previous;
+@property (nonatomic, strong)           CCLabelBMFont *debug;
+
 
 + (CCScene *) scene;
 @end

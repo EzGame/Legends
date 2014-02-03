@@ -57,7 +57,7 @@
 		5662638C1868D07500B701EA /* Warrior.m in Sources */ = {isa = PBXBuildFile; fileRef = 5662638B1868D07500B701EA /* Warrior.m */; };
 		566787061758FE280042EE4F /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 566787051758FE280042EE4F /* Security.framework */; };
 		56678709175900340042EE4F /* UICKeyChainStore.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678708175900340042EE4F /* UICKeyChainStore.m */; };
-		56678718175FD3060042EE4F /* FGScrollLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678717175FD3060042EE4F /* FGScrollLayer.m */; };
+		56678718175FD3060042EE4F /* CCScrollLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678717175FD3060042EE4F /* CCScrollLayer.m */; };
 		5667872E1767B3260042EE4F /* ItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = 5667872D1767B3250042EE4F /* ItemView.m */; };
 		56678731176A79A50042EE4F /* Buff.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678730176A79A50042EE4F /* Buff.m */; };
 		56678734176F79E60042EE4F /* TestLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 56678733176F79E50042EE4F /* TestLayer.m */; };
@@ -65,6 +65,8 @@
 		56678742177240DB0042EE4F /* dev_map.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 5667873C177240DB0042EE4F /* dev_map.tmx */; };
 		566DD2871897449600AF1402 /* SetupMap-hd.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 566DD2851897449600AF1402 /* SetupMap-hd.tmx */; };
 		566DD2881897449600AF1402 /* SetupMap.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 566DD2861897449600AF1402 /* SetupMap.tmx */; };
+		566DD28D189D6F0100AF1402 /* setupButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 566DD28C189D6F0100AF1402 /* setupButton.png */; };
+		566DD294189D9D7200AF1402 /* SetupMenuLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 566DD293189D9D7200AF1402 /* SetupMenuLayer.m */; };
 		5675983D188612E600D938AA /* heal_gain_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983C188612E600D938AA /* heal_gain_effect.plist */; };
 		567598401886176600D938AA /* priest_cast_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983E1886176600D938AA /* priest_cast_effect.plist */; };
 		567598411886176600D938AA /* bleed_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983F1886176600D938AA /* bleed_effect.plist */; };
@@ -99,7 +101,7 @@
 		56C9F5291743CA620016BB3B /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F5281743CA620016BB3B /* UIKit.framework */; };
 		56C9F52B1743CA620016BB3B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F52A1743CA620016BB3B /* Foundation.framework */; };
 		56C9F52D1743CA620016BB3B /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F52C1743CA620016BB3B /* CoreGraphics.framework */; };
-		56C9F52F1743CA620016BB3B /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F52E1743CA620016BB3B /* GameKit.framework */; };
+		56C9F52F1743CA620016BB3B /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F52E1743CA620016BB3B /* GameKit.framework */; settings = {ATTRIBUTES = (Required, ); }; };
 		56C9F6BB1743CB000016BB3B /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F52A1743CA620016BB3B /* Foundation.framework */; };
 		56C9F6C61743CBA90016BB3B /* libcocos2d-library.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 56C9F6BA1743CB000016BB3B /* libcocos2d-library.a */; };
 		56C9F7BB1743CC950016BB3B /* CCAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 56C9F6CA1743CC950016BB3B /* CCAction.m */; };
@@ -377,18 +379,22 @@
 		566787051758FE280042EE4F /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		56678707175900340042EE4F /* UICKeyChainStore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UICKeyChainStore.h; sourceTree = "<group>"; };
 		56678708175900340042EE4F /* UICKeyChainStore.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UICKeyChainStore.m; sourceTree = "<group>"; };
-		56678716175FD3060042EE4F /* FGScrollLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FGScrollLayer.h; sourceTree = "<group>"; };
-		56678717175FD3060042EE4F /* FGScrollLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FGScrollLayer.m; sourceTree = "<group>"; };
+		56678716175FD3060042EE4F /* CCScrollLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CCScrollLayer.h; sourceTree = "<group>"; };
+		56678717175FD3060042EE4F /* CCScrollLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CCScrollLayer.m; sourceTree = "<group>"; };
 		5667872C1767B3250042EE4F /* ItemView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ItemView.h; sourceTree = "<group>"; };
 		5667872D1767B3250042EE4F /* ItemView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ItemView.m; sourceTree = "<group>"; };
 		5667872F176A79A50042EE4F /* Buff.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buff.h; sourceTree = "<group>"; };
 		56678730176A79A50042EE4F /* Buff.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Buff.m; sourceTree = "<group>"; };
-		56678732176F79E50042EE4F /* TestLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestLayer.h; sourceTree = "<group>"; };
-		56678733176F79E50042EE4F /* TestLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestLayer.m; sourceTree = "<group>"; };
+		56678732176F79E50042EE4F /* TestLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestLayer.h; path = Legends/TestLayer.h; sourceTree = "<group>"; };
+		56678733176F79E50042EE4F /* TestLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = TestLayer.m; path = Legends/TestLayer.m; sourceTree = "<group>"; };
 		566787361771475E0042EE4F /* Defines.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Defines.m; sourceTree = "<group>"; };
 		5667873C177240DB0042EE4F /* dev_map.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = dev_map.tmx; sourceTree = "<group>"; };
 		566DD2851897449600AF1402 /* SetupMap-hd.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = "SetupMap-hd.tmx"; sourceTree = "<group>"; };
 		566DD2861897449600AF1402 /* SetupMap.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = SetupMap.tmx; sourceTree = "<group>"; };
+		566DD28C189D6F0100AF1402 /* setupButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setupButton.png; sourceTree = "<group>"; };
+		566DD291189D9CD300AF1402 /* NodeReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NodeReporter.h; sourceTree = "<group>"; };
+		566DD292189D9D7200AF1402 /* SetupMenuLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetupMenuLayer.h; sourceTree = "<group>"; };
+		566DD293189D9D7200AF1402 /* SetupMenuLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetupMenuLayer.m; sourceTree = "<group>"; };
 		5675983C188612E600D938AA /* heal_gain_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = heal_gain_effect.plist; sourceTree = "<group>"; };
 		5675983E1886176600D938AA /* priest_cast_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = priest_cast_effect.plist; sourceTree = "<group>"; };
 		5675983F1886176600D938AA /* bleed_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = bleed_effect.plist; sourceTree = "<group>"; };
@@ -1437,14 +1443,14 @@
 				56C9F84C1743D9860016BB3B /* Tile.m */,
 				56E3E3B9187CD42C0006BB16 /* PlayerResources.h */,
 				56E3E3BA187CD42C0006BB16 /* PlayerResources.m */,
+				566DD292189D9D7200AF1402 /* SetupMenuLayer.h */,
+				566DD293189D9D7200AF1402 /* SetupMenuLayer.m */,
+				56C9F8471743D9860016BB3B /* UnitDisplay.h */,
+				56C9F8481743D9860016BB3B /* UnitDisplay.m */,
 				56C9F8291743D9040016BB3B /* BattleBrain.h */,
 				56C9F82A1743D9040016BB3B /* BattleBrain.m */,
 				56C9F82B1743D9040016BB3B /* BattleLayer.h */,
 				56C9F82C1743D9040016BB3B /* BattleLayer.mm */,
-				56C9F8471743D9860016BB3B /* UnitDisplay.h */,
-				56C9F8481743D9860016BB3B /* UnitDisplay.m */,
-				56678732176F79E50042EE4F /* TestLayer.h */,
-				56678733176F79E50042EE4F /* TestLayer.m */,
 				56A56707174BF7A90026A074 /* SetupBrain.h */,
 				56A56708174BF7A90026A074 /* SetupBrain.m */,
 				56C9F82D1743D9040016BB3B /* SetupLayer.h */,
@@ -1476,6 +1482,9 @@
 		56C9F8461743D96E0016BB3B /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
+				566DD291189D9CD300AF1402 /* NodeReporter.h */,
+				56678716175FD3060042EE4F /* CCScrollLayer.h */,
+				56678717175FD3060042EE4F /* CCScrollLayer.m */,
 				56520BF517A1D574002AB688 /* Scale9Sprite.h */,
 				56520BF617A1D574002AB688 /* Scale9Sprite.m */,
 				56520BEC179F0CD3002AB688 /* HTCustomAutoCompleteTextfield.h */,
@@ -1484,8 +1493,6 @@
 				56520BEA179DD72F002AB688 /* HTAutocompleteManager.m */,
 				56520BE6179DD6CF002AB688 /* HTAutocompleteTextField.h */,
 				56520BE7179DD6CF002AB688 /* HTAutocompleteTextField.m */,
-				56678716175FD3060042EE4F /* FGScrollLayer.h */,
-				56678717175FD3060042EE4F /* FGScrollLayer.m */,
 				56678707175900340042EE4F /* UICKeyChainStore.h */,
 				56678708175900340042EE4F /* UICKeyChainStore.m */,
 				56272CC817B3EFC30022F3C2 /* AUIAnimatableLabel.h */,
@@ -1558,9 +1565,12 @@
 		56DF13711859C3F00071BC94 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				56678732176F79E50042EE4F /* TestLayer.h */,
+				56678733176F79E50042EE4F /* TestLayer.m */,
 				56DF1386185A6ADA0071BC94 /* blackpixel.png */,
 				56DF137C1859CA760071BC94 /* fireball.plist */,
 				56DF137A1859C6800071BC94 /* fireball.png */,
+				566DD28C189D6F0100AF1402 /* setupButton.png */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -1732,6 +1742,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				566DD28D189D6F0100AF1402 /* setupButton.png in Resources */,
 				56C9F83E1743D9430016BB3B /* MainWindow.xib in Resources */,
 				56C9F8401743D9430016BB3B /* LoginViewController.xib in Resources */,
 				56C9F8421743D9430016BB3B /* MainMenuViewController.xib in Resources */,
@@ -1884,6 +1895,7 @@
 				56C9F8431743D9430016BB3B /* MatchFindingViewController.m in Sources */,
 				56C9F8571743D9860016BB3B /* UnitDisplay.m in Sources */,
 				56E3E3A918723BFE0006BB16 /* Knight.m in Sources */,
+				566DD294189D9D7200AF1402 /* SetupMenuLayer.m in Sources */,
 				56C9F8581743D9860016BB3B /* Unit.m in Sources */,
 				56378CD0183C20FB00FD175A /* MatchObject.m in Sources */,
 				56C9F8591743D9860016BB3B /* Tile.m in Sources */,
@@ -1892,7 +1904,7 @@
 				56A56709174BF7A90026A074 /* SetupBrain.m in Sources */,
 				560E0D7917553C6E0001BB4C /* InventoryViewController.m in Sources */,
 				56678709175900340042EE4F /* UICKeyChainStore.m in Sources */,
-				56678718175FD3060042EE4F /* FGScrollLayer.m in Sources */,
+				56678718175FD3060042EE4F /* CCScrollLayer.m in Sources */,
 				56E3E3B81875E7040006BB16 /* CombatObject.m in Sources */,
 				5667872E1767B3260042EE4F /* ItemView.m in Sources */,
 				56678731176A79A50042EE4F /* Buff.m in Sources */,

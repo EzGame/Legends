@@ -7,17 +7,15 @@
 
 // Auto includes
 #import "cocos2d.h"
-#import "Defines.h"
-#import "UserSingleton.h"
-#import "Objects.h"
-// Others
 #import "Tile.h"
+#import "Constants.h"
+#import "UserSingleton.h"
+
 
 @class SetupBrain;
 
 @protocol SetupBrainDelegate <NSObject>
 @required
-- (void)setupbrainDelegateUpdateNumbers:(int)totalValue :(int)totalFood;
 //- (void)setupbrainDelegateLoadTile:(SetupTile *)tile;
 //- (void)setupbrainDelegateReorderTile:(SetupTile *)tile;
 //- (BOOL)setupbrainDelegateRemoveTile:(SetupTile *)tile;
@@ -33,26 +31,22 @@
     int maximumFood;
 }
 
-@property (assign) id <SetupBrainDelegate> delegate;
-// Array of SetupTile Objects
-@property (nonatomic, strong) NSArray *board;
-// Array of SetupTile Objects
-@property (nonatomic, strong) NSArray *sideBoard;
-// Array of UnitObj
-@property (nonatomic, weak) NSMutableArray *unitList;
+@property (nonatomic, assign)           id delegate;
+@property (nonatomic, strong)      NSArray *setupBoard;
+@property (nonatomic, weak)     CCTMXLayer *tmxLayer;
+@property (nonatomic)              CGPoint currentLayerPosition;
+
+@property (nonatomic, strong)      NSArray *sideBoard;
+
+// Screen -> toIso -> Isometric position
+// Iso -> toWld -> World (setuplayer) position
+// Iso -> toScn -> Screen position
 
 @property (nonatomic) CGAffineTransform toIso;
-@property (nonatomic) CGAffineTransform fromIso;
+@property (nonatomic) CGAffineTransform toWld;
+@property (nonatomic) CGAffineTransform toScn;
 
-//- (void) restoreSetup;
-//- (SetupTile *) findTile:(CGPoint)position absPos:(bool)absPos;
-//- (void) viewUnitsForTag:(NSString *)tag;
-//- (BOOL) move:(SetupTile *)tile to:(SetupTile *)target;
-//- (bool) saveSetup;
-//- (void) setCurrentLayerPos:(CGPoint)position;
+- (id) initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate;
+- (void) setup_driver:(CGPoint)position;
 
-- (int) isValidTile:(CGPoint)position;
-- (CGPoint) findBrdPos:(CGPoint)position;
-- (CGPoint) findAbsPos:(CGPoint)position;
-- (void) printBoard;
 @end
