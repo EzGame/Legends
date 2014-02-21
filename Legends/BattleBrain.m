@@ -637,7 +637,7 @@
     int j = position.y;
     if ( i < 0 || i > LASTMAPWIDTH || j < 0 || j > LASTMAPHEIGHT )
         return false;
-    return !([self.tmxLayer tileGIDAt:position] == 0);
+    return !([self.tmxLayer tileGIDAt:[self getInvertedPos:position]] == 0);
 }
 
 /* Returns if position is an occupied board position*/

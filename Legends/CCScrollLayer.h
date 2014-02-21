@@ -14,10 +14,10 @@
 @class CCScrollLayer;
 @protocol CCScrollLayerDelegate
 @optional
-/** Called when scroll layer begins scrolling.
- * Usefull to cancel CCTouchDispatcher standardDelegates.
- */
-- (void) scrollLayerScrollingStarted:(CCScrollLayer *) sender;
+- (void) scrollLayerScrollingStarted:(CCScrollLayer *)sender;
+
+@required
+- (void) scrollLayerReceivedTouchFor:(id<NodeReporter>)obj;
 @end
 
 
@@ -38,16 +38,18 @@
     BOOL isHorizontal;
 }
 
-@property (nonatomic, assign) NSObject <CCScrollLayerDelegate> *delegate;
-@property (readwrite, assign) CGFloat minimumTouchLengthToSlide;
-@property (nonatomic, strong) NSMutableArray *nodes;
+@property (nonatomic, strong)            NSMutableArray *nodes;
+@property (nonatomic, assign)                   CGFloat minimumTouchLengthToSlide;
+@property (nonatomic)                               int stretchDistance;
+@property (nonatomic, assign) id<CCScrollLayerDelegate> delegate;
 
-+ (id) createLayerWithNodes:(NSArray *)nodes
++ (id) createLayerWithNodes:(NSMutableArray *)nodes
                    viewRect:(CGRect)view
                   direction:(CGPoint)direction;
 
 - (void) addNode:(CCNode<NodeReporter> *)node;
 - (void) removeNode:(CCNode<NodeReporter> *)node;
+- (void) reorderNodes;
 @end
 
 

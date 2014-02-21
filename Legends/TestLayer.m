@@ -50,22 +50,22 @@
         _map.scale = 1;
         _map.position = ccp(-100,-80);
         [self addChild:_map];
-        
-        int type = UnitTypePriest;
-        int experience = 1000000;
-        int str = (arc4random() % 100 );
-        int agi = (arc4random() % 100 );
-        int inte = (arc4random() % 100 );
-        int wis = (arc4random() % 100 );
-        int hp = (arc4random() % 100 );
-        NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
-                            type, experience, str, agi, inte, wis, hp, nil];
-        UnitObject *obj = [[UnitObject alloc] initWithString:string];
-        _unit = [Priest priest:obj isOwned:YES];
-        _unit.position = ccp(100, 100);
-        
-        _target = [Priest priest:obj isOwned:YES];
-        _target.position = ccp(200, 200);
+//        
+//        int type = UnitTypePriest;
+//        int experience = 1000000;
+//        int str = (arc4random() % 100 );
+//        int agi = (arc4random() % 100 );
+//        int inte = (arc4random() % 100 );
+//        int wis = (arc4random() % 100 );
+//        int hp = (arc4random() % 100 );
+//        NSString *string = [NSString stringWithFormat:@"%d/%d/%d/%d/%d/%d/%d/%@/{-1,-1}/0",
+//                            type, experience, str, agi, inte, wis, hp, nil];
+//        UnitObject *obj = [[UnitObject alloc] initWithString:string];
+//        _unit = [Priest priest:obj isOwned:YES];
+//        _unit.position = ccp(100, 100);
+//        
+//        _target = [Priest priest:obj isOwned:YES];
+//        _target.position = ccp(200, 200);
         
         [self addChild:_unit];
         [self addChild:_target];

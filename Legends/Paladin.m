@@ -62,40 +62,40 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:0
-                                   MC:10
-                                   CP:1];
+                                   CD:[self.object.actionMove objectAtIndex:0]
+                                   MC:[self.object.actionMove objectAtIndex:1]
+                                   CP:[self.object.actionMove objectAtIndex:2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-50, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
-    _moveSkill.range = 3;
+    _moveSkill.range = [self.object.actionMove objectAtIndex:3];
     _moveSkill.effectType = RangeOne;
     
     _smiteSkill = [UnitSkill unitSkill:@"flamebreath"
                                target:self
                              selector:@selector(smitePressed)
-                                   CD:1
-                                   MC:10
-                                   CP:0];
+                                   CD:[self.object.actionSkillOne objectAtIndex:0]
+                                   MC:[self.object.actionSkillTwo objectAtIndex:1]
+                                   CP:[self.object.actionSkillTwo objectAtIndex:2]];
     _smiteSkill.anchorPoint = ccp(0.5, 0.5);
     _smiteSkill.position = ccp(50, 60);
     _smiteSkill.type = ActionSkillOne;
     _smiteSkill.rangeType = RangeNormal;
-    _smiteSkill.range = 2;
+    _smiteSkill.range = [self.object.actionSkillTwo objectAtIndex:3];
     _smiteSkill.effectType = RangeOne;
     
     _shieldSkill = [UnitSkill unitSkill:@"shield"
                                 target:self
                               selector:@selector(shieldPressed)
-                                    CD:0
-                                    MC:10
-                                    CP:1];
+                                    CD:[self.object.actionSkillTwo objectAtIndex:0]
+                                    MC:[self.object.actionSkillTwo objectAtIndex:1]
+                                    CP:[self.object.actionSkillTwo objectAtIndex:2]];
     _shieldSkill.anchorPoint = ccp(0.5, 0.5);
     _shieldSkill.position = ccp(0, 120);
     _shieldSkill.type = ActionSkillTwo;
     _shieldSkill.rangeType = RangeNormalIncForce;
-    _shieldSkill.range = 3;
+    _shieldSkill.range = [self.object.actionSkillTwo objectAtIndex:3];
     _shieldSkill.effectType = RangeOne;
     
     self.menu = [CCMenu menuWithItems:_moveSkill, _smiteSkill, _shieldSkill, nil];

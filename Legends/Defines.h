@@ -91,6 +91,7 @@ enum ZORDER {
 #define kTagBattleLayer 10
 #define kTagSetupLayer 11
 #define kTagForgeLayer 12
+#define kTagSetupUnitMenu 13
 
 // Various map information
 #define MAPLENGTH   11

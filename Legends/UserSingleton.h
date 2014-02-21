@@ -25,15 +25,17 @@
 @property (nonatomic) BOOL isFirstLaunch;
 @property (nonatomic) int playerLevel;
 
-// Setup properties
-@property (nonatomic) int unitCount;
-@property (nonatomic) int unitValue;
-
 // Stat properties
 @property (nonatomic) int ELO;
 @property (nonatomic) int TELO;
 
-// Game properties
+// Setup properties
+@property (nonatomic, strong) NSMutableArray *setupList;
+@property (nonatomic, strong) NSMutableArray *unitList;
+@property (nonatomic) int unitCount;
+@property (nonatomic) int unitValue;
+
+// Battle properties
 @property (nonatomic, strong) MatchObject *obj;
 
 @property (nonatomic) BOOL amIPlayerOne;
@@ -43,6 +45,8 @@
 @property (nonatomic, strong) SFSUser *opp;
 
 + (UserSingleton *) get;
+- (void) setDict:(NSMutableDictionary *)dict forType:(UnitType)type at:(CGPoint)position;
+
 
 - (BOOL) saveOpp:(SFSUser *)user setup:(SFSArray *)array;
 - (BOOL) saveSetup:(SFSArray *)array unitFood:(int)count unitValue:(int)value;

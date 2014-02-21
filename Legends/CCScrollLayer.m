@@ -19,12 +19,12 @@ enum
 @synthesize delegate = delegate_;
 @synthesize minimumTouchLengthToSlide = minimumTouchLengthToSlide_;
 
-+ (id) createLayerWithNodes:(NSArray *)nodes viewRect:(CGRect)view direction:(CGPoint)direction
++ (id) createLayerWithNodes:(NSMutableArray *)nodes viewRect:(CGRect)view direction:(CGPoint)direction
 {
     return [[CCScrollLayer alloc] initWithNodes:nodes viewRect:view direction:direction];
 }
 
--(id) initWithNodes:(NSArray *)nodes viewRect:(CGRect)view direction:(CGPoint)direction
+-(id) initWithNodes:(NSMutableArray *)nodes viewRect:(CGRect)view direction:(CGPoint)direction
 {
     if (self = [super init]) {
         NSAssert([nodes count], @"at least one node is necessary in array nodes!");
@@ -32,10 +32,11 @@ enum
 		self.minimumTouchLengthToSlide = 10.0f;
         self.position = view.origin;
         
-        nodeSpace = 5;
+        nodeSpace = 0;
         isHorizontal = (direction.x == 0) ? NO : YES;
         viewArea = view;
 		_nodes = [NSMutableArray arrayWithArray:nodes];
+        _stretchDistance = 75;
         
         layerParent = [CCNode node];
         layerParent.position = ccp(0, 0);
@@ -62,22 +63,20 @@ enum
         scrollArea = CGSizeMake(currentPos, viewArea.size.height);
         
     } else {
-        CGFloat currentPos = viewArea.origin.y + viewArea.size.height;
+        CGFloat currentPos = viewArea.size.height;
         CGFloat middle = viewArea.size.width/2;
         for ( CCNode<NodeReporter> *ptr in _nodes) {
             ptr.anchorPoint = ccp(0.5 , 1);
             ptr.position = ccp(middle, currentPos - nodeSpace);
-            
-            NSLog(@"added %@",NSStringFromCGPoint(ptr.position));
 
-            
             [layerParent addChild:ptr];
             currentPos -= ([ptr height] + nodeSpace);
         }
-        scrollArea = CGSizeMake(viewArea.size.width, viewArea.origin.y + viewArea.size.height - currentPos);
+        scrollArea = CGSizeMake(viewArea.size.width, viewArea.size.height - currentPos);
     }
-    maxWidthPos = MAX(0, scrollArea.width - viewArea.size.width);
-    maxHeightPos = MAX(0, scrollArea.height - viewArea.size.height);
+    maxWidthPos = MAX(0, scrollArea.width - viewArea.size.width + viewArea.origin.x);
+    maxHeightPos = MAX(0, scrollArea.height - viewArea.size.height + viewArea.origin.y);
+    //NSLog(@"maxWidthPos %f, maxHeightPos %f, scrollArea %@", maxWidthPos, maxHeightPos, NSStringFromCGSize(scrollArea));
 }
 
 #pragma mark - Utility
@@ -89,6 +88,11 @@ enum
 - (void) removeNode:(CCNode<NodeReporter> *)node
 {
     NSLog(@"Remove node functionality not implemented yet");
+}
+
+- (void) reorderNodes
+{
+    NSLog(@"Reorder node functionality not implemented yet");
 }
 
 - (void) onEnter
@@ -122,7 +126,6 @@ enum
 
         startPosition = ( isHorizontal ) ? touchPoint.x : touchPoint.y;
         state = kCCScrollLayerStateIdle;
-        NSLog(@"Starting position %@",NSStringFromCGPoint(touchPoint));
         return YES;
     } else return NO;
 }
@@ -143,33 +146,39 @@ enum
     
     if ( state == kCCScrollLayerStateSliding || distance > self.minimumTouchLengthToSlide ) {
         // Call delegate if we just started scrolling
-        if ( state != kCCScrollLayerStateSliding )
-            if ([self.delegate respondsToSelector:@selector(scrollLayerScrollingStarted:)])
-                [self.delegate scrollLayerScrollingStarted: self];
+//        if ( state != kCCScrollLayerStateSliding )
+//            [self.delegate scrollLayerScrollingStarted:self];
+        
         // Set state
         state = kCCScrollLayerStateSliding;
         float newPos = 0;
         
         if ( isHorizontal ) { // Horizontal
-            if ( newLayerPos.x < viewArea.origin.x || newLayerPos.x > maxWidthPos) {
-                if (newLayerPos.x < viewArea.origin.x) {
-                    newPos = (newLayerPos.x - distance) / 4;
-                } else {
-                    newPos = maxWidthPos + distance / 4;
-                }
-                self.position = ccp(newPos, self.position.y);
+            if ( newLayerPos.x < viewArea.origin.x ) {
+                newPos = self.position.x + scrollDistance.x *
+                (1 - MIN(1, fabsf(newLayerPos.x - viewArea.origin.x) / self.stretchDistance));
+                self.position = ccp(self.position.x, newPos);
+                
+            } else if ( newLayerPos.x > maxWidthPos ) {
+                newPos = self.position.x + scrollDistance.x *
+                (1 - MIN(1, fabsf(newLayerPos.x - maxWidthPos) / self.stretchDistance));
+                self.position = ccp(self.position.x, newPos);
+                
             } else {
-                self.position = ccp(newLayerPos.x, self.position.y);
+                self.position = ccp(self.position.x, newLayerPos.x);
             }
             
         } else { // Vertical
-            if ( newLayerPos.y < viewArea.origin.y || newLayerPos.y > maxHeightPos) {
-                if (newLayerPos.y < viewArea.origin.y) {
-                    newPos = (newLayerPos.y - distance) / 4;
-                } else {
-                    newPos = maxHeightPos + distance / 4;
-                }
+            if ( newLayerPos.y < viewArea.origin.y ) {
+                newPos = self.position.y + scrollDistance.y *
+                (1 - MIN(1, fabsf(newLayerPos.y - viewArea.origin.y) / self.stretchDistance));
                 self.position = ccp(self.position.x, newPos);
+                
+            } else if ( newLayerPos.y > maxHeightPos ) {
+                newPos = self.position.y + scrollDistance.y *
+                (1 - MIN(1, fabsf(newLayerPos.y - maxHeightPos) / self.stretchDistance));
+                self.position = ccp(self.position.x, newPos);
+                
             } else {
                 self.position = ccp(self.position.x, newLayerPos.y);
             }
@@ -181,8 +190,21 @@ enum
 {
     CGPoint touchPoint = [touch locationInView:[touch view]];
     touchPoint = [[CCDirector sharedDirector] convertToGL:touchPoint];
-    state = kCCScrollLayerStateIdle;
+
+    if ( state != kCCScrollLayerStateSliding ) {
+        touchPoint = [self convertToNodeSpace:touchPoint];
+        if ( isHorizontal ) {
+            // NO IMPLEMENTATION YET
+        } else {
+            int height = [(CCNode<NodeReporter> *)[self.nodes firstObject] height];
+            int index = (int)abs(touchPoint.y - viewArea.size.height) / (height + nodeSpace);
+            if ( index < [self.nodes count] )
+                [self.delegate scrollLayerReceivedTouchFor:[self.nodes objectAtIndex:index]];
+        }
+        return;
+    }
     
+    state = kCCScrollLayerStateIdle;
     if ( isHorizontal ) {
         if ( self.position.x < viewArea.origin.x ) {
             id action = [CCEaseSineOut actionWithAction:
@@ -211,5 +233,13 @@ enum
             [self runAction:action];
         }
     }
+}
+
+- (void) visit
+{
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(viewArea.origin.x, viewArea.origin.y, viewArea.size.width, viewArea.size.height);
+    [super visit];
+    glDisable(GL_SCISSOR_TEST);
 }
 @end

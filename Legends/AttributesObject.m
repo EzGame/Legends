@@ -47,18 +47,18 @@
 
 
 #pragma mark - Init n shit
-+ (id) attributesWithObject:(StatObject *)stats augment:(StatObject *)augmentation
++ (id) attributesWithObject:(StatObject *)stats
 {
-    return [[AttributesObject alloc] initAttributesWithObject:stats augment:augmentation];
+    return [[AttributesObject alloc] initAttributesWithObject:stats];
 }
 
-- (id) initAttributesWithObject:(StatObject *)stats augment:(StatObject *)augmentation
+- (id) initAttributesWithObject:(StatObject *)stats
 {
     self = [super init];
     if ( self ) {
-        [self setStrength:stats.strength + augmentation.strength];
-        [self setAgility:stats.agility + augmentation.agility];
-        [self setIntellect:stats.intellect + augmentation.intellect];
+        [self setStrength:stats.strength];
+        [self setAgility:stats.agility];
+        [self setIntellect:stats.intellect];
         
         // These stats don't change with buffs;
         self.health = 3 * self.strength;

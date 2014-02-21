@@ -11,13 +11,24 @@
 #import "Constants.h"
 #import "UserSingleton.h"
 
+#import "Priest.h"
+#import "Warrior.h"
+#import "Witch.h"
+#import "Ranger.h"
+#import "Knight.h"
+#import "Berserker.h"
+#import "Paladin.h"
+
 
 @class SetupBrain;
 
 @protocol SetupBrainDelegate <NSObject>
 @required
-//- (void)setupbrainDelegateLoadTile:(SetupTile *)tile;
-//- (void)setupbrainDelegateReorderTile:(SetupTile *)tile;
+- (void) setupBrainNeedsUnitMenuAt:(CGPoint)position;
+- (void) setupBrainDidLoadUnitAt:(Tile *)tile;
+- (void) setupBrainDidRemoveUnit:(Unit *)unit;
+- (void) setupBrainDidMoveUnitTo:(Tile *)tile;
+
 //- (BOOL)setupbrainDelegateRemoveTile:(SetupTile *)tile;
 @end
 
@@ -47,6 +58,8 @@
 @property (nonatomic) CGAffineTransform toScn;
 
 - (id) initWithMap:(CCTMXLayer *)tmxLayer delegate:(id)delegate;
-- (void) setup_driver:(CGPoint)position;
 
+- (void) addUnit:(UnitObject *)obj;
+- (Unit *) touchStarted:(CGPoint)position;
+- (void) touchEnded:(CGPoint)position unit:(Unit *)unit;
 @end

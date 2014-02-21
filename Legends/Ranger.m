@@ -59,27 +59,27 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:UNITSTATS[RANGERMOVE][0]
-                                   MC:UNITSTATS[RANGERMOVE][1]
-                                   CP:UNITSTATS[RANGERMOVE][2]];
+                                   CD:[self.object.actionMove objectAtIndex:0]
+                                   MC:[self.object.actionMove objectAtIndex:1]
+                                   CP:[self.object.actionMove objectAtIndex:2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-60, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
-    _moveSkill.range = 3;
+    _moveSkill.range = [self.object.actionMove objectAtIndex:3];
     _moveSkill.effectType = RangeOne;
     
     _shootSkill = [UnitSkill unitSkill:@"ranged"
                                 target:self
                               selector:@selector(shootPressed)
-                                    CD:UNITSTATS[RANGERSHOOT][0]
-                                    MC:UNITSTATS[RANGERSHOOT][1]
-                                    CP:UNITSTATS[RANGERSHOOT][2]];
+                                    CD:[self.object.actionSkillOne objectAtIndex:0]
+                                    MC:[self.object.actionSkillOne objectAtIndex:1]
+                                    CP:[self.object.actionSkillOne objectAtIndex:2]];
     _shootSkill.anchorPoint = ccp(0.5, 0.5);
     _shootSkill.position = ccp(60, 60);
     _shootSkill.type = ActionSkillOne;
     _shootSkill.rangeType = RangeLOS;
-    _shootSkill.range = 4;
+    _shootSkill.range = [self.object.actionSkillOne objectAtIndex:3];
     _shootSkill.effectType = RangeOne;
     
     self.menu = [CCMenu menuWithItems:_moveSkill, _shootSkill, nil];

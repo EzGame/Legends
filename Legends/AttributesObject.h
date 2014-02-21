@@ -50,8 +50,7 @@
 @property (nonatomic)                         int mana;
 
 
-+ (id) attributesWithObject:(StatObject *)stats
-                    augment:(StatObject *)augmentation;
++ (id) attributesWithObject:(StatObject *)stats;
 
 - (void) attackerCalculation:(CombatObject *)obj;
 - (void) defenderCalculation:(CombatObject *)obj;

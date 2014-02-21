@@ -17,6 +17,7 @@
 + (NSString *) stringFromType:(UnitType)type;
 + (NSString *) stringFromDirection:(Direction)direction;
 //+ (NSString *) stringFromAction:(Action)action;
++ (Rarity) rarityFromType:(UnitType)type;
 
 /*  Image Manipulation */
 + (UIImage *)   convertToGrayscale:(UIImage *)image;

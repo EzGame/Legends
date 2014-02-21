@@ -9,12 +9,17 @@
 #ifndef Legends_Constants_h
 #define Legends_Constants_h
 
+#define DEVMODE 1
+#define VERSION 0.5
+
+
+
 #define GAMETILEWIDTH 64
 #define GAMETILEHEIGHT 32
 #define GAMETILEOFFSETX 353
 #define GAMETILEOFFSETY 14
 #define SETUPTILEOFFSETX 293
-#define SETUPTILEOFFSETY 70
+#define SETUPTILEOFFSETY 38
 
 #define GAMEMAPWIDTH 11
 #define GAMEMAPHEIGHT 11
@@ -45,7 +50,6 @@ typedef enum Rarity {
     Uncommon,
     Rare,
     Epic,
-    LAST_RARITY = Epic,
 }Rarity;
 
 typedef enum {
@@ -58,16 +62,21 @@ typedef enum {
 
 typedef enum {
     UnitTypeNone,
-    // uncommon
-    UnitTypeKnight,
-    UnitTypeBerserker,
-    UnitTypePaladin,
+    
     // common
     UnitTypePriest,
     UnitTypeWarrior,
     UnitTypeWitch,
     UnitTypeRanger,
-    UnitTypeLast = UnitTypeRanger,
+    UnitTypeLastCommon = UnitTypeRanger,
+    
+    // uncommon
+    UnitTypeKnight,
+    UnitTypeBerserker,
+    UnitTypePaladin,
+    UnitTypeLastUnc = UnitTypePaladin,
+
+    UnitTypeLast = UnitTypePaladin,
 }UnitType;
 
 /* Keep this in alternating on/off */
@@ -155,22 +164,4 @@ typedef enum Heart {
     UnholyHeart,     // +hp  -spr        [done]
 }Heart;
 
-
-#pragma mark - Unit Constants
-#define UNIT_MAXAUGMENTATION_COUNT 10
-#define UNITSTR 0 #define UNITAGI 1 #define UNITINT 2
-#define SKILLCD 0 #define SKILLMANA 1 #define SKILLCP 2
-
-#define PRIEST          0
-#define PRIESTMOVE      1
-#define PRIESTHEAL      2
-#define RANGER          3
-#define RANGERMOVE      4
-#define RANGERSHOOT     5
-#define WARRIOR         6
-#define WARRIORMOVE     7
-#define WARRIORSLASH    8
-#define WITCH           9
-#define WITCHMOVE       10
-#define WITCHWAVE       11
 #endif

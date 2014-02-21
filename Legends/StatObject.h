@@ -9,8 +9,8 @@
 #import "Constants.h"
 
 @interface StatObject : NSObject
-@property (nonatomic) int strength;
-@property (nonatomic) int agility;
-@property (nonatomic) int intellect;
-- (int) getStat:(Attribute)stat;
+@property (nonatomic) Attribute strength;
+@property (nonatomic) Attribute agility;
+@property (nonatomic) Attribute intellect;
+@property (nonatomic) Attribute *highestAttribute;
 @end

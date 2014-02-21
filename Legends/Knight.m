@@ -61,35 +61,35 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:0
-                                   MC:10
-                                   CP:1];
+                                   CD:[self.object.actionMove objectAtIndex:0]
+                                   MC:[self.object.actionMove objectAtIndex:1]
+                                   CP:[self.object.actionMove objectAtIndex:2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-50, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
-    _moveSkill.range = 3;
+    _moveSkill.range = [self.object.actionMove objectAtIndex:3];
     _moveSkill.effectType = RangeOne;
     
     _attkSkill = [UnitSkill unitSkill:@"melee"
                                target:self
                              selector:@selector(attkPressed)
-                                   CD:1
-                                   MC:10
-                                   CP:0];
+                                   CD:[self.object.actionSkillOne objectAtIndex:0]
+                                   MC:[self.object.actionSkillOne objectAtIndex:1]
+                                   CP:[self.object.actionSkillOne objectAtIndex:2]];
     _attkSkill.anchorPoint = ccp(0.5, 0.5);
     _attkSkill.position = ccp(50, 60);
     _attkSkill.type = ActionSkillOne;
     _attkSkill.rangeType = RangeNormal;
-    _attkSkill.range = 1;
+    _attkSkill.range = [self.object.actionSkillOne objectAtIndex:3];
     _attkSkill.effectType = RangeOne;
     
     _guardSkill = [UnitSkill unitSkill:@"shield"
                                 target:self
                               selector:@selector(guardPressed)
-                                    CD:0
-                                    MC:10
-                                    CP:1];
+                                    CD:[self.object.actionSkillTwo objectAtIndex:0]
+                                    MC:[self.object.actionSkillTwo objectAtIndex:1]
+                                    CP:[self.object.actionSkillTwo objectAtIndex:2]];
     _guardSkill.anchorPoint = ccp(0.5, 0.5);
     _guardSkill.position = ccp(0, 120);
     _guardSkill.type = ActionSkillTwo;

@@ -9,11 +9,6 @@
 #import <Foundation/Foundation.h>
 #import "cocos2d.h"
 
-#ifndef unitstats_h
-#define unitstats_h
-extern const int UNITSTATS[12][3];
-#endif
-
 @interface GameObjSingleton : NSObject
 
 + (GameObjSingleton *) get;

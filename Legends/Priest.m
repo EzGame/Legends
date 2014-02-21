@@ -67,22 +67,22 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:UNITSTATS[PRIESTMOVE][0]
-                                   MC:UNITSTATS[PRIESTMOVE][1]
-                                   CP:UNITSTATS[PRIESTMOVE][2]];
+                                   CD:[self.object.actionMove objectAtIndex:0]
+                                   MC:[self.object.actionMove objectAtIndex:1]
+                                   CP:[self.object.actionMove objectAtIndex:2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-50, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
     _moveSkill.effectType = RangeOne;
-    _moveSkill.range = 3;
+    _moveSkill.range = [self.object.actionMove objectAtIndex:3];
     
     _healSkill = [UnitSkill unitSkill:@"cross-coloured"
                                target:self
                              selector:@selector(healPressed)
-                                   CD:UNITSTATS[PRIESTHEAL][0]
-                                   MC:UNITSTATS[PRIESTHEAL][1]
-                                   CP:UNITSTATS[PRIESTHEAL][2]];
+                                   CD:[self.object.actionSkillOne objectAtIndex:0]
+                                   MC:[self.object.actionSkillOne objectAtIndex:1]
+                                   CP:[self.object.actionSkillOne objectAtIndex:2]];
     _healSkill.anchorPoint = ccp(0.5, 0.5);
     _healSkill.position = ccp(50, 60);
     _healSkill.type = ActionSkillOne;

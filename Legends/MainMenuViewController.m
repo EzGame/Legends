@@ -55,7 +55,7 @@
 
 - (IBAction)bagTouched:(id)sender {
     NSLog(@">[MYLOG]    Logout!");
-    [appDelegate switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
+//    [appDelegate switchToView:@"InventoryViewController" uiViewController:[InventoryViewController alloc]];
 }
 
 #pragma mark - SFS Event handlers

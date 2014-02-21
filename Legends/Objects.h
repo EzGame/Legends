@@ -26,7 +26,7 @@
 @end
 
 
-/*#pragma mark - Unit Object
+#pragma mark - Unit Object
 @interface UnitObj : NSObject
 {
     int levelup_str;
@@ -52,7 +52,7 @@
 + (id) unitObjWithString:(NSString *)string;
 
 - (NSString *) userFunctionSkillUp:(int)skillType;
-@end*/
+@end
 
 
 #pragma mark - Damage Object

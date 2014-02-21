@@ -56,8 +56,7 @@
     if ( self ) {
         // Save pointer to UnitObject and stats
         _object = obj;
-        _attributes = [AttributesObject attributesWithObject:obj.stats
-                                                     augment:obj.augmentedStats];
+        _attributes = [AttributesObject attributesWithObject:obj.stats];
         
         // Find sprite strings
         NSString *plist = [NSString stringWithFormat:@"%@.plist",
@@ -78,7 +77,7 @@
         _sprite.anchorPoint = ccp(0.5, 0);
         
         _glowSprite = [CCSprite spriteWithSpriteFrameName:glow];
-        _glowSprite.color = [GeneralUtils colorFromAttribute:obj.highestAttribute];
+        _glowSprite.color = [GeneralUtils colorFromAttribute:obj.stats.highestAttribute];
         _glowSprite.blendFunc = (ccBlendFunc) { GL_ONE, GL_ONE };
         _glowSprite.anchorPoint = ccp(0.5, 0);
         [_glowSprite runAction:
@@ -115,7 +114,6 @@
         _boardPos = obj.position;
         _currentHP = _attributes.health;
         _maximumHP = _attributes.health;
-        _moveSpeed = obj.moveSpeed;
         _isOwned = owned;
         _isBusy = NO;
     }

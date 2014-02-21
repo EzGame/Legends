@@ -59,27 +59,27 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:UNITSTATS[WARRIORMOVE][0]
-                                   MC:UNITSTATS[WARRIORMOVE][1]
-                                   CP:UNITSTATS[WARRIORMOVE][2]];
+                                   CD:[self.object.actionMove objectAtIndex:0]
+                                   MC:[self.object.actionMove objectAtIndex:1]
+                                   CP:[self.object.actionMove objectAtIndex:2]];
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-60, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
-    _moveSkill.range = 3;
+    _moveSkill.range = [self.object.actionMove objectAtIndex:3];
     _moveSkill.effectType = RangeOne;
     
     _attkSkill = [UnitSkill unitSkill:@"melee"
                                target:self
                              selector:@selector(attkPressed)
-                                   CD:UNITSTATS[WARRIORSLASH][0]
-                                   MC:UNITSTATS[WARRIORSLASH][1]
-                                   CP:UNITSTATS[WARRIORSLASH][2]];
+                                   CD:[self.object.actionSkillOne objectAtIndex:0]
+                                   MC:[self.object.actionSkillOne objectAtIndex:1]
+                                   CP:[self.object.actionSkillOne objectAtIndex:2]];
     _attkSkill.anchorPoint = ccp(0.5, 0.5);
     _attkSkill.position = ccp(60, 60);
     _attkSkill.type = ActionSkillOne;
     _attkSkill.rangeType = RangeNormal;
-    _attkSkill.range = 1;
+    _attkSkill.range = [self.object.actionSkillOne objectAtIndex:3];
     _attkSkill.effectType = RangeOne;
     
     self.menu = [CCMenu menuWithItems:_moveSkill, _attkSkill, nil];

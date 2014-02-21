@@ -61,23 +61,23 @@
     _moveSkill = [UnitSkill unitSkill:@"move"
                                target:self
                              selector:@selector(movePressed)
-                                   CD:UNITSTATS[WITCHMOVE][0]
-                                   MC:UNITSTATS[WITCHMOVE][1]
-                                   CP:UNITSTATS[WITCHMOVE][2]];
+                                   CD:[self.object.actionMove objectAtIndex:0]
+                                   MC:[self.object.actionMove objectAtIndex:1]
+                                   CP:[self.object.actionMove objectAtIndex:2]];
     
     _moveSkill.anchorPoint = ccp(0.5, 0.5);
     _moveSkill.position = ccp(-60, 60);
     _moveSkill.type = ActionMove;
     _moveSkill.rangeType = RangePathFind;
-    _moveSkill.range = 3;
+    _moveSkill.range = [self.object.actionMove objectAtIndex:3];
     _moveSkill.effectType = RangeOne;
     
     _castSkill = [UnitSkill unitSkill:@"magic"
                                target:self
                              selector:@selector(castPressed)
-                                   CD:UNITSTATS[WITCHWAVE][0]
-                                   MC:UNITSTATS[WITCHWAVE][1]
-                                   CP:UNITSTATS[WITCHWAVE][2]];
+                                   CD:[self.object.actionSkillOne objectAtIndex:0]
+                                   MC:[self.object.actionSkillOne objectAtIndex:1]
+                                   CP:[self.object.actionSkillOne objectAtIndex:2]];
     
     _castSkill.anchorPoint = ccp(0.5, 0.5);
     _castSkill.position = ccp(60, 60);

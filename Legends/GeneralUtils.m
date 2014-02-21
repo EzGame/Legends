@@ -243,6 +243,40 @@
     return ret;
 }
 
++ (Rarity) rarityFromType:(UnitType)type
+{
+    Rarity ret;
+    if ( type == UnitTypeNone ) ret = Vagrant;
+    else if ( type <= UnitTypeLastCommon ) ret = Common;
+    else if ( type <= UnitTypeLastUnc ) ret = Uncommon;
+    else ret = Vagrant;
+    
+    return ret;
+}
+
+#pragma mark - From String
++ (UnitType) typeFromString:(NSString *)string
+{
+    UnitType ret;
+    if ( [string isEqualToString:@"priest"] )
+        ret = 1;
+    else if ( [string isEqualToString:@"warrior"] )
+        ret = 2;
+    else if ( [string isEqualToString:@"ranger"] )
+        ret = 3;
+    else if ( [string isEqualToString:@"witch"] )
+        ret = 4;
+    else if ( [string isEqualToString:@"knight"] )
+        ret = 5;
+    else if ( [string isEqualToString:@"berserker"] )
+        ret = 6;
+    else if ( [string isEqualToString:@"paladin"] )
+        ret = 7;
+    else
+        ret = 0;
+    return ret;
+}
+
 #pragma mark - Algorithms
 + (NSMutableArray *) getDiamondArea:(int)area
 {

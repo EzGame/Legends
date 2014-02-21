@@ -8,7 +8,7 @@
 //
 //#import "ItemView.h"
 //
-@implementation ItemView
+//@implementation ItemView
 //@synthesize iconName = _iconName, isDisabled = _isDisabled;
 //
 //- (void) setIsDisabled:(BOOL)isDisabled
@@ -165,4 +165,4 @@
 //- (void) touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event {
 //    [self.delegate itemDidGetTouchEnded:self];
 //}
-@end
+//@end

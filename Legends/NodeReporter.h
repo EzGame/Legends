@@ -12,6 +12,4 @@
 - (CGFloat) width;
 
 - (CGFloat) height;
-
-- (NSString *) data;
 @end

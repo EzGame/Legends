@@ -66,7 +66,7 @@
 		566DD2871897449600AF1402 /* SetupMap-hd.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 566DD2851897449600AF1402 /* SetupMap-hd.tmx */; };
 		566DD2881897449600AF1402 /* SetupMap.tmx in Resources */ = {isa = PBXBuildFile; fileRef = 566DD2861897449600AF1402 /* SetupMap.tmx */; };
 		566DD28D189D6F0100AF1402 /* setupButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 566DD28C189D6F0100AF1402 /* setupButton.png */; };
-		566DD294189D9D7200AF1402 /* SetupMenuLayer.m in Sources */ = {isa = PBXBuildFile; fileRef = 566DD293189D9D7200AF1402 /* SetupMenuLayer.m */; };
+		566DD294189D9D7200AF1402 /* SetupSuppLayers.m in Sources */ = {isa = PBXBuildFile; fileRef = 566DD293189D9D7200AF1402 /* SetupSuppLayers.m */; };
 		5675983D188612E600D938AA /* heal_gain_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983C188612E600D938AA /* heal_gain_effect.plist */; };
 		567598401886176600D938AA /* priest_cast_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983E1886176600D938AA /* priest_cast_effect.plist */; };
 		567598411886176600D938AA /* bleed_effect.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5675983F1886176600D938AA /* bleed_effect.plist */; };
@@ -297,6 +297,7 @@
 		56E71FFE1831621300646EC5 /* GameObjSingleton.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E71FFD1831621300646EC5 /* GameObjSingleton.m */; };
 		56E7D49117BEBBDD005E8010 /* PlayerSprite.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E7D49017BEBBDD005E8010 /* PlayerSprite.m */; };
 		56E7D49417C68F55005E8010 /* GeneralUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 56E7D49317C68F55005E8010 /* GeneralUtils.m */; };
+		56EE3A0A18B53F23009A5788 /* setupUnitButton.png in Resources */ = {isa = PBXBuildFile; fileRef = 56EE3A0918B53F23009A5788 /* setupUnitButton.png */; };
 		56F0984518568EE000E56E6F /* priest.plist in Resources */ = {isa = PBXBuildFile; fileRef = 56F0984318568EE000E56E6F /* priest.plist */; };
 		56F0984618568EE000E56E6F /* priest.png in Resources */ = {isa = PBXBuildFile; fileRef = 56F0984418568EE000E56E6F /* priest.png */; };
 		56F6046A18566A8900E26518 /* AttributesObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 56F6046918566A8900E26518 /* AttributesObject.m */; };
@@ -393,8 +394,8 @@
 		566DD2861897449600AF1402 /* SetupMap.tmx */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = SetupMap.tmx; sourceTree = "<group>"; };
 		566DD28C189D6F0100AF1402 /* setupButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setupButton.png; sourceTree = "<group>"; };
 		566DD291189D9CD300AF1402 /* NodeReporter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = NodeReporter.h; sourceTree = "<group>"; };
-		566DD292189D9D7200AF1402 /* SetupMenuLayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetupMenuLayer.h; sourceTree = "<group>"; };
-		566DD293189D9D7200AF1402 /* SetupMenuLayer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetupMenuLayer.m; sourceTree = "<group>"; };
+		566DD292189D9D7200AF1402 /* SetupSuppLayers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SetupSuppLayers.h; sourceTree = "<group>"; };
+		566DD293189D9D7200AF1402 /* SetupSuppLayers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SetupSuppLayers.m; sourceTree = "<group>"; };
 		5675983C188612E600D938AA /* heal_gain_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = heal_gain_effect.plist; sourceTree = "<group>"; };
 		5675983E1886176600D938AA /* priest_cast_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = priest_cast_effect.plist; sourceTree = "<group>"; };
 		5675983F1886176600D938AA /* bleed_effect.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = bleed_effect.plist; sourceTree = "<group>"; };
@@ -789,6 +790,7 @@
 		56E7D49017BEBBDD005E8010 /* PlayerSprite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PlayerSprite.m; sourceTree = "<group>"; };
 		56E7D49217C68F55005E8010 /* GeneralUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GeneralUtils.h; sourceTree = "<group>"; };
 		56E7D49317C68F55005E8010 /* GeneralUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneralUtils.m; sourceTree = "<group>"; };
+		56EE3A0918B53F23009A5788 /* setupUnitButton.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = setupUnitButton.png; sourceTree = "<group>"; };
 		56F0984318568EE000E56E6F /* priest.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = priest.plist; sourceTree = "<group>"; };
 		56F0984418568EE000E56E6F /* priest.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = priest.png; sourceTree = "<group>"; };
 		56F6046818566A8900E26518 /* AttributesObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AttributesObject.h; sourceTree = "<group>"; };
@@ -1084,12 +1086,12 @@
 				56378CB61834501700FD175A /* Constants.h */,
 				56C9F8221743D8D60016BB3B /* AppDelegate.h */,
 				56C9F8231743D8D60016BB3B /* AppDelegate.m */,
+				56E7D49217C68F55005E8010 /* GeneralUtils.h */,
+				56E7D49317C68F55005E8010 /* GeneralUtils.m */,
 				56C9F8241743D8D60016BB3B /* UserSingleton.h */,
 				56C9F8251743D8D60016BB3B /* UserSingleton.m */,
 				56E71FFC1831621300646EC5 /* GameObjSingleton.h */,
 				56E71FFD1831621300646EC5 /* GameObjSingleton.m */,
-				56E7D49217C68F55005E8010 /* GeneralUtils.h */,
-				56E7D49317C68F55005E8010 /* GeneralUtils.m */,
 				56272CCE17B41A840022F3C2 /* UIKit Objects */,
 				5693D350178DCEC40034F846 /* Cocos2d Objects */,
 				56272CCF17B41AD10022F3C2 /* Data Objects */,
@@ -1443,8 +1445,8 @@
 				56C9F84C1743D9860016BB3B /* Tile.m */,
 				56E3E3B9187CD42C0006BB16 /* PlayerResources.h */,
 				56E3E3BA187CD42C0006BB16 /* PlayerResources.m */,
-				566DD292189D9D7200AF1402 /* SetupMenuLayer.h */,
-				566DD293189D9D7200AF1402 /* SetupMenuLayer.m */,
+				566DD292189D9D7200AF1402 /* SetupSuppLayers.h */,
+				566DD293189D9D7200AF1402 /* SetupSuppLayers.m */,
 				56C9F8471743D9860016BB3B /* UnitDisplay.h */,
 				56C9F8481743D9860016BB3B /* UnitDisplay.m */,
 				56C9F8291743D9040016BB3B /* BattleBrain.h */,
@@ -1571,6 +1573,7 @@
 				56DF137C1859CA760071BC94 /* fireball.plist */,
 				56DF137A1859C6800071BC94 /* fireball.png */,
 				566DD28C189D6F0100AF1402 /* setupButton.png */,
+				56EE3A0918B53F23009A5788 /* setupUnitButton.png */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -1717,7 +1720,7 @@
 		56C9F5131743CA610016BB3B /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0460;
+				LastUpgradeCheck = 0500;
 			};
 			buildConfigurationList = 56C9F5161743CA610016BB3B /* Build configuration list for PBXProject "Legends" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -1825,6 +1828,7 @@
 				56DF137D1859CA760071BC94 /* fireball.plist in Resources */,
 				56E648251798776C002BB2B5 /* font_combat_mid.png in Resources */,
 				56E3E3C1187CDD130006BB16 /* ui_manabarframe.png in Resources */,
+				56EE3A0A18B53F23009A5788 /* setupUnitButton.png in Resources */,
 				56E648261798776C002BB2B5 /* font_combat_small.fnt in Resources */,
 				56E6482D17988179002BB2B5 /* sidebar_gm_border.png in Resources */,
 				56E6482E17988179002BB2B5 /* sidebar_gm_divider.png in Resources */,
@@ -1895,7 +1899,7 @@
 				56C9F8431743D9430016BB3B /* MatchFindingViewController.m in Sources */,
 				56C9F8571743D9860016BB3B /* UnitDisplay.m in Sources */,
 				56E3E3A918723BFE0006BB16 /* Knight.m in Sources */,
-				566DD294189D9D7200AF1402 /* SetupMenuLayer.m in Sources */,
+				566DD294189D9D7200AF1402 /* SetupSuppLayers.m in Sources */,
 				56C9F8581743D9860016BB3B /* Unit.m in Sources */,
 				56378CD0183C20FB00FD175A /* MatchObject.m in Sources */,
 				56C9F8591743D9860016BB3B /* Tile.m in Sources */,
@@ -2046,7 +2050,12 @@
 		56C9F6B11743CA640016BB3B /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -2056,9 +2065,14 @@
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
+				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -2067,7 +2081,12 @@
 		56C9F6B21743CA640016BB3B /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2075,7 +2094,11 @@
 					"NS_BLOCK_ASSERTIONS=1",
 				);
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 4.0;
 				SDKROOT = iphoneos;

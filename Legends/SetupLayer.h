@@ -11,16 +11,21 @@
 #import "cocos2d.h"
 #import "AppDelegate.h"
 #import "UserSingleton.h"
+#import "SetupBrain.h"
 
 // Others
 #import "BattleBrain.h"
 #import "PlayerResources.h"
 #import "UnitDisplay.h"
-#import "SetupMenuLayer.h"
+#import "SetupSuppLayers.h"
 
 
+enum SetupLayerState{
+    SetupLayerStateIdle,
+    SetupLayerStateSave,
+};
 
-@interface SetupLayer : CCLayer
+@interface SetupLayer : CCLayer<SetupBrainDelegate, SetupUnitMenuLayerDelegate, SetupMenuLayerDelegate>
 {    
     // IVars
     BOOL scrolled;
@@ -38,7 +43,6 @@
 @property (nonatomic, strong)                  CCMenu *menu;
 @property (nonatomic, strong)          SetupMenuLayer *savedSetups;
 
-@property (nonatomic)                         CGPoint previous;
 @property (nonatomic, strong)           CCLabelBMFont *debug;
 
 
